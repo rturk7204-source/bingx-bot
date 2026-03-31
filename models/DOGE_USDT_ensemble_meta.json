@@ -1,8 +1,0 @@
-{
-  "symbol": "DOGE-USDT",
-  "xgb_acc": 0.6694,
-  "lgb_acc": 0.6586,
-  "ensemble_acc": 0.6772,
-  "agree_pct": 93.3,
-  "samples": 1239
-}

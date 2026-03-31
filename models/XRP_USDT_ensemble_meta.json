@@ -1,8 +1,0 @@
-{
-  "symbol": "XRP-USDT",
-  "xgb_acc": 0.6425,
-  "lgb_acc": 0.6344,
-  "ensemble_acc": 0.6477,
-  "agree_pct": 94.6,
-  "samples": 1239
-}
