@@ -1,0 +1,130 @@
+import os
+import time
+from dotenv import load_dotenv
+from bingx_api import BingXAPI
+from strategy_ml import MLStrategy
+from analytics import Analytics
+from risk_manager import RiskManager
+
+load_dotenv()
+
+class TradingBot:
+    def __init__(self):
+        self.api = BingXAPI(
+            api_key=os.getenv('BINGX_API_KEY'),
+            secret_key=os.getenv('BINGX_SECRET_KEY')
+        )
+        self.strategy = MLStrategy()
+        self.analytics = Analytics()
+        self.symbols = ['RIVER-USDT', 'BNB-USDT', 'SUI-USDT', 'SOL-USDT', 'LINK-USDT']
+        self.position_size = 10  # USDT per trade
+        
+    def run(self):
+        print("🤖 Trading Bot Started")
+        print(f"📊 Symbols: {', '.join(self.symbols)}")
+        print(f"💰 Position Size: {self.position_size} USDT")
+        
+        while True:
+            try:
+                for symbol in self.symbols:
+                    self.check_symbol(symbol)
+                
+                # Show stats every 10 minutes
+                stats = self.analytics.get_stats()
+                if stats['total_trades'] > 0:
+                    print(f"\n📈 Stats: {stats['total_trades']} trades | Win Rate: {stats['win_rate']:.1f}% | Profit: {stats['total_profit']:.2f} USDT")
+                
+                time.sleep(60)  # Check every minute
+                
+            except Exception as e:
+                print(f"❌ Error: {e}")
+                time.sleep(10)
+    
+
+    def check_symbol(self, symbol):
+        try:
+            ticker = self.api.get_ticker(symbol)
+            if not ticker:
+                print(f"[SMC-CORE] {symbol}: no ticker, skip")
+                return
+
+            price = float(ticker.get("lastPrice", 0) or 0)
+            if price <= 0:
+                print(f"[SMC-CORE] {symbol}: price<=0, skip")
+                return
+
+            try:
+                strategy_signal = self.strategy.get_signal(symbol, self.api)
+            except Exception as se:
+                print(f"[SMC-CORE] {symbol}: strategy.get_signal error: {se}")
+                return
+
+            print(f"[SMC-CORE] {symbol}: base data ok, signal={strategy_signal}")
+
+            if isinstance(strategy_signal, (list, tuple)) and len(strategy_signal) >= 2:
+                sig, prob = strategy_signal[0], strategy_signal[1]
+            else:
+                sig, prob = strategy_signal, None
+
+            side = str(sig).upper()
+            if side == "BUY":
+                side = "LONG"
+            elif side == "SELL":
+                side = "SHORT"
+            elif side not in ("LONG", "SHORT", "HOLD", "FLAT"):
+                side = "HOLD"
+
+            print(f"[SMC-EXEC] {symbol}: normalized side={side}, prob={prob}")
+
+            positions = self.api.get_positions() or []
+            current_position = None
+            for p in positions:
+                psym = str(p.get("symbol", "")).replace("_", "-")
+                if psym == symbol:
+                    qty = abs(float(p.get("positionAmt", p.get("quantity", 0)) or 0))
+                    if qty > 0:
+                        current_position = p
+                        break
+
+            pos_side = None
+            if current_position:
+                pos_side = str(current_position.get("positionSide", current_position.get("side", ""))).upper()
+                if pos_side == "BUY":
+                    pos_side = "LONG"
+                elif pos_side == "SELL":
+                    pos_side = "SHORT"
+
+            print(f"[SMC-POS] {symbol}: current side={pos_side}")
+
+            if side in ("HOLD", "FLAT"):
+                print(f"[SMC-EXEC] {symbol}: no entry, side={side}")
+                return
+
+            if pos_side == side:
+                print(f"[SMC-EXEC] {symbol}: already in {side}, skip")
+                return
+
+            if current_position and pos_side in ("LONG", "SHORT") and pos_side != side:
+                close_qty = abs(float(current_position.get("positionAmt", current_position.get("quantity", 0)) or 0))
+                if close_qty > 0:
+                    close_side = "SELL" if pos_side == "LONG" else "BUY"
+                    print(f"[SMC-CLOSE] {symbol}: closing {pos_side}, qty={close_qty}, side={close_side}")
+                    try:
+                        self.api.close_position(symbol=symbol, side=close_side, quantity=close_qty, price=price)
+                    except Exception as e:
+                        print(f"[SMC-CLOSE] {symbol}: error closing position: {e}")
+                        return
+
+            entry_qty = self.position_size
+            print(f"[SMC-OPEN] {symbol}: opening {side}, qty={entry_qty}")
+            try:
+                order = self.api.open_position(symbol=symbol, side=side, quantity=entry_qty, price=price)
+                print(f"[SMC-OPEN] {symbol}: order={order}")
+            except Exception as e:
+                print(f"[SMC-OPEN] {symbol}: error opening position: {e}")
+
+        except Exception as e:
+            print(f"[SMC-CORE] error in check_symbol({symbol}): {e}")
+if __name__ == '__main__':
+    bot = TradingBot()
+    bot.run()

@@ -1,0 +1,40 @@
+nohup: ignoring input
+[ML] Loaded model for SOL-USDT
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for RIVER-USDT
+[ML] Loaded model for BNB-USDT
+[ML] Loaded general model
+🤖 Trading Bot Started
+📊 Symbols: RIVER-USDT, BNB-USDT, SUI-USDT, SOL-USDT, LINK-USDT
+💰 Position Size: 10 USDT
+[ML] RIVER-USDT: HOLD (RSI=64.8, conf=49.8%)
+[ML] BNB-USDT: HOLD (RSI=64.3, conf=44.4%)
+[ML] SUI-USDT: HOLD (RSI=80.3, conf=42.5%)
+[ML] SOL-USDT: HOLD (RSI=66.0, conf=40.7%)
+[ML] LINK-USDT: HOLD (RSI=60.5, conf=49.0%)
+[ML] RIVER-USDT: HOLD (RSI=64.8, conf=49.8%)
+[ML] BNB-USDT: HOLD (RSI=64.3, conf=44.4%)
+[ML] SUI-USDT: HOLD (RSI=80.3, conf=42.5%)
+[ML] SOL-USDT: HOLD (RSI=66.0, conf=40.7%)
+[ML] LINK-USDT: HOLD (RSI=60.5, conf=49.0%)
+[ML] RIVER-USDT: HOLD (RSI=64.8, conf=49.8%)
+[ML] BNB-USDT: HOLD (RSI=64.3, conf=44.4%)
+[ML] SUI-USDT: HOLD (RSI=80.3, conf=42.5%)
+[ML] SOL-USDT: HOLD (RSI=66.0, conf=40.7%)
+[ML] LINK-USDT: HOLD (RSI=60.5, conf=49.0%)
+[ML] RIVER-USDT: HOLD (RSI=64.8, conf=49.8%)
+[ML] BNB-USDT: HOLD (RSI=64.3, conf=44.4%)
+[ML] SUI-USDT: HOLD (RSI=80.3, conf=42.5%)
+[ML] SOL-USDT: HOLD (RSI=66.0, conf=40.7%)
+[ML] LINK-USDT: HOLD (RSI=60.5, conf=49.0%)
+[ML] RIVER-USDT: HOLD (RSI=64.8, conf=49.8%)
+[ML] BNB-USDT: HOLD (RSI=64.3, conf=44.4%)
+[ML] SUI-USDT: HOLD (RSI=80.3, conf=42.5%)
+[ML] SOL-USDT: HOLD (RSI=66.0, conf=40.7%)
+[ML] LINK-USDT: HOLD (RSI=60.5, conf=49.0%)
+[ML] RIVER-USDT: HOLD (RSI=64.8, conf=49.8%)
+[ML] BNB-USDT: HOLD (RSI=64.3, conf=44.4%)
+[ML] SUI-USDT: HOLD (RSI=80.3, conf=42.5%)
+[ML] SOL-USDT: HOLD (RSI=66.0, conf=40.7%)
+[ML] LINK-USDT: HOLD (RSI=60.5, conf=49.0%)

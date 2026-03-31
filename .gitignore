@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+models/*.pkl
+models/*.joblib
+*.log

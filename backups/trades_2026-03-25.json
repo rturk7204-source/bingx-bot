@@ -1,0 +1,349 @@
+[
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68608.5,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:00:52.018940"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68593.8,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:02:21.862774"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68524.3,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:03:49.961448"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68591.4,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:05:18.829982"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68586.3,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:06:47.953984"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68591.8,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:08:18.557112"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68647.2,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:09:46.684683"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68603.8,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:10:15.287004"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68638.4,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:11:51.769268"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68649.9,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:13:22.372960"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68614.8,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:14:51.569110"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68617.0,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:16:21.398309"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68586.2,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:17:49.767213"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68598.0,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:18:26.899081"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68566.1,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:20:00.017745"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68622.0,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:21:32.082824"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68638.0,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:23:03.338433"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68610.1,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:24:34.795797"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68410.2,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:26:06.219026"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 68363.7,
+    "quantity": 0.0284,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-22T11:27:36.215026"
+  },
+  {
+    "symbol": "SUI-USDT",
+    "side": "SELL",
+    "price": 0.9687,
+    "quantity": 13.0,
+    "reason": "Partial TP",
+    "timestamp": "2026-03-23T15:24:18.348406",
+    "pnl": 3.6486
+  },
+  {
+    "symbol": "SUI-USDT",
+    "side": "SELL",
+    "price": 0.9533,
+    "quantity": 13.0,
+    "reason": "Trailing Stop",
+    "timestamp": "2026-03-23T15:53:36.589219",
+    "pnl": 2.0009
+  },
+  {
+    "symbol": "SUI-USDT",
+    "side": "SELL",
+    "price": 0.9628,
+    "quantity": 6.5,
+    "reason": "Partial TP",
+    "timestamp": "2026-03-23T17:38:18.930614",
+    "pnl": 3.0173
+  },
+  {
+    "symbol": "SUI-USDT",
+    "side": "SELL",
+    "price": 0.9627,
+    "quantity": 3.5,
+    "reason": "Partial TP",
+    "timestamp": "2026-03-23T19:00:23.500927",
+    "pnl": 3.0066
+  },
+  {
+    "symbol": "EIGEN-USDT",
+    "side": "SELL",
+    "price": 0.1957,
+    "quantity": 25.549310168625446,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-23T19:31:39.338297"
+  },
+  {
+    "symbol": "SUI-USDT",
+    "side": "SELL",
+    "price": 0.9462,
+    "quantity": 4.0,
+    "reason": "Trailing Stop",
+    "timestamp": "2026-03-23T23:12:29.953262",
+    "pnl": 1.2412
+  },
+  {
+    "symbol": "EIGEN-USDT",
+    "side": "SELL",
+    "price": 0.1984,
+    "quantity": 176.41129032258064,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T10:00:38.716761"
+  },
+  {
+    "symbol": "AVAX-USDT",
+    "side": "SELL",
+    "price": 9.558,
+    "quantity": 5.231219920485457,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T11:00:05.696930"
+  },
+  {
+    "symbol": "SUI-USDT",
+    "side": "SELL",
+    "price": 0.9391,
+    "quantity": 4.0,
+    "reason": "Close LONG",
+    "timestamp": "2026-03-24T13:59:36.384863",
+    "pnl": 0.4815
+  },
+  {
+    "symbol": "SUI-USDT",
+    "side": "SELL",
+    "price": 0.9391,
+    "quantity": 53.24246619103397,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T13:59:37.093878"
+  },
+  {
+    "symbol": "ARB-USDT",
+    "side": "SELL",
+    "price": 0.0963,
+    "quantity": 363.44755970924194,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T13:59:58.184021"
+  },
+  {
+    "symbol": "ADA-USDT",
+    "side": "BUY",
+    "price": 0.26119,
+    "quantity": 191.4315249435277,
+    "reason": "Open LONG",
+    "timestamp": "2026-03-24T14:00:05.975542"
+  },
+  {
+    "symbol": "EIGEN-USDT",
+    "side": "SELL",
+    "price": 0.1962,
+    "quantity": 176.411,
+    "reason": "Trailing Stop",
+    "timestamp": "2026-03-24T14:52:30.954222",
+    "pnl": 1.1089
+  },
+  {
+    "symbol": "DOGE-USDT",
+    "side": "BUY",
+    "price": 0.09355,
+    "quantity": 534.4735435595938,
+    "reason": "Open LONG",
+    "timestamp": "2026-03-24T15:00:17.309228"
+  },
+  {
+    "symbol": "EIGEN-USDT",
+    "side": "BUY",
+    "price": 0.1921,
+    "quantity": 88.2055,
+    "reason": "Partial TP",
+    "timestamp": "2026-03-24T17:46:28.039578",
+    "pnl": 3.1754
+  },
+  {
+    "symbol": "SOL-USDT",
+    "side": "SELL",
+    "price": 89.098,
+    "quantity": 0.5611798244629509,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T18:06:41.945035"
+  },
+  {
+    "symbol": "LINK-USDT",
+    "side": "SELL",
+    "price": 9.046,
+    "quantity": 5.52730488613752,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T18:06:48.152600"
+  },
+  {
+    "symbol": "ONDO-USDT",
+    "side": "SELL",
+    "price": 0.2491,
+    "quantity": 200.7226013649137,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T18:07:16.507885"
+  },
+  {
+    "symbol": "BTC-USDT",
+    "side": "SELL",
+    "price": 69450.9,
+    "quantity": 0.0007199330750213461,
+    "reason": "Open SHORT",
+    "timestamp": "2026-03-24T19:01:02.284029"
+  },
+  {
+    "symbol": "AVAX-USDT",
+    "side": "SELL",
+    "price": 9.532,
+    "quantity": 5.0,
+    "reason": "Trailing Stop",
+    "timestamp": "2026-03-24T20:25:51.662866",
+    "pnl": 0.2198
+  },
+  {
+    "symbol": "EIGEN-USDT",
+    "side": "SELL",
+    "price": 0.1966,
+    "quantity": 88.206,
+    "reason": "Trailing Stop",
+    "timestamp": "2026-03-24T20:27:09.859171",
+    "pnl": 0.9073
+  },
+  {
+    "symbol": "ONDO-USDT",
+    "side": "SELL",
+    "price": 0.2567,
+    "quantity": 194.94,
+    "reason": "Stop-Loss",
+    "timestamp": "2026-03-24T23:28:13.156367",
+    "pnl": -3.051
+  }
+]

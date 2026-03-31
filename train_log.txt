@@ -1,0 +1,3687 @@
+nohup: ignoring input
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=221, DOWN=201, HOLD=497
+  Точность: 52.2% | CV: 46.9% (+/-3.1%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=268, DOWN=260, HOLD=391
+  Точность: 39.7% | CV: 35.9% (+/-4.2%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=270, DOWN=270, HOLD=379
+  Точность: 34.2% | CV: 33.6% (+/-2.8%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=294, DOWN=307, HOLD=318
+  Точность: 33.7% | CV: 33.8% (+/-1.4%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[RIVER-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=426, DOWN=396, HOLD=97
+  Точность: 40.2% | CV: 40.0% (+/-2.2%)
+  Модель сохранена: /root/bingx-bot/models/RIVER_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 4595 | UP=1479, DOWN=1434, HOLD=1682
+  Общая точность: 46.6% | CV: 33.4% (+/-5.2%)
+              precision    recall  f1-score   support
+
+        DOWN       0.39      0.27      0.32       263
+        HOLD       0.51      0.74      0.60       366
+          UP       0.42      0.30      0.35       290
+
+    accuracy                           0.47       919
+   macro avg       0.44      0.44      0.42       919
+weighted avg       0.45      0.47      0.44       919
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sat Mar 21 19:54:00 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=220, DOWN=198, HOLD=501
+  Точность: 50.5% | CV: 46.6% (+/-2.6%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=267, DOWN=259, HOLD=393
+  Точность: 38.0% | CV: 35.9% (+/-2.9%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=270, DOWN=269, HOLD=380
+  Точность: 40.2% | CV: 34.5% (+/-5.1%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=293, DOWN=305, HOLD=321
+  Точность: 31.0% | CV: 31.4% (+/-2.5%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[RIVER-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=423, DOWN=395, HOLD=101
+  Точность: 43.5% | CV: 40.8% (+/-1.2%)
+  Модель сохранена: /root/bingx-bot/models/RIVER_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 4595 | UP=1473, DOWN=1426, HOLD=1696
+  Общая точность: 45.7% | CV: 33.3% (+/-5.2%)
+              precision    recall  f1-score   support
+
+        DOWN       0.39      0.27      0.32       278
+        HOLD       0.51      0.73      0.60       359
+          UP       0.38      0.30      0.33       282
+
+    accuracy                           0.46       919
+   macro avg       0.43      0.43      0.42       919
+weighted avg       0.44      0.46      0.43       919
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sat Mar 21 19:59:39 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=220, DOWN=198, HOLD=501
+  Точность: 50.5% | CV: 46.6% (+/-2.6%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=267, DOWN=259, HOLD=393
+  Точность: 38.0% | CV: 35.9% (+/-2.9%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=270, DOWN=269, HOLD=380
+  Точность: 40.2% | CV: 34.5% (+/-5.1%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=293, DOWN=305, HOLD=321
+  Точность: 31.0% | CV: 31.4% (+/-2.5%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[RIVER-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=424, DOWN=394, HOLD=101
+  Точность: 40.2% | CV: 39.7% (+/-2.1%)
+  Модель сохранена: /root/bingx-bot/models/RIVER_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 4595 | UP=1474, DOWN=1425, HOLD=1696
+  Общая точность: 45.6% | CV: 33.4% (+/-5.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.38      0.32      0.35       264
+        HOLD       0.51      0.70      0.59       366
+          UP       0.40      0.28      0.33       289
+
+    accuracy                           0.46       919
+   macro avg       0.43      0.43      0.42       919
+weighted avg       0.44      0.46      0.44       919
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sat Mar 21 20:07:54 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=43, DOWN=46, HOLD=830
+  Точность: 89.7% | CV: 90.3% (+/-0.2%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=91, DOWN=98, HOLD=730
+  Точность: 79.3% | CV: 78.9% (+/-0.7%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=96, DOWN=78, HOLD=745
+  Точность: 78.8% | CV: 80.2% (+/-0.9%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=127, DOWN=110, HOLD=682
+  Точность: 74.5% | CV: 72.4% (+/-2.0%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[RIVER-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=338, DOWN=332, HOLD=249
+  Точность: 28.3% | CV: 32.5% (+/-3.8%)
+  Модель сохранена: /root/bingx-bot/models/RIVER_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 4595 | UP=695, DOWN=664, HOLD=3236
+  Общая точность: 71.1% | CV: 61.6% (+/-9.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.33      0.20      0.25       135
+        HOLD       0.80      0.91      0.85       655
+          UP       0.34      0.26      0.29       129
+
+    accuracy                           0.71       919
+   macro avg       0.49      0.45      0.46       919
+weighted avg       0.67      0.71      0.68       919
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sat Mar 21 20:23:58 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=43, DOWN=46, HOLD=830
+  Точность: 89.7% | CV: 90.3% (+/-0.2%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=91, DOWN=98, HOLD=730
+  Точность: 79.3% | CV: 78.9% (+/-0.7%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=96, DOWN=78, HOLD=745
+  Точность: 78.8% | CV: 80.2% (+/-0.9%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=127, DOWN=110, HOLD=682
+Traceback (most recent call last):
+  File "/root/bingx-bot/train.py", line 146, in <module>
+    cv_scores = cross_val_score(pipeline, X, y, cv=5, scoring='accuracy')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py", line 651, in cross_val_score
+    cv_results = cross_validate(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py", line 373, in cross_validate
+    results = parallel(
+              ^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1986, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1914, in _get_sequential_output
+    res = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py", line 833, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/base.py", line 1336, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/pipeline.py", line 621, in fit
+    self._final_estimator.fit(Xt, y, **last_step_params["fit"])
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/base.py", line 1336, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/ensemble/_forest.py", line 486, in fit
+    trees = Parallel(
+            ^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1986, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1914, in _get_sequential_output
+    res = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/ensemble/_forest.py", line 188, in _parallel_build_trees
+    tree._fit(
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/tree/_classes.py", line 475, in _fit
+    builder.build(self.tree_, X, y, sample_weight, missing_values_in_feature_mask)
+KeyboardInterrupt
+Sat Mar 21 20:25:37 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=43, DOWN=46, HOLD=830
+  Точность: 89.7% | CV: 90.3% (+/-0.2%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=91, DOWN=98, HOLD=730
+  Точность: 79.3% | CV: 78.9% (+/-0.7%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=96, DOWN=78, HOLD=745
+  Точность: 78.8% | CV: 80.2% (+/-0.9%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=127, DOWN=110, HOLD=682
+  Точность: 74.5% | CV: 72.4% (+/-2.0%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=50, DOWN=50, HOLD=819
+  Точность: 89.7% | CV: 89.0% (+/-0.2%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=78, DOWN=79, HOLD=762
+  Точность: 82.1% | CV: 82.3% (+/-0.8%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 5514 | UP=485, DOWN=461, HOLD=4568
+  Общая точность: 83.1% | CV: 82.3% (+/-1.7%)
+              precision    recall  f1-score   support
+
+        DOWN       0.50      0.05      0.09       105
+        HOLD       0.84      0.99      0.91       919
+          UP       0.11      0.01      0.02        79
+
+    accuracy                           0.83      1103
+   macro avg       0.48      0.35      0.34      1103
+weighted avg       0.76      0.83      0.77      1103
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sun Mar 22 03:00:01 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=41, DOWN=47, HOLD=831
+  Точность: 90.2% | CV: 90.4% (+/-0.3%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=91, DOWN=97, HOLD=731
+  Точность: 76.6% | CV: 78.9% (+/-0.4%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=94, DOWN=77, HOLD=748
+  Точность: 81.5% | CV: 80.3% (+/-1.6%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=126, DOWN=110, HOLD=683
+  Точность: 71.7% | CV: 73.0% (+/-1.5%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=49, DOWN=50, HOLD=820
+  Точность: 88.6% | CV: 88.9% (+/-0.5%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=78, DOWN=79, HOLD=762
+  Точность: 82.1% | CV: 82.3% (+/-0.7%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 5514 | UP=479, DOWN=460, HOLD=4575
+  Общая точность: 81.9% | CV: 82.4% (+/-1.8%)
+              precision    recall  f1-score   support
+
+        DOWN       0.40      0.05      0.08        88
+        HOLD       0.83      0.98      0.90       911
+          UP       0.22      0.04      0.07       104
+
+    accuracy                           0.82      1103
+   macro avg       0.48      0.36      0.35      1103
+weighted avg       0.74      0.82      0.76      1103
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sun Mar 22 09:33:09 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=41, DOWN=47, HOLD=831
+  Точность: 91.3% | CV: 89.7% (+/-0.8%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=90, DOWN=96, HOLD=733
+  Точность: 79.9% | CV: 77.9% (+/-1.1%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=93, DOWN=77, HOLD=749
+  Точность: 78.3% | CV: 79.7% (+/-1.1%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=124, DOWN=109, HOLD=686
+  Точность: 72.3% | CV: 72.5% (+/-1.9%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=49, DOWN=50, HOLD=820
+  Точность: 89.1% | CV: 88.6% (+/-0.6%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=76, DOWN=78, HOLD=765
+  Точность: 83.2% | CV: 81.8% (+/-1.2%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 5514 | UP=473, DOWN=457, HOLD=4584
+  Общая точность: 83.5% | CV: 82.5% (+/-1.0%)
+              precision    recall  f1-score   support
+
+        DOWN       0.86      0.06      0.12        97
+        HOLD       0.84      0.99      0.91       921
+          UP       0.11      0.01      0.02        85
+
+    accuracy                           0.83      1103
+   macro avg       0.60      0.36      0.35      1103
+weighted avg       0.79      0.83      0.77      1103
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sun Mar 22 09:44:38 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=41, DOWN=47, HOLD=831
+  Точность: 91.3% | CV: 89.7% (+/-0.8%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=90, DOWN=96, HOLD=733
+  Точность: 79.9% | CV: 77.9% (+/-1.1%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=93, DOWN=77, HOLD=749
+  Точность: 78.3% | CV: 79.7% (+/-1.1%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=124, DOWN=109, HOLD=686
+  Точность: 72.3% | CV: 72.5% (+/-1.9%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=49, DOWN=50, HOLD=820
+  Точность: 89.1% | CV: 88.6% (+/-0.6%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=76, DOWN=78, HOLD=765
+  Точность: 83.2% | CV: 81.8% (+/-1.2%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=87, DOWN=86, HOLD=746
+  Точность: 77.7% | CV: 79.0% (+/-2.2%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=93, DOWN=93, HOLD=733
+  Точность: 80.4% | CV: 77.7% (+/-1.3%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=118, DOWN=130, HOLD=671
+  Точность: 71.7% | CV: 66.4% (+/-4.6%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1000 свечей
+  Подготовлено 919 примеров | классы: UP=105, DOWN=92, HOLD=722
+  Точность: 78.8% | CV: 76.8% (+/-1.5%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 9190 | UP=876, DOWN=858, HOLD=7456
+  Общая точность: 81.0% | CV: 80.8% (+/-0.5%)
+              precision    recall  f1-score   support
+
+        DOWN       0.54      0.08      0.13       183
+        HOLD       0.82      0.98      0.89      1484
+          UP       0.50      0.08      0.14       171
+
+    accuracy                           0.81      1838
+   macro avg       0.62      0.38      0.39      1838
+weighted avg       0.76      0.81      0.75      1838
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+Sun Mar 22 10:13:23 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для BNB-USDT, пропускаю
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для SOL-USDT, пропускаю
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для LINK-USDT, пропускаю
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для SUI-USDT, пропускаю
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для BTC-USDT, пропускаю
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для ETH-USDT, пропускаю
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для XRP-USDT, пропускаю
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для DOGE-USDT, пропускаю
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для ARB-USDT, пропускаю
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Недостаточно данных для ADA-USDT, пропускаю
+
+============================================================
+  Обучение общей модели на всех парах...
+Traceback (most recent call last):
+  File "/root/bingx-bot/train.py", line 195, in <module>
+    X_all = np.vstack(all_features)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/numpy/_core/shape_base.py", line 290, in vstack
+    return _nx.concatenate(arrs, 0, dtype=dtype, casting=casting)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: need at least one array to concatenate
+Sun Mar 22 10:21:28 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=77, DOWN=107, HOLD=1175
+Traceback (most recent call last):
+  File "/root/bingx-bot/train.py", line 185, in <module>
+    cv_scores = cross_val_score(pipeline, X, y, cv=5, scoring='accuracy')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py", line 651, in cross_val_score
+    cv_results = cross_validate(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py", line 373, in cross_validate
+    results = parallel(
+              ^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1986, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1914, in _get_sequential_output
+    res = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py", line 833, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/base.py", line 1336, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/pipeline.py", line 621, in fit
+    self._final_estimator.fit(Xt, y, **last_step_params["fit"])
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/base.py", line 1336, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/ensemble/_voting.py", line 405, in fit
+    return super().fit(X, transformed_y, **fit_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/ensemble/_voting.py", line 99, in fit
+    self.estimators_ = Parallel(n_jobs=self.n_jobs)(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1986, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/joblib/parallel.py", line 1914, in _get_sequential_output
+    res = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/sklearn/ensemble/_base.py", line 45, in _fit_single_estimator
+    estimator.fit(X, y, **fit_params)
+  File "/usr/local/lib/python3.12/dist-packages/xgboost/core.py", line 751, in inner_f
+    return func(**kwargs)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/xgboost/sklearn.py", line 1806, in fit
+    self._Booster = train(
+                    ^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/xgboost/core.py", line 751, in inner_f
+    return func(**kwargs)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/xgboost/training.py", line 200, in train
+    bst.update(dtrain, iteration=i, fobj=obj)
+  File "/usr/local/lib/python3.12/dist-packages/xgboost/core.py", line 2391, in update
+    _LIB.XGBoosterUpdateOneIter(
+KeyboardInterrupt
+Sun Mar 22 10:22:22 UTC 2026: Starting retraining...
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=77, DOWN=107, HOLD=1175
+  Точность: 83.1% | CV: 77.7% (+/-10.9%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=150, DOWN=172, HOLD=1037
+  Точность: 70.6% | CV: 68.7% (+/-5.1%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=154, DOWN=145, HOLD=1060
+  Точность: 71.7% | CV: 70.9% (+/-6.6%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=196, DOWN=192, HOLD=971
+  Точность: 69.5% | CV: 62.6% (+/-4.9%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=89, DOWN=102, HOLD=1168
+  Точность: 81.2% | CV: 83.2% (+/-2.6%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=141, DOWN=147, HOLD=1071
+  Точность: 73.5% | CV: 69.6% (+/-8.5%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=145, DOWN=161, HOLD=1053
+  Точность: 73.5% | CV: 69.5% (+/-7.3%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=148, DOWN=161, HOLD=1050
+  Точность: 72.1% | CV: 73.1% (+/-4.1%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=187, DOWN=212, HOLD=960
+  Точность: 64.0% | CV: 62.7% (+/-6.3%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=168, DOWN=162, HOLD=1029
+  Точность: 73.2% | CV: 69.1% (+/-4.9%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 13590 | UP=1455, DOWN=1561, HOLD=10574
+  Общая точность: 80.7% | CV: 78.9% (+/-1.2%)
+              precision    recall  f1-score   support
+
+        DOWN       0.62      0.23      0.33       293
+        HOLD       0.83      0.97      0.89      2139
+          UP       0.57      0.22      0.31       286
+
+    accuracy                           0.81      2718
+   macro avg       0.67      0.47      0.51      2718
+weighted avg       0.78      0.81      0.77      2718
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[BNB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=77, DOWN=107, HOLD=1175
+  Точность: 84.6% | CV: 77.2% (+/-10.8%)
+  Модель сохранена: /root/bingx-bot/models/BNB_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=172, HOLD=1036
+  Точность: 72.1% | CV: 67.5% (+/-7.2%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=154, DOWN=145, HOLD=1060
+  Точность: 76.5% | CV: 68.4% (+/-10.5%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=197, DOWN=191, HOLD=971
+  Точность: 71.7% | CV: 60.0% (+/-7.0%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=89, DOWN=102, HOLD=1168
+  Точность: 83.8% | CV: 81.0% (+/-5.1%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=142, DOWN=147, HOLD=1070
+  Точность: 77.9% | CV: 69.6% (+/-8.7%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=161, HOLD=1052
+  Точность: 77.2% | CV: 69.2% (+/-7.1%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=148, DOWN=161, HOLD=1050
+  Точность: 77.9% | CV: 70.1% (+/-6.9%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=186, DOWN=211, HOLD=962
+  Точность: 66.2% | CV: 60.5% (+/-6.5%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=168, DOWN=162, HOLD=1029
+  Точность: 77.2% | CV: 65.9% (+/-8.5%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 13590 | UP=1458, DOWN=1559, HOLD=10573
+  Общая точность: 79.7% | CV: 79.0% (+/-1.3%)
+              precision    recall  f1-score   support
+
+        DOWN       0.70      0.22      0.34       326
+        HOLD       0.81      0.98      0.88      2089
+          UP       0.63      0.18      0.28       303
+
+    accuracy                           0.80      2718
+   macro avg       0.71      0.46      0.50      2718
+weighted avg       0.77      0.80      0.75      2718
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] Дообучение моделей: 2026-03-23 02:03
+[ONLINE ML] SOL-USDT: дообучена на 24 примерах
+[ONLINE ML] LINK-USDT: дообучена на 24 примерах
+[ONLINE ML] SUI-USDT: дообучена на 24 примерах
+[ONLINE ML] ETH-USDT: дообучена на 24 примерах
+[ONLINE ML] DOGE-USDT: дообучена на 24 примерах
+[ONLINE ML] ARB-USDT: дообучена на 24 примерах
+[ONLINE ML] ADA-USDT: дообучена на 24 примерах
+[ONLINE ML] Завершено!
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1439 свечей
+  Подготовлено 1358 примеров | классы: UP=213, DOWN=229, HOLD=916
+  Точность: 69.1% | CV: 58.0% (+/-8.8%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=153, DOWN=172, HOLD=1034
+  Точность: 71.7% | CV: 67.0% (+/-7.3%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=154, DOWN=142, HOLD=1063
+  Точность: 79.8% | CV: 68.8% (+/-10.4%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=195, DOWN=189, HOLD=975
+  Точность: 68.8% | CV: 61.3% (+/-7.3%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=91, DOWN=103, HOLD=1165
+  Точность: 82.7% | CV: 81.9% (+/-4.8%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=142, DOWN=145, HOLD=1072
+  Точность: 77.2% | CV: 70.1% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=147, DOWN=161, HOLD=1051
+  Точность: 75.0% | CV: 68.1% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=149, DOWN=158, HOLD=1052
+  Точность: 77.6% | CV: 70.8% (+/-7.3%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=186, DOWN=210, HOLD=963
+  Точность: 65.8% | CV: 60.3% (+/-7.9%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=167, DOWN=159, HOLD=1033
+  Точность: 78.7% | CV: 66.6% (+/-8.3%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=132, DOWN=140, HOLD=1087
+  Точность: 80.9% | CV: 72.7% (+/-7.2%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=193, DOWN=208, HOLD=958
+  Точность: 69.9% | CV: 63.0% (+/-5.3%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=199, DOWN=190, HOLD=970
+  Точность: 71.3% | CV: 57.4% (+/-9.7%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17666 | UP=2121, DOWN=2206, HOLD=13339
+  Общая точность: 78.7% | CV: 78.3% (+/-0.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.62      0.21      0.31       455
+        HOLD       0.81      0.96      0.88      2687
+          UP       0.58      0.24      0.34       392
+
+    accuracy                           0.79      3534
+   macro avg       0.67      0.47      0.51      3534
+weighted avg       0.76      0.79      0.75      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-24 00:04
+[ONLINE ML] BTC volatility 24h: 0.567%
+[ONLINE ML] Training window: 168h
+[ONLINE ML] EIGEN-USDT: 168ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] SOL-USDT: 168ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] LINK-USDT: 168ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] SUI-USDT: 168ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] BTC-USDT: 168ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] ETH-USDT: 168ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] XRP-USDT: 168ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] DOGE-USDT: 168ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ARB-USDT: 168ex | 50.0% -> 100.0% (+50.0%)
+[ONLINE ML] ADA-USDT: 168ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] AVAX-USDT: 168ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] TIA-USDT: 168ex | 55.0% -> 100.0% (+45.0%)
+[ONLINE ML] ONDO-USDT: 168ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=210, DOWN=229, HOLD=920
+  Точность: 64.0% | CV: 57.0% (+/-7.3%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=153, DOWN=172, HOLD=1034
+  Точность: 72.1% | CV: 66.2% (+/-8.7%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=153, DOWN=142, HOLD=1064
+  Точность: 73.5% | CV: 68.7% (+/-11.5%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=194, DOWN=189, HOLD=976
+  Точность: 69.1% | CV: 61.1% (+/-6.8%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=91, DOWN=103, HOLD=1165
+  Точность: 83.8% | CV: 80.1% (+/-4.7%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=142, DOWN=145, HOLD=1072
+  Точность: 76.5% | CV: 68.7% (+/-10.1%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=147, DOWN=162, HOLD=1050
+  Точность: 74.6% | CV: 67.3% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=148, DOWN=158, HOLD=1053
+  Точность: 77.6% | CV: 70.9% (+/-6.7%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=187, DOWN=210, HOLD=962
+  Точность: 65.4% | CV: 60.1% (+/-7.4%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=167, DOWN=159, HOLD=1033
+  Точность: 70.6% | CV: 66.4% (+/-8.6%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=132, DOWN=140, HOLD=1087
+  Точность: 76.8% | CV: 72.4% (+/-7.4%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=193, DOWN=208, HOLD=958
+  Точность: 66.9% | CV: 61.7% (+/-6.1%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=198, DOWN=190, HOLD=971
+  Точность: 67.3% | CV: 56.5% (+/-10.1%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17667 | UP=2115, DOWN=2207, HOLD=13345
+  Общая точность: 78.8% | CV: 78.6% (+/-0.4%)
+              precision    recall  f1-score   support
+
+        DOWN       0.70      0.25      0.37       424
+        HOLD       0.80      0.97      0.88      2680
+          UP       0.60      0.20      0.30       430
+
+    accuracy                           0.79      3534
+   macro avg       0.70      0.47      0.51      3534
+weighted avg       0.76      0.79      0.75      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-24 06:04
+[ONLINE ML] BTC volatility 24h: 0.439%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] SOL-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] LINK-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] SUI-USDT: 72ex | 50.0% -> 100.0% (+50.0%)
+[ONLINE ML] BTC-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] ETH-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] XRP-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] ARB-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] ADA-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] TIA-USDT: 72ex | 55.0% -> 100.0% (+45.0%)
+[ONLINE ML] ONDO-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=212, DOWN=231, HOLD=916
+  Точность: 62.9% | CV: 55.4% (+/-8.1%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=154, DOWN=172, HOLD=1033
+  Точность: 73.2% | CV: 65.6% (+/-10.0%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=153, DOWN=142, HOLD=1064
+  Точность: 77.6% | CV: 68.1% (+/-11.6%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=194, DOWN=189, HOLD=976
+  Точность: 73.9% | CV: 60.9% (+/-7.7%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=91, DOWN=103, HOLD=1165
+  Точность: 86.0% | CV: 80.7% (+/-4.2%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=142, DOWN=145, HOLD=1072
+  Точность: 81.6% | CV: 69.0% (+/-11.2%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=148, DOWN=162, HOLD=1049
+  Точность: 74.6% | CV: 67.9% (+/-10.4%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=149, DOWN=159, HOLD=1051
+  Точность: 76.5% | CV: 70.3% (+/-6.9%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=186, DOWN=210, HOLD=963
+  Точность: 64.3% | CV: 60.1% (+/-8.7%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=167, DOWN=159, HOLD=1033
+  Точность: 76.5% | CV: 64.8% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=131, DOWN=140, HOLD=1088
+  Точность: 77.9% | CV: 72.7% (+/-7.4%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=191, DOWN=208, HOLD=960
+  Точность: 66.5% | CV: 61.9% (+/-7.1%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=196, DOWN=188, HOLD=975
+  Точность: 68.8% | CV: 56.5% (+/-10.4%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17667 | UP=2114, DOWN=2208, HOLD=13345
+  Общая точность: 79.0% | CV: 78.6% (+/-0.7%)
+              precision    recall  f1-score   support
+
+        DOWN       0.68      0.23      0.35       445
+        HOLD       0.80      0.97      0.88      2679
+          UP       0.66      0.22      0.33       410
+
+    accuracy                           0.79      3534
+   macro avg       0.71      0.47      0.52      3534
+weighted avg       0.77      0.79      0.75      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-24 12:04
+[ONLINE ML] BTC volatility 24h: 0.354%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] SOL-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] LINK-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] SUI-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] BTC-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] ETH-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] XRP-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 50.0% -> 100.0% (+50.0%)
+[ONLINE ML] ARB-USDT: 72ex | 55.0% -> 100.0% (+45.0%)
+[ONLINE ML] ADA-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] TIA-USDT: 72ex | 50.0% -> 100.0% (+50.0%)
+[ONLINE ML] ONDO-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1439 свечей
+  Подготовлено 1358 примеров | классы: UP=213, DOWN=233, HOLD=912
+  Точность: 63.6% | CV: 54.8% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=154, DOWN=173, HOLD=1032
+  Точность: 78.7% | CV: 64.7% (+/-10.5%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=153, DOWN=143, HOLD=1063
+  Точность: 80.9% | CV: 67.5% (+/-11.4%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=194, DOWN=190, HOLD=975
+  Точность: 75.0% | CV: 59.8% (+/-8.3%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=91, DOWN=104, HOLD=1164
+  Точность: 86.4% | CV: 81.4% (+/-4.2%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=142, DOWN=147, HOLD=1070
+  Точность: 79.4% | CV: 69.1% (+/-11.4%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=148, DOWN=163, HOLD=1048
+  Точность: 77.6% | CV: 66.8% (+/-10.7%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=149, DOWN=159, HOLD=1051
+  Точность: 77.9% | CV: 69.8% (+/-7.2%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=187, DOWN=212, HOLD=960
+  Точность: 71.3% | CV: 58.5% (+/-9.9%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=167, DOWN=159, HOLD=1033
+  Точность: 78.7% | CV: 64.9% (+/-9.7%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=131, DOWN=141, HOLD=1087
+  Точность: 80.1% | CV: 72.1% (+/-7.6%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=191, DOWN=208, HOLD=960
+  Точность: 64.7% | CV: 60.9% (+/-6.6%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=195, DOWN=191, HOLD=973
+  Точность: 71.7% | CV: 57.6% (+/-10.2%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17666 | UP=2115, DOWN=2223, HOLD=13328
+  Общая точность: 79.2% | CV: 78.5% (+/-0.3%)
+              precision    recall  f1-score   support
+
+        DOWN       0.73      0.25      0.38       428
+        HOLD       0.80      0.97      0.88      2679
+          UP       0.63      0.20      0.30       427
+
+    accuracy                           0.79      3534
+   macro avg       0.72      0.48      0.52      3534
+weighted avg       0.77      0.79      0.75      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-24 18:04
+[ONLINE ML] BTC volatility 24h: 0.301%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] SOL-USDT: 72ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] LINK-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] SUI-USDT: 72ex | 55.0% -> 100.0% (+45.0%)
+[ONLINE ML] BTC-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ETH-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] XRP-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 50.0% -> 100.0% (+50.0%)
+[ONLINE ML] ARB-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] ADA-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] TIA-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] ONDO-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1439 свечей
+  Подготовлено 1358 примеров | классы: UP=214, DOWN=232, HOLD=912
+  Точность: 62.5% | CV: 53.2% (+/-11.0%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=155, DOWN=173, HOLD=1031
+  Точность: 72.1% | CV: 63.2% (+/-12.2%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=154, DOWN=143, HOLD=1062
+  Точность: 75.0% | CV: 67.3% (+/-12.2%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=195, DOWN=190, HOLD=974
+  Точность: 66.9% | CV: 57.9% (+/-10.2%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=92, DOWN=104, HOLD=1163
+  Точность: 82.0% | CV: 81.2% (+/-3.6%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=143, DOWN=147, HOLD=1069
+  Точность: 76.5% | CV: 68.6% (+/-12.7%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=149, DOWN=163, HOLD=1047
+  Точность: 74.3% | CV: 67.4% (+/-10.4%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=150, DOWN=159, HOLD=1050
+  Точность: 73.9% | CV: 69.6% (+/-8.2%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=188, DOWN=213, HOLD=958
+  Точность: 66.9% | CV: 58.9% (+/-10.2%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=168, DOWN=159, HOLD=1032
+  Точность: 69.9% | CV: 65.8% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=132, DOWN=141, HOLD=1086
+  Точность: 75.0% | CV: 71.4% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=192, DOWN=208, HOLD=959
+  Точность: 66.2% | CV: 59.7% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=196, DOWN=191, HOLD=972
+  Точность: 66.9% | CV: 56.8% (+/-11.0%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17666 | UP=2128, DOWN=2223, HOLD=13315
+  Общая точность: 78.5% | CV: 78.3% (+/-0.5%)
+              precision    recall  f1-score   support
+
+        DOWN       0.62      0.22      0.32       430
+        HOLD       0.80      0.97      0.87      2669
+          UP       0.66      0.23      0.35       435
+
+    accuracy                           0.79      3534
+   macro avg       0.69      0.47      0.51      3534
+weighted avg       0.76      0.79      0.74      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-25 00:04
+[ONLINE ML] BTC volatility 24h: 0.338%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] SOL-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] LINK-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] SUI-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] BTC-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] ETH-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] XRP-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 55.0% -> 100.0% (+45.0%)
+[ONLINE ML] ARB-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] ADA-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] TIA-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] ONDO-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1439 свечей
+  Подготовлено 1358 примеров | классы: UP=214, DOWN=232, HOLD=912
+  Точность: 68.0% | CV: 54.6% (+/-10.4%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=154, DOWN=173, HOLD=1032
+  Точность: 72.8% | CV: 61.7% (+/-14.3%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=153, DOWN=143, HOLD=1063
+  Точность: 76.8% | CV: 66.9% (+/-12.9%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=194, DOWN=190, HOLD=975
+  Точность: 66.5% | CV: 58.3% (+/-10.0%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=92, DOWN=104, HOLD=1163
+  Точность: 84.6% | CV: 81.2% (+/-4.1%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=143, DOWN=147, HOLD=1069
+  Точность: 77.6% | CV: 67.0% (+/-11.2%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=149, DOWN=163, HOLD=1047
+  Точность: 74.3% | CV: 66.7% (+/-11.3%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=149, DOWN=159, HOLD=1051
+  Точность: 72.1% | CV: 69.1% (+/-8.0%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=187, DOWN=213, HOLD=959
+  Точность: 65.4% | CV: 56.3% (+/-11.4%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=168, DOWN=159, HOLD=1032
+  Точность: 72.4% | CV: 65.3% (+/-9.4%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=132, DOWN=141, HOLD=1086
+  Точность: 77.2% | CV: 70.6% (+/-10.3%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=191, DOWN=208, HOLD=960
+  Точность: 65.8% | CV: 58.7% (+/-9.1%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=196, DOWN=190, HOLD=973
+  Точность: 67.6% | CV: 56.0% (+/-10.7%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17666 | UP=2122, DOWN=2222, HOLD=13322
+  Общая точность: 78.7% | CV: 78.5% (+/-0.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.65      0.24      0.35       415
+        HOLD       0.81      0.96      0.88      2713
+          UP       0.51      0.18      0.27       406
+
+    accuracy                           0.79      3534
+   macro avg       0.66      0.46      0.50      3534
+weighted avg       0.75      0.79      0.75      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-25 06:04
+[ONLINE ML] BTC volatility 24h: 0.324%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] SOL-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] LINK-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] SUI-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] BTC-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ETH-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] XRP-USDT: 72ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] ARB-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] ADA-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] TIA-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] ONDO-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1439 свечей
+  Подготовлено 1358 примеров | классы: UP=213, DOWN=230, HOLD=915
+  Точность: 62.5% | CV: 53.9% (+/-12.1%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=172, HOLD=1036
+  Точность: 71.0% | CV: 61.0% (+/-16.0%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=141, HOLD=1067
+  Точность: 78.3% | CV: 65.5% (+/-12.6%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=191, DOWN=188, HOLD=980
+  Точность: 70.2% | CV: 58.4% (+/-10.7%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=90, DOWN=103, HOLD=1166
+  Точность: 83.5% | CV: 81.6% (+/-4.3%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=140, DOWN=146, HOLD=1073
+  Точность: 77.6% | CV: 65.9% (+/-12.1%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=162, HOLD=1051
+  Точность: 76.5% | CV: 66.5% (+/-10.7%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=158, HOLD=1055
+  Точность: 77.2% | CV: 69.5% (+/-7.8%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=184, DOWN=211, HOLD=964
+  Точность: 68.0% | CV: 55.8% (+/-11.7%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=165, DOWN=158, HOLD=1036
+  Точность: 76.5% | CV: 65.0% (+/-10.2%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=129, DOWN=140, HOLD=1090
+  Точность: 78.7% | CV: 72.6% (+/-8.7%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=188, DOWN=206, HOLD=965
+  Точность: 67.6% | CV: 60.2% (+/-7.9%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=193, DOWN=188, HOLD=978
+  Точность: 68.8% | CV: 56.7% (+/-10.4%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17666 | UP=2087, DOWN=2203, HOLD=13376
+  Общая точность: 78.4% | CV: 78.9% (+/-0.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.69      0.22      0.33       455
+        HOLD       0.80      0.97      0.87      2671
+          UP       0.59      0.20      0.30       408
+
+    accuracy                           0.78      3534
+   macro avg       0.69      0.46      0.50      3534
+weighted avg       0.76      0.78      0.74      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-25 12:04
+[ONLINE ML] BTC volatility 24h: 0.269%
+[ONLINE ML] Training window: 48h
+[ONLINE ML] EIGEN-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] SOL-USDT: 48ex | 60.0% -> 100.0% (+40.0%)
+[ONLINE ML] LINK-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] SUI-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] BTC-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] ETH-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] XRP-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] DOGE-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] ARB-USDT: 48ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] ADA-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] AVAX-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] TIA-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ONDO-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=212, DOWN=231, HOLD=916
+  Точность: 63.2% | CV: 53.9% (+/-11.7%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=173, HOLD=1035
+  Точность: 74.3% | CV: 59.3% (+/-17.2%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=142, HOLD=1066
+  Точность: 79.0% | CV: 65.9% (+/-12.6%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=191, DOWN=188, HOLD=980
+  Точность: 71.3% | CV: 57.1% (+/-11.4%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=90, DOWN=103, HOLD=1166
+  Точность: 87.5% | CV: 80.4% (+/-4.6%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=140, DOWN=146, HOLD=1073
+  Точность: 79.0% | CV: 65.9% (+/-12.0%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=162, HOLD=1051
+  Точность: 78.7% | CV: 66.0% (+/-11.7%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=147, DOWN=159, HOLD=1053
+  Точность: 79.4% | CV: 69.5% (+/-7.7%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=184, DOWN=211, HOLD=964
+  Точность: 68.8% | CV: 56.3% (+/-12.9%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=165, DOWN=158, HOLD=1036
+  Точность: 79.0% | CV: 63.8% (+/-11.3%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=129, DOWN=140, HOLD=1090
+  Точность: 80.1% | CV: 72.6% (+/-8.8%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=188, DOWN=207, HOLD=964
+  Точность: 70.6% | CV: 59.6% (+/-8.8%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=192, DOWN=189, HOLD=978
+  Точность: 77.2% | CV: 55.2% (+/-10.6%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17667 | UP=2086, DOWN=2209, HOLD=13372
+  Общая точность: 78.6% | CV: 78.6% (+/-0.5%)
+              precision    recall  f1-score   support
+
+        DOWN       0.62      0.23      0.34       413
+        HOLD       0.80      0.96      0.88      2703
+          UP       0.58      0.21      0.31       418
+
+    accuracy                           0.79      3534
+   macro avg       0.67      0.47      0.51      3534
+weighted avg       0.76      0.79      0.74      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-25 18:04
+[ONLINE ML] BTC volatility 24h: 0.312%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] SOL-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] LINK-USDT: 72ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] SUI-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] BTC-USDT: 72ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] ETH-USDT: 72ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] XRP-USDT: 72ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] ARB-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] ADA-USDT: 72ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] TIA-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] ONDO-USDT: 72ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1439 свечей
+  Подготовлено 1358 примеров | классы: UP=211, DOWN=232, HOLD=915
+  Точность: 65.8% | CV: 52.7% (+/-13.0%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=173, HOLD=1035
+  Точность: 75.4% | CV: 58.1% (+/-18.3%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=142, HOLD=1066
+  Точность: 77.9% | CV: 64.1% (+/-14.1%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=190, DOWN=188, HOLD=981
+  Точность: 74.3% | CV: 56.2% (+/-12.2%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=90, DOWN=103, HOLD=1166
+  Точность: 87.1% | CV: 80.3% (+/-5.6%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=139, DOWN=146, HOLD=1074
+  Точность: 80.1% | CV: 63.4% (+/-13.6%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=145, DOWN=162, HOLD=1052
+  Точность: 76.8% | CV: 65.8% (+/-11.4%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=159, HOLD=1054
+  Точность: 75.7% | CV: 69.0% (+/-8.4%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=183, DOWN=211, HOLD=965
+  Точность: 67.6% | CV: 55.7% (+/-13.7%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=164, DOWN=158, HOLD=1037
+  Точность: 78.3% | CV: 63.4% (+/-10.7%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=128, DOWN=140, HOLD=1091
+  Точность: 82.7% | CV: 71.3% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=187, DOWN=207, HOLD=965
+  Точность: 71.0% | CV: 59.7% (+/-8.1%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=193, DOWN=189, HOLD=977
+  Точность: 72.4% | CV: 54.3% (+/-11.9%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17666 | UP=2078, DOWN=2210, HOLD=13378
+  Общая точность: 78.4% | CV: 78.5% (+/-0.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.67      0.23      0.35       455
+        HOLD       0.80      0.97      0.87      2648
+          UP       0.65      0.23      0.34       431
+
+    accuracy                           0.78      3534
+   macro avg       0.70      0.48      0.52      3534
+weighted avg       0.76      0.78      0.74      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-26 00:04
+[ONLINE ML] BTC volatility 24h: 0.252%
+[ONLINE ML] Training window: 48h
+[ONLINE ML] EIGEN-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] SOL-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] LINK-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] SUI-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] BTC-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] ETH-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] XRP-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] DOGE-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] ARB-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ADA-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] AVAX-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] TIA-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] ONDO-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=210, DOWN=233, HOLD=916
+  Точность: 64.0% | CV: 51.4% (+/-14.7%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=175, HOLD=1033
+  Точность: 77.9% | CV: 57.8% (+/-17.8%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+[LINK-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=142, HOLD=1066
+  Точность: 81.6% | CV: 64.2% (+/-13.6%)
+  Модель сохранена: /root/bingx-bot/models/LINK_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=189, DOWN=186, HOLD=984
+  Точность: 73.5% | CV: 56.3% (+/-11.9%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[BTC-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=90, DOWN=104, HOLD=1165
+  Точность: 90.4% | CV: 79.0% (+/-6.6%)
+  Модель сохранена: /root/bingx-bot/models/BTC_USDT_model.pkl
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=139, DOWN=147, HOLD=1073
+  Точность: 81.6% | CV: 63.7% (+/-14.3%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=145, DOWN=163, HOLD=1051
+  Точность: 82.4% | CV: 65.3% (+/-12.2%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=161, HOLD=1052
+  Точность: 76.8% | CV: 68.2% (+/-8.2%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ARB-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=182, DOWN=211, HOLD=966
+  Точность: 72.8% | CV: 55.7% (+/-13.6%)
+  Модель сохранена: /root/bingx-bot/models/ARB_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=163, DOWN=157, HOLD=1039
+  Точность: 77.9% | CV: 63.3% (+/-11.0%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=128, DOWN=141, HOLD=1090
+  Точность: 84.6% | CV: 71.8% (+/-8.1%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=186, DOWN=207, HOLD=966
+  Точность: 66.9% | CV: 59.1% (+/-7.9%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[ONDO-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=193, DOWN=188, HOLD=978
+  Точность: 72.4% | CV: 54.5% (+/-12.0%)
+  Модель сохранена: /root/bingx-bot/models/ONDO_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 17667 | UP=2073, DOWN=2215, HOLD=13379
+  Общая точность: 78.9% | CV: 78.8% (+/-0.4%)
+              precision    recall  f1-score   support
+
+        DOWN       0.68      0.24      0.36       437
+        HOLD       0.81      0.96      0.88      2698
+          UP       0.56      0.21      0.31       399
+
+    accuracy                           0.79      3534
+   macro avg       0.68      0.47      0.51      3534
+weighted avg       0.76      0.79      0.75      3534
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-26 06:04
+[ONLINE ML] BTC volatility 24h: 0.279%
+[ONLINE ML] Training window: 48h
+[ONLINE ML] EIGEN-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] SOL-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] LINK-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] SUI-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] BTC-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ETH-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] XRP-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] DOGE-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] ARB-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] ADA-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] AVAX-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] TIA-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ONDO-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=139, DOWN=148, HOLD=1072
+  Точность: 79.4% | CV: 62.1% (+/-15.9%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=210, DOWN=234, HOLD=915
+  Точность: 66.5% | CV: 50.3% (+/-16.8%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=188, DOWN=187, HOLD=984
+  Точность: 71.0% | CV: 55.4% (+/-12.3%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=161, HOLD=1052
+  Точность: 77.6% | CV: 66.7% (+/-9.0%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=162, DOWN=158, HOLD=1039
+  Точность: 74.3% | CV: 64.5% (+/-10.4%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=128, DOWN=142, HOLD=1089
+  Точность: 80.9% | CV: 70.7% (+/-10.0%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=145, DOWN=163, HOLD=1051
+  Точность: 78.7% | CV: 64.3% (+/-12.7%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=184, DOWN=208, HOLD=967
+  Точность: 72.8% | CV: 57.8% (+/-9.4%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=176, HOLD=1032
+  Точность: 74.3% | CV: 57.1% (+/-19.4%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 12231 | UP=1453, DOWN=1577, HOLD=9201
+  Общая точность: 77.7% | CV: 77.2% (+/-0.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.55      0.17      0.26       302
+        HOLD       0.79      0.97      0.87      1865
+          UP       0.56      0.17      0.27       280
+
+    accuracy                           0.78      2447
+   macro avg       0.63      0.44      0.47      2447
+weighted avg       0.74      0.78      0.73      2447
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-26 12:03
+[ONLINE ML] BTC volatility 24h: 0.276%
+[ONLINE ML] Training window: 48h
+[ONLINE ML] EIGEN-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] SOL-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] LINK-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] SUI-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] BTC-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ETH-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] XRP-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] DOGE-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] ARB-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ADA-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] AVAX-USDT: 48ex | 95.0% -> 100.0% (+5.0%)
+[ONLINE ML] TIA-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ONDO-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=139, DOWN=147, HOLD=1073
+  Точность: 76.1% | CV: 61.1% (+/-16.8%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=211, DOWN=233, HOLD=915
+  Точность: 64.3% | CV: 52.5% (+/-15.3%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=188, DOWN=186, HOLD=985
+  Точность: 71.3% | CV: 55.6% (+/-12.4%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=159, HOLD=1054
+  Точность: 73.5% | CV: 67.3% (+/-8.1%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=162, DOWN=157, HOLD=1040
+  Точность: 73.9% | CV: 64.0% (+/-11.1%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=128, DOWN=142, HOLD=1089
+  Точность: 77.9% | CV: 69.2% (+/-12.4%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=145, DOWN=162, HOLD=1052
+  Точность: 77.6% | CV: 64.4% (+/-11.2%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=183, DOWN=205, HOLD=971
+  Точность: 72.1% | CV: 59.5% (+/-8.1%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=151, DOWN=176, HOLD=1032
+  Точность: 73.5% | CV: 57.4% (+/-19.6%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 12231 | UP=1453, DOWN=1567, HOLD=9211
+  Общая точность: 77.6% | CV: 77.3% (+/-0.4%)
+              precision    recall  f1-score   support
+
+        DOWN       0.54      0.15      0.24       276
+        HOLD       0.79      0.97      0.87      1870
+          UP       0.58      0.15      0.23       301
+
+    accuracy                           0.78      2447
+   macro avg       0.64      0.42      0.45      2447
+weighted avg       0.74      0.78      0.72      2447
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-26 18:03
+[ONLINE ML] BTC volatility 24h: 0.258%
+[ONLINE ML] Training window: 48h
+[ONLINE ML] EIGEN-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] SOL-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] LINK-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] SUI-USDT: 48ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] BTC-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ETH-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] XRP-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] DOGE-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ARB-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ADA-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] AVAX-USDT: 48ex | 85.0% -> 100.0% (+15.0%)
+[ONLINE ML] TIA-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ONDO-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1439 свечей
+  Подготовлено 1358 примеров | классы: UP=139, DOWN=147, HOLD=1072
+  Точность: 80.1% | CV: 59.7% (+/-17.8%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=212, DOWN=233, HOLD=914
+  Точность: 64.3% | CV: 51.1% (+/-16.4%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=189, DOWN=186, HOLD=984
+  Точность: 69.9% | CV: 53.7% (+/-15.4%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=159, HOLD=1054
+  Точность: 76.1% | CV: 67.0% (+/-8.3%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=162, DOWN=157, HOLD=1040
+  Точность: 75.0% | CV: 61.7% (+/-12.5%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=129, DOWN=142, HOLD=1088
+  Точность: 79.8% | CV: 67.6% (+/-14.1%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=162, HOLD=1051
+  Точность: 77.2% | CV: 63.6% (+/-12.4%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=183, DOWN=204, HOLD=972
+  Точность: 73.9% | CV: 58.9% (+/-8.7%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=152, DOWN=176, HOLD=1031
+  Точность: 74.6% | CV: 57.0% (+/-19.6%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 12230 | UP=1458, DOWN=1566, HOLD=9206
+  Общая точность: 77.4% | CV: 77.1% (+/-0.5%)
+              precision    recall  f1-score   support
+
+        DOWN       0.63      0.16      0.26       313
+        HOLD       0.79      0.97      0.87      1847
+          UP       0.57      0.19      0.28       286
+
+    accuracy                           0.77      2446
+   macro avg       0.66      0.44      0.47      2446
+weighted avg       0.74      0.77      0.72      2446
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-27 00:03
+[ONLINE ML] BTC volatility 24h: 0.265%
+[ONLINE ML] Training window: 48h
+[ONLINE ML] EIGEN-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] SOL-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] LINK-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] SUI-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] BTC-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ETH-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] XRP-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] DOGE-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] ARB-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ADA-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] AVAX-USDT: 48ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] TIA-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] ONDO-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=139, DOWN=145, HOLD=1075
+  Точность: 77.2% | CV: 59.4% (+/-17.3%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=211, DOWN=231, HOLD=917
+  Точность: 64.0% | CV: 49.4% (+/-17.5%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=189, DOWN=184, HOLD=986
+  Точность: 70.6% | CV: 50.7% (+/-19.9%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=157, HOLD=1056
+  Точность: 80.9% | CV: 65.5% (+/-10.6%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=162, DOWN=155, HOLD=1042
+  Точность: 75.0% | CV: 62.7% (+/-12.5%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=129, DOWN=139, HOLD=1091
+  Точность: 79.4% | CV: 68.5% (+/-13.7%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=160, HOLD=1053
+  Точность: 79.8% | CV: 62.8% (+/-13.3%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=182, DOWN=201, HOLD=976
+  Точность: 71.7% | CV: 59.0% (+/-8.6%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=152, DOWN=174, HOLD=1033
+  Точность: 73.2% | CV: 57.0% (+/-19.0%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 12231 | UP=1456, DOWN=1546, HOLD=9229
+  Общая точность: 76.6% | CV: 77.3% (+/-0.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.50      0.14      0.22       305
+        HOLD       0.78      0.97      0.87      1842
+          UP       0.58      0.16      0.25       300
+
+    accuracy                           0.77      2447
+   macro avg       0.62      0.42      0.45      2447
+weighted avg       0.72      0.77      0.71      2447
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-27 06:03
+[ONLINE ML] BTC volatility 24h: 0.236%
+[ONLINE ML] Training window: 48h
+[ONLINE ML] EIGEN-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] SOL-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] LINK-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] SUI-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] BTC-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ETH-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] XRP-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] DOGE-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] ARB-USDT: 48ex | 90.0% -> 100.0% (+10.0%)
+[ONLINE ML] ADA-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] AVAX-USDT: 48ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] TIA-USDT: 48ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] ONDO-USDT: 48ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=138, DOWN=146, HOLD=1075
+  Точность: 77.9% | CV: 59.1% (+/-17.2%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=208, DOWN=231, HOLD=920
+  Точность: 63.6% | CV: 50.4% (+/-16.9%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=187, DOWN=184, HOLD=988
+  Точность: 69.5% | CV: 51.1% (+/-19.3%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=158, HOLD=1055
+  Точность: 80.1% | CV: 65.8% (+/-10.9%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=160, DOWN=156, HOLD=1043
+  Точность: 76.8% | CV: 62.2% (+/-12.4%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=128, DOWN=140, HOLD=1091
+  Точность: 80.1% | CV: 69.2% (+/-12.7%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=145, DOWN=160, HOLD=1054
+  Точность: 75.0% | CV: 62.2% (+/-14.2%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=180, DOWN=201, HOLD=978
+  Точность: 68.0% | CV: 58.5% (+/-9.3%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=150, DOWN=174, HOLD=1035
+  Точность: 76.8% | CV: 57.7% (+/-19.8%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 12231 | UP=1442, DOWN=1550, HOLD=9239
+  Общая точность: 77.4% | CV: 77.3% (+/-0.6%)
+              precision    recall  f1-score   support
+
+        DOWN       0.65      0.18      0.28       316
+        HOLD       0.79      0.96      0.87      1855
+          UP       0.48      0.18      0.26       276
+
+    accuracy                           0.77      2447
+   macro avg       0.64      0.44      0.47      2447
+weighted avg       0.74      0.77      0.73      2447
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-27 12:03
+[ONLINE ML] BTC volatility 24h: 0.314%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] SOL-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] LINK-USDT: 72ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] SUI-USDT: 72ex | 50.0% -> 100.0% (+50.0%)
+[ONLINE ML] BTC-USDT: 72ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ETH-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] XRP-USDT: 72ex | 55.0% -> 100.0% (+45.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 55.0% -> 100.0% (+45.0%)
+[ONLINE ML] ARB-USDT: 72ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] ADA-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 50.0% -> 100.0% (+50.0%)
+[ONLINE ML] TIA-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] ONDO-USDT: 72ex | 100.0% -> 100.0% (+0.0%)
+[ONLINE ML] Done. Updated: 13, errors: 0
+============================================================
+  ОБУЧЕНИЕ ML-МОДЕЛИ (v2) — 3 класса + 11 фичей
+============================================================
+
+[ETH-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=138, DOWN=145, HOLD=1076
+  Точность: 77.6% | CV: 59.8% (+/-18.4%)
+  Модель сохранена: /root/bingx-bot/models/ETH_USDT_model.pkl
+
+[EIGEN-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=209, DOWN=230, HOLD=920
+  Точность: 68.8% | CV: 49.9% (+/-16.2%)
+  Модель сохранена: /root/bingx-bot/models/EIGEN_USDT_model.pkl
+
+[SUI-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=187, DOWN=182, HOLD=990
+  Точность: 68.8% | CV: 50.1% (+/-20.1%)
+  Модель сохранена: /root/bingx-bot/models/SUI_USDT_model.pkl
+
+[DOGE-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=146, DOWN=156, HOLD=1057
+  Точность: 78.3% | CV: 65.7% (+/-10.8%)
+  Модель сохранена: /root/bingx-bot/models/DOGE_USDT_model.pkl
+
+[ADA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=160, DOWN=155, HOLD=1044
+  Точность: 74.6% | CV: 61.0% (+/-13.3%)
+  Модель сохранена: /root/bingx-bot/models/ADA_USDT_model.pkl
+
+[AVAX-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=128, DOWN=139, HOLD=1092
+  Точность: 80.1% | CV: 68.1% (+/-13.4%)
+  Модель сохранена: /root/bingx-bot/models/AVAX_USDT_model.pkl
+
+[XRP-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=145, DOWN=159, HOLD=1055
+  Точность: 77.9% | CV: 63.5% (+/-13.7%)
+  Модель сохранена: /root/bingx-bot/models/XRP_USDT_model.pkl
+
+[TIA-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=179, DOWN=199, HOLD=981
+  Точность: 71.7% | CV: 58.7% (+/-9.0%)
+  Модель сохранена: /root/bingx-bot/models/TIA_USDT_model.pkl
+
+[SOL-USDT] Скачиваю данные (1000 свечей 1h)...
+  Получено 1440 свечей
+  Подготовлено 1359 примеров | классы: UP=150, DOWN=173, HOLD=1036
+  Точность: 77.6% | CV: 57.1% (+/-20.7%)
+  Модель сохранена: /root/bingx-bot/models/SOL_USDT_model.pkl
+
+============================================================
+  Обучение общей модели на всех парах...
+  Всего примеров: 12231 | UP=1442, DOWN=1538, HOLD=9251
+  Общая точность: 77.2% | CV: 77.6% (+/-0.5%)
+              precision    recall  f1-score   support
+
+        DOWN       0.66      0.14      0.23       325
+        HOLD       0.78      0.97      0.87      1835
+          UP       0.59      0.23      0.33       287
+
+    accuracy                           0.77      2447
+   macro avg       0.68      0.45      0.48      2447
+weighted avg       0.75      0.77      0.72      2447
+
+  Общая модель сохранена: /root/bingx-bot/models/general_model.pkl
+============================================================
+  ОБУЧЕНИЕ ЗАВЕРШЕНО
+============================================================
+[ONLINE ML] 2026-03-27 18:03
+[ONLINE ML] BTC volatility 24h: 0.313%
+[ONLINE ML] Training window: 72h
+[ONLINE ML] EIGEN-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] SOL-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] LINK-USDT: error - Feature shape mismatch, expected: 23, got 15
+[ONLINE ML] SUI-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] BTC-USDT: no model
+[ONLINE ML] ETH-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] XRP-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] DOGE-USDT: 72ex | 75.0% -> 100.0% (+25.0%)
+[ONLINE ML] ARB-USDT: no model
+[ONLINE ML] ADA-USDT: 72ex | 80.0% -> 100.0% (+20.0%)
+[ONLINE ML] AVAX-USDT: 72ex | 70.0% -> 100.0% (+30.0%)
+[ONLINE ML] TIA-USDT: 72ex | 65.0% -> 100.0% (+35.0%)
+[ONLINE ML] ONDO-USDT: no model
+[ONLINE ML] Done. Updated: 9, errors: 1
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-28 00:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.704 LGB=0.699 gap=0.090 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.651 LGB=0.656 gap=0.097 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.672 LGB=0.680 gap=0.096 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.648 LGB=0.651 gap=0.110 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.610 LGB=0.602 gap=0.203 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.634 LGB=0.629 gap=0.099 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.610 LGB=0.626 gap=0.157 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.661 LGB=0.672 gap=0.085 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-28 06:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.680 LGB=0.702 gap=0.115 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.640 LGB=0.645 gap=0.109 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.680 LGB=0.667 gap=0.092 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.629 LGB=0.642 gap=0.125 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.605 LGB=0.608 gap=0.207 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.605 LGB=0.616 gap=0.131 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.613 LGB=0.626 gap=0.152 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.653 LGB=0.675 gap=0.096 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-28 12:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.685 LGB=0.699 gap=0.110 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.637 LGB=0.648 gap=0.111 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.672 LGB=0.659 gap=0.101 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.634 LGB=0.626 gap=0.120 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.597 LGB=0.616 gap=0.214 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.602 LGB=0.602 gap=0.133 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.599 LGB=0.605 gap=0.161 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.659 LGB=0.672 gap=0.092 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.616 LGB=0.629 gap=0.141 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-28 18:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.680 LGB=0.704 gap=0.117 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.645 LGB=0.656 gap=0.100 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.659 LGB=0.667 gap=0.115 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.634 LGB=0.632 gap=0.126 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.599 LGB=0.602 gap=0.216 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.610 LGB=0.613 gap=0.129 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.594 LGB=0.613 gap=0.163 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.669 LGB=0.669 gap=0.078 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.616 LGB=0.640 gap=0.133 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-29 00:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.677 LGB=0.691 gap=0.112 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.653 LGB=0.651 gap=0.086 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.672 LGB=0.675 gap=0.101 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.626 LGB=0.634 gap=0.122 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.599 LGB=0.605 gap=0.211 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.616 LGB=0.605 gap=0.117 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.605 LGB=0.608 gap=0.149 [OK]
+[TRAIN] FET-USDT (NC): XGB=0.659 LGB=0.672 gap=0.091 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.605 LGB=0.626 gap=0.152 [OVERFIT]
+[TRAIN] TAO-USDT (NC): XGB=0.685 LGB=0.648 gap=0.060 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.599 LGB=0.583 gap=0.157 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.667 LGB=0.688 gap=0.057 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.567 LGB=0.581 gap=0.179 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.597 LGB=0.597 gap=0.145 [OK]
+[TRAIN] AVAX-USDT (NC): XGB=0.621 LGB=0.608 gap=0.143 [OK]
+[TRAIN] EIGEN-USDT (NC): XGB=0.667 LGB=0.661 gap=0.075 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.621 LGB=0.599 gap=0.131 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.640 LGB=0.648 gap=0.124 [OK]
+[TRAIN] === DONE ===
+Sun Mar 29 03:00:01 UTC 2026: Retrain v2...
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-29 03:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.675 LGB=0.699 gap=0.117 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.648 LGB=0.640 gap=0.086 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.675 LGB=0.669 gap=0.095 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.637 LGB=0.651 gap=0.120 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.594 LGB=0.605 gap=0.218 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.594 LGB=0.602 gap=0.137 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.597 LGB=0.610 gap=0.159 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.664 LGB=0.675 gap=0.085 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.621 LGB=0.629 gap=0.123 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.685 LGB=0.659 gap=0.054 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.594 LGB=0.581 gap=0.160 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.661 LGB=0.680 gap=0.067 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.575 LGB=0.581 gap=0.164 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.583 LGB=0.597 gap=0.156 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.626 LGB=0.608 gap=0.135 [OK]
+[TRAIN] EIGEN-USDT (NC): XGB=0.656 LGB=0.664 gap=0.085 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.616 LGB=0.599 gap=0.135 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.637 LGB=0.640 gap=0.130 [OK]
+[TRAIN] === DONE ===
+Sun Mar 29 03:03:11 UTC 2026: Done
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-29 06:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.672 LGB=0.691 gap=0.119 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.645 LGB=0.640 gap=0.094 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.685 LGB=0.672 gap=0.086 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.637 LGB=0.629 gap=0.121 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.594 LGB=0.599 gap=0.214 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.599 LGB=0.599 gap=0.136 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.594 LGB=0.613 gap=0.163 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.661 LGB=0.669 gap=0.080 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.616 LGB=0.626 gap=0.136 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.672 LGB=0.664 gap=0.073 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.589 LGB=0.578 gap=0.166 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.661 LGB=0.667 gap=0.064 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.554 LGB=0.581 gap=0.194 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.591 LGB=0.591 gap=0.154 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.618 LGB=0.605 gap=0.150 [OK]
+[TRAIN] EIGEN-USDT (NC): XGB=0.659 LGB=0.659 gap=0.088 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.608 LGB=0.610 gap=0.142 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.626 LGB=0.642 gap=0.134 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-29 12:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.661 LGB=0.683 gap=0.133 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.637 LGB=0.648 gap=0.103 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.677 LGB=0.672 gap=0.095 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.621 LGB=0.624 gap=0.139 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.591 LGB=0.602 gap=0.226 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.594 LGB=0.583 gap=0.146 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.594 LGB=0.594 gap=0.157 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.648 LGB=0.653 gap=0.098 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.605 LGB=0.632 gap=0.139 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.688 LGB=0.645 gap=0.053 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.597 LGB=0.581 gap=0.151 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.651 LGB=0.661 gap=0.068 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.570 LGB=0.575 gap=0.180 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.578 LGB=0.583 gap=0.165 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.602 LGB=0.594 gap=0.166 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.656 LGB=0.648 gap=0.090 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.610 LGB=0.591 gap=0.139 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.626 LGB=0.640 gap=0.134 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-29 18:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.653 LGB=0.696 gap=0.143 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.618 LGB=0.642 gap=0.126 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.680 LGB=0.672 gap=0.092 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.632 LGB=0.629 gap=0.128 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.602 LGB=0.608 gap=0.214 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.602 LGB=0.591 gap=0.133 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.605 LGB=0.602 gap=0.156 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.659 LGB=0.669 gap=0.089 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.624 LGB=0.629 gap=0.125 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.680 LGB=0.653 gap=0.065 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.608 LGB=0.583 gap=0.134 [OK]
+[TRAIN] ARB-USDT (NC): XGB=0.659 LGB=0.672 gap=0.062 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.543 LGB=0.559 gap=0.203 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.583 LGB=0.591 gap=0.158 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.608 LGB=0.591 gap=0.163 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.651 LGB=0.651 gap=0.091 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.618 LGB=0.602 gap=0.129 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.632 LGB=0.634 gap=0.133 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-30 00:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.648 LGB=0.683 gap=0.148 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.634 LGB=0.661 gap=0.111 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.688 LGB=0.669 gap=0.087 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.634 LGB=0.637 gap=0.130 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.591 LGB=0.586 gap=0.230 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.594 LGB=0.602 gap=0.144 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.597 LGB=0.589 gap=0.156 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.664 LGB=0.661 gap=0.085 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.613 LGB=0.637 gap=0.131 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.677 LGB=0.656 gap=0.070 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.597 LGB=0.581 gap=0.152 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.667 LGB=0.669 gap=0.061 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.554 LGB=0.575 gap=0.195 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.602 LGB=0.591 gap=0.135 [OK]
+[TRAIN] AVAX-USDT (NC): XGB=0.610 LGB=0.599 gap=0.158 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.642 LGB=0.632 gap=0.107 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.621 LGB=0.602 gap=0.128 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.629 LGB=0.640 gap=0.129 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-30 06:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.648 LGB=0.685 gap=0.148 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.648 LGB=0.656 gap=0.085 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.683 LGB=0.675 gap=0.090 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.626 LGB=0.640 gap=0.136 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.581 LGB=0.583 gap=0.243 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.605 LGB=0.613 gap=0.123 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.597 LGB=0.594 gap=0.153 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.653 LGB=0.672 gap=0.086 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.589 LGB=0.613 gap=0.159 [OVERFIT]
+[TRAIN] TAO-USDT (NC): XGB=0.664 LGB=0.651 gap=0.082 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.586 LGB=0.575 gap=0.161 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.659 LGB=0.661 gap=0.080 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.538 LGB=0.570 gap=0.202 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.570 LGB=0.589 gap=0.176 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.591 LGB=0.581 gap=0.183 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.629 LGB=0.624 gap=0.109 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.605 LGB=0.599 gap=0.147 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.632 LGB=0.632 gap=0.127 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-30 12:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.656 LGB=0.688 gap=0.134 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.640 LGB=0.667 gap=0.105 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.680 LGB=0.680 gap=0.095 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.629 LGB=0.629 gap=0.130 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.589 LGB=0.589 gap=0.241 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.586 LGB=0.613 gap=0.153 [OVERFIT]
+[TRAIN] LINK-USDT (NC): XGB=0.583 LGB=0.605 gap=0.169 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.672 LGB=0.675 gap=0.070 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.613 LGB=0.634 gap=0.128 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.685 LGB=0.656 gap=0.053 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.599 LGB=0.570 gap=0.142 [OK]
+[TRAIN] ARB-USDT (NC): XGB=0.667 LGB=0.664 gap=0.062 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.522 LGB=0.551 gap=0.222 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.578 LGB=0.591 gap=0.167 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.602 LGB=0.586 gap=0.172 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.653 LGB=0.632 gap=0.094 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.613 LGB=0.597 gap=0.144 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.653 LGB=0.645 gap=0.106 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for XRP-USDT-smc
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for SUI-USDT-smc
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for ETH-USDT-smc
+[ML] Loaded model for ADA-USDT-smc
+[ML] Loaded model for DOGE-USDT-smc
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-30 18:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.659 LGB=0.688 gap=0.135 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.632 LGB=0.648 gap=0.108 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.683 LGB=0.669 gap=0.088 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.621 LGB=0.637 gap=0.147 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.589 LGB=0.589 gap=0.235 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.597 LGB=0.610 gap=0.128 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.591 LGB=0.610 gap=0.161 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.656 LGB=0.664 gap=0.088 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.599 LGB=0.621 gap=0.147 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.675 LGB=0.664 gap=0.069 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.599 LGB=0.573 gap=0.151 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.664 LGB=0.653 gap=0.071 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.505 LGB=0.562 gap=0.239 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.578 LGB=0.597 gap=0.175 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.613 LGB=0.597 gap=0.152 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.637 LGB=0.634 gap=0.110 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.610 LGB=0.594 gap=0.141 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.640 LGB=0.640 gap=0.119 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for XRP-USDT-smc
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for SUI-USDT-smc
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for ETH-USDT-smc
+[ML] Loaded model for ADA-USDT-smc
+[ML] Loaded model for DOGE-USDT-smc
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-31 00:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.653 LGB=0.696 gap=0.138 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.640 LGB=0.651 gap=0.103 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.685 LGB=0.694 gap=0.090 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.629 LGB=0.640 gap=0.138 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.578 LGB=0.591 gap=0.249 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.597 LGB=0.626 gap=0.131 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.591 LGB=0.605 gap=0.161 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.659 LGB=0.656 gap=0.085 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.591 LGB=0.613 gap=0.153 [OVERFIT]
+[TRAIN] TAO-USDT (NC): XGB=0.672 LGB=0.667 gap=0.065 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.591 LGB=0.573 gap=0.169 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.664 LGB=0.661 gap=0.059 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.530 LGB=0.554 gap=0.217 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.583 LGB=0.581 gap=0.170 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.618 LGB=0.586 gap=0.151 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.640 LGB=0.637 gap=0.110 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.605 LGB=0.589 gap=0.152 [OVERFIT]
+[TRAIN] NEAR-USDT (NC): XGB=0.656 LGB=0.645 gap=0.108 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for XRP-USDT-smc
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for SUI-USDT-smc
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for ETH-USDT-smc
+[ML] Loaded model for ADA-USDT-smc
+[ML] Loaded model for DOGE-USDT-smc
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-31 06:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.664 LGB=0.704 gap=0.130 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.629 LGB=0.651 gap=0.115 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.685 LGB=0.688 gap=0.091 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.642 LGB=0.637 gap=0.127 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.583 LGB=0.591 gap=0.243 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.597 LGB=0.610 gap=0.137 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.589 LGB=0.610 gap=0.162 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.659 LGB=0.656 gap=0.090 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.589 LGB=0.599 gap=0.149 [OK]
+[TRAIN] TAO-USDT (NC): XGB=0.675 LGB=0.664 gap=0.062 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.586 LGB=0.594 gap=0.161 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.672 LGB=0.664 gap=0.055 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.540 LGB=0.546 gap=0.204 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.578 LGB=0.591 gap=0.180 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.624 LGB=0.610 gap=0.139 [OK]
+[TRAIN] EIGEN-USDT (NC): XGB=0.659 LGB=0.642 gap=0.082 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.624 LGB=0.616 gap=0.126 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.645 LGB=0.621 gap=0.130 [OK]
+[TRAIN] === DONE ===
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+[ML] Loaded model for LINK-USDT
+[ML] Loaded model for OP-USDT
+[ML] Loaded model for XRP-USDT-smc
+[ML] Loaded model for SUI-USDT
+[ML] Loaded model for SUI-USDT-smc
+[ML] Loaded model for ETH-USDT
+[ML] Loaded model for ADA-USDT
+[ML] Loaded model for XRP-USDT
+[ML] Loaded model for DOGE-USDT
+[ML] Loaded model for WLD-USDT
+[ML] Loaded model for ETH-USDT-smc
+[ML] Loaded model for ADA-USDT-smc
+[ML] Loaded model for DOGE-USDT-smc
+[ML] Loaded model for FET-USDT
+[ML] Loaded general model
+[ML] Loaded LGB model for WLD-USDT
+[ML] Loaded LGB model for DOGE-USDT
+[ML] Loaded LGB model for LINK-USDT
+[ML] Loaded LGB model for XRP-USDT
+[ML] Loaded LGB model for ADA-USDT
+[ML] Loaded LGB model for SUI-USDT
+[ML] Loaded LGB model for OP-USDT
+[ML] Loaded LGB model for ETH-USDT
+[ML] Loaded LGB model for FET-USDT
+[TRAIN] === Retrain v2 2026-03-31 12:00 ===
+[TRAIN] ETH-USDT (NC): XGB=0.667 LGB=0.718 gap=0.123 [OK]
+[TRAIN] SUI-USDT (NC): XGB=0.653 LGB=0.656 gap=0.084 [OK]
+[TRAIN] DOGE-USDT (NC): XGB=0.672 LGB=0.683 gap=0.101 [OK]
+[TRAIN] ADA-USDT (NC): XGB=0.648 LGB=0.656 gap=0.111 [OK]
+[TRAIN] XRP-USDT (NC): XGB=0.589 LGB=0.605 gap=0.241 [OVERFIT]
+[TRAIN] OP-USDT (NC): XGB=0.594 LGB=0.610 gap=0.138 [OK]
+[TRAIN] LINK-USDT (NC): XGB=0.591 LGB=0.608 gap=0.156 [OVERFIT]
+[TRAIN] FET-USDT (NC): XGB=0.664 LGB=0.653 gap=0.088 [OK]
+[TRAIN] WLD-USDT (NC): XGB=0.578 LGB=0.621 gap=0.168 [OVERFIT]
+[TRAIN] TAO-USDT (NC): XGB=0.667 LGB=0.656 gap=0.072 [OK]
+[TRAIN] DOT-USDT (NC): XGB=0.589 LGB=0.594 gap=0.160 [OVERFIT]
+[TRAIN] ARB-USDT (NC): XGB=0.648 LGB=0.656 gap=0.079 [OK]
+[TRAIN] PENDLE-USDT (NC): XGB=0.500 LGB=0.532 gap=0.247 [OVERFIT]
+[TRAIN] FIL-USDT (NC): XGB=0.567 LGB=0.578 gap=0.183 [OVERFIT]
+[TRAIN] AVAX-USDT (NC): XGB=0.616 LGB=0.608 gap=0.151 [OVERFIT]
+[TRAIN] EIGEN-USDT (NC): XGB=0.661 LGB=0.648 gap=0.082 [OK]
+[TRAIN] TIA-USDT (NC): XGB=0.613 LGB=0.610 gap=0.136 [OK]
+[TRAIN] NEAR-USDT (NC): XGB=0.629 LGB=0.634 gap=0.138 [OK]
+[TRAIN] === DONE ===

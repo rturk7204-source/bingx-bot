@@ -1,0 +1,1058 @@
+import os
+import time
+from datetime import datetime
+from dotenv import load_dotenv
+from bingx_api import BingXAPI
+from strategy_ml import MLStrategy
+from analytics import Analytics
+from risk_manager import RiskManager
+from telegram_notifier import TelegramNotifier
+from telegram_commander import TelegramCommander
+from kelly import KellyCriterion
+from econ_calendar import EconCalendar
+import sqlite3
+from scalping_strategy import ScalpingStrategy
+from liquidation_map import LiquidationMap
+from volume_profile import VolumeProfile
+from rl_logger import RLLogger
+from auto_blacklist import AutoBlacklist
+from pairs_trading import PairsTrader
+
+load_dotenv()
+
+class TradingBot:
+    def __init__(self):
+        self.api = BingXAPI(
+            api_key=os.getenv('BINGX_API_KEY'),
+            secret_key=os.getenv('BINGX_SECRET_KEY')
+        )
+        self.strategy = MLStrategy()
+        self.analytics = Analytics()
+        self.rl_logger = RLLogger()
+        self.auto_blacklist = AutoBlacklist()
+        self.risk_manager = RiskManager(stop_loss_pct=3.0, take_profit_pct=999.0, trailing_pct=1.0)
+        self.notifier = TelegramNotifier()
+        self.pairs_trader = PairsTrader(self.api, self.notifier, self.analytics)
+        self.trading_enabled = True
+        self.daily_loss = 0.0
+        self.last_trade_time = {}
+        self.max_same_direction = 2  # макс позиций в одном направлении
+        self.pyramid_positions = {}  # отслеживаем pyramid входы
+        self.max_budget = 500.0       # максимальный бюджет (USDT)
+        self.kelly = KellyCriterion(max_position=70.0, min_position=20.0)
+        self.scalper = ScalpingStrategy()
+        self.liq_map = LiquidationMap()
+        self.volume_profile = VolumeProfile(lookback=20, min_volume_ratio=0.7)
+        self.scalp_positions = {}  # отдельный трекер скальп позиций
+        self.peak_balance = 0.0        # максимальный баланс (для drawdown)
+        self.drawdown_half = 10.0      # % просадки для уменьшения позиции вдвое
+        self.drawdown_stop = 15.0      # % просадки для остановки торговли
+        self.max_margin_pct = 40.0    # максимальный % баланса в марже
+        self.averaging_enabled = True   # усреднение позиций
+        self.averaging_drop_pct = 3.5   # % падения цены для усреднения
+        self.averaging_max_times = 1    # максимум усреднений на позицию
+        self.averaging_size_mult = 1.5  # множитель размера усредняющего ордера
+        self.averaging_counts = {}      # счётчик усреднений по символу
+        self.symbol_performance = {}    # статистика по парам
+        self.perf_check_day = datetime.now().day  # день последней проверки
+        self.daily_loss_limit = 30.0
+        self.consecutive_stops = 0          # счётчик стопов подряд
+        self.cooldown_until = None          # время окончания cooldown
+        self.cooldown_hours = 3             # часы паузы после 3 стопов подряд
+        self.max_consecutive_stops = 3      # порог для cooldown
+
+
+        # ПАТЧ 23: Equity curve trading
+        self.equity_history = []
+        self.equity_reduction = False
+        self.last_reset_day = datetime.now().day
+        self.commander = TelegramCommander(self)
+        self.symbols = ['ETH-USDT', 'SUI-USDT', 'DOGE-USDT', 'ADA-USDT', 'XRP-USDT', 'OP-USDT', 'LINK-USDT', 'FET-USDT', 'WLD-USDT']
+        self.position_size = 40
+        self._restore_positions()
+        # _restore_positions вызывается после инициализации символов в run()
+
+
+    def check_symbol_performance(self):
+        """Автоотключение убыточных пар если WR < 40% за 10+ сделок"""
+        try:
+            trades = []
+            import json
+            with open("/root/bingx-bot/trades.json") as f:
+                trades = json.load(f)
+        except: return
+
+        from collections import defaultdict
+        sym_stats = defaultdict(lambda: {"wins":0,"losses":0,"total":0})
+
+        for t in trades[-200:]:  # последние 200 сделок
+            sym = t.get("symbol","")
+            pnl = t.get("pnl")
+            if pnl is None: continue
+            sym_stats[sym]["total"] += 1
+            if float(pnl) > 0:
+                sym_stats[sym]["wins"] += 1
+            else:
+                sym_stats[sym]["losses"] += 1
+
+        disabled = []
+        for sym, stats in sym_stats.items():
+            if stats["total"] >= 10:
+                wr = stats["wins"] / stats["total"] * 100
+                if wr < 40 and sym in self.symbols:
+                    self.symbols.remove(sym)
+                    disabled.append(f"{sym} WR={wr:.1f}%")
+                    print(f"[PERF] ❌ Отключена пара {sym} — WR={wr:.1f}% за {stats['total']} сделок")
+
+        if disabled:
+            msg = "⚠️ <b>Performance фильтр</b>\n" + "\n".join(f"❌ {d}" for d in disabled)
+            self.notifier.send_message(msg)
+
+
+    def check_scalp(self, symbol):
+        """Скальпинг — быстрые сделки на 5m в Kill Zones"""
+        try:
+            signal, score, details = self.scalper.get_scalp_signal(symbol, self.api)
+            if signal == "HOLD":
+                return
+
+            ticker = self.api.get_ticker(symbol)
+            if not ticker: return
+            price = float(ticker.get("lastPrice", 0))
+            if price <= 0: return
+
+            # Проверяем ликвидационную карту
+            liq_signal, liq_data = self.liq_map.get_signal(symbol, price, signal)
+            if liq_signal in ("AVOID_LONG",) and signal == "BUY":
+                print(f"[SCALP-LIQ] {symbol}: блокируем скальп LONG — близко к зоне ликвидации")
+                return
+            if liq_signal in ("AVOID_SHORT",) and signal == "SELL":
+                print(f"[SCALP-LIQ] {symbol}: блокируем скальп SHORT — близко к зоне ликвидации")
+                return
+
+            # Проверяем что нет активной скальп позиции по этой паре
+            if symbol in self.scalp_positions:
+                # Управляем существующей скальп позицией
+                scalp_pos = self.scalp_positions[symbol]
+                entry = scalp_pos["entry"]
+                side = scalp_pos["side"]
+                qty = scalp_pos["qty"]
+                pnl_pct = ((price - entry) / entry * 100) if side == "BUY" else ((entry - price) / entry * 100)
+
+                # Trailing stop для скальпинга: активируется после 0.4% прибыли
+                trail_activate = self.scalper.trailing_activate_pct  # 0.2%
+                trail_step = self.scalper.trailing_step_pct           # 0.15%
+                if pnl_pct >= trail_activate:
+                    if side == "BUY":
+                        new_trail = price * (1 - trail_step / 100)
+                        cur_trail = scalp_pos.get("trail_stop", 0)
+                        if new_trail > cur_trail:
+                            scalp_pos["trail_stop"] = new_trail
+                    else:
+                        new_trail = price * (1 + trail_step / 100)
+                        cur_trail = scalp_pos.get("trail_stop", float("inf"))
+                        if new_trail < cur_trail:
+                            scalp_pos["trail_stop"] = new_trail
+
+                # Проверка trailing stop
+                trail_stop = scalp_pos.get("trail_stop")
+                trail_hit = False
+                if trail_stop:
+                    if side == "BUY" and price <= trail_stop:
+                        trail_hit = True
+                    elif side == "SELL" and price >= trail_stop:
+                        trail_hit = True
+
+                close_side = "SELL" if side == "BUY" else "BUY"
+
+                if trail_hit:
+                    order = self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
+                    if order:
+                        self.scalper.daily_scalp_count += 1
+                        self.scalper.daily_scalp_pnl += pnl_pct
+                        del self.scalp_positions[symbol]
+                        print(f"⚡ SCALP TRAIL {symbol} +{pnl_pct:.2f}%")
+                        self.notifier.send_message(f"⚡ <b>Скальп Trail</b> {symbol} PnL: <b>+{pnl_pct:.2f}%</b>")
+                        self.analytics.log_trade(symbol=symbol, side=close_side, price=price, quantity=qty, reason="Scalp TP", pnl=pnl_pct)
+                elif pnl_pct >= self.scalper.min_profit_pct:
+                    order = self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
+                    if order:
+                        self.scalper.daily_scalp_count += 1
+                        self.scalper.daily_scalp_pnl += pnl_pct
+                        del self.scalp_positions[symbol]
+                        msg = (f"⚡ <b>Скальп TP</b> {symbol}\n"
+                               f"PnL: <b>+{pnl_pct:.2f}%</b>\n"
+                               f"Скальпов сегодня: {self.scalper.daily_scalp_count}")
+                        self.notifier.send_message(msg)
+                        print(f"⚡ SCALP TP {symbol} +{pnl_pct:.2f}%")
+                        self.analytics.log_trade(symbol=symbol, side=close_side, price=price, quantity=qty, reason="Scalp TP", pnl=pnl_pct)
+                elif pnl_pct <= -self.scalper.stop_loss_pct:
+                    order = self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
+                    if order:
+                        del self.scalp_positions[symbol]
+                        msg = f"⚡ <b>Скальп SL</b> {symbol} PnL: <b>{pnl_pct:.2f}%</b>"
+                        self.notifier.send_message(msg)
+                        print(f"⚡ SCALP SL {symbol} {pnl_pct:.2f}%")
+                        self.analytics.log_trade(symbol=symbol, side=close_side, price=price, quantity=qty, reason="Scalp SL", pnl=pnl_pct)
+                return
+
+            # Открываем новую скальп позицию
+            if self.scalper.daily_scalp_count >= self.scalper.max_daily_scalps:
+                return
+
+            qty = self.scalper.max_position_size / price
+            qty = self.api.round_quantity(symbol, qty)
+            if qty <= 0: return
+
+            order = self.api.open_position(symbol=symbol, side=signal, quantity=qty, price=price)
+            if order:
+                self.scalp_positions[symbol] = {
+                    "entry": price, "side": signal, "qty": qty,
+                    "session": details.get("session",""), "score": score
+                }
+                session = details.get("session", "")
+                msg = (f"⚡ <b>Скальп вход</b> {symbol}\n"
+                       f"Сторона: <b>{signal}</b> | Цена: <b>{price}</b>\n"
+                       f"Сессия: <b>{session}</b> | Score: {score}\n"
+                       f"TP: +{self.scalper.min_profit_pct}% | SL: -{self.scalper.stop_loss_pct}%")
+                self.notifier.send_message(msg)
+                print(f"⚡ SCALP OPEN {signal} {symbol} @ {price} | {session} score={score}")
+
+        except Exception as e:
+            print(f"[SCALP] Error {symbol}: {e}")
+
+    def _restore_positions(self):
+        """Восстанавливаем позиции из биржи при старте"""
+        try:
+            positions = self.api.get_positions()
+            restored = 0
+            skipped = 0
+            for p in positions:
+                symbol = p.get('symbol')
+                amt = float(p.get('positionAmt', 0))
+                if amt == 0:
+                    continue
+                # Пропускаем пары не из нашего списка
+                if symbol not in self.symbols:
+                    print(f"[RESTORE] {symbol} не в списке пар — пропускаем (закрой вручную)")
+                    skipped += 1
+                    continue
+                side = 'LONG' if p.get('positionSide') == 'LONG' else 'SHORT'
+                entry = float(p.get('avgPrice', 0))
+                qty = abs(amt)
+                if entry > 0 and symbol and symbol not in self.risk_manager.positions:
+                    self.risk_manager.add_position(symbol, entry, side, qty)
+                    print(f"[RESTORE] {symbol} {side} @ {entry} qty={qty}")
+                    restored += 1
+            if restored > 0:
+                print(f"[RESTORE] Восстановлено {restored} позиций из биржи")
+            if skipped > 0:
+                print(f"[RESTORE] Пропущено {skipped} позиций (не в списке пар)")
+            if restored == 0 and skipped == 0:
+                print("[RESTORE] Открытых позиций не найдено")
+        except Exception as e:
+            print(f"[RESTORE] Ошибка: {e}")
+        
+    def run(self):
+        print("🤖 Trading Bot Started")
+        print(f"📊 Symbols: {', '.join(self.symbols)}")
+        print(f"💰 Position Size: {self.position_size} USDT")
+        self.notifier.notify_bot_start(self.symbols, self.position_size)
+        self.commander.start()
+        
+        last_report_hour = -1
+
+        while True:
+            try:
+                for symbol in self.symbols:
+                    self.check_symbol(symbol)
+                    # self.check_scalp(symbol)  # DISABLED
+                    time.sleep(2)
+
+                # Ежечасный отчёт в Telegram
+                current_hour = datetime.now().hour
+                current_day = datetime.now().day
+
+                # Ежедневный PnL отчёт в 23:59
+                if current_hour == 23 and current_day != self.last_reset_day:
+                    stats = self.analytics.get_stats()
+                    bal_data = self.api.get_balance()
+                    bal = 0
+                    if bal_data and isinstance(bal_data, dict):
+                        inner = bal_data.get('balance', {})
+                        bal = float(inner.get('balance', 0)) if isinstance(inner, dict) else float(inner)
+                    positions = self.api.get_positions()
+                    open_pnl = sum(float(p.get('unrealizedProfit', 0)) for p in positions)
+                    daily_report = (f"📅 <b>Дневной отчёт</b>\n"
+                        f"💰 Баланс: <b>{bal:.2f} USDT</b>\n"
+                        f"📈 Открытых позиций: <b>{len(positions)}</b>\n"
+                        f"💹 Unrealized PnL: <b>{open_pnl:+.4f} USDT</b>\n"
+                        f"✅ Сделок за всё время: <b>{stats['total_trades']}</b>\n"
+                        f"🎯 Win Rate: <b>{stats['win_rate']}%</b>\n"
+                        f"💵 Общий PnL: <b>{stats['total_profit']:+.2f}%</b>\n"
+                        f"⭐ Лучшая: <b>{stats['best_trade']:+.2f}%</b>\n"
+                        f"💔 Худшая: <b>{stats['worst_trade']:+.2f}%</b>\n"
+                        f"📉 Дневные потери: <b>{self.daily_loss:.2f} USDT</b>\n"
+                        f"🕐 {datetime.now().strftime('%Y-%m-%d')}")
+                    self.notifier.send_message(daily_report)
+                    print(f"[DAILY] Отчёт отправлен")
+
+                if current_hour != last_report_hour:
+                    last_report_hour = current_hour
+                    stats = self.analytics.get_stats()
+                    balance = self.api.get_balance()
+                    balance_usdt = 0
+                    if balance and isinstance(balance, dict):
+                        inner = balance.get('balance', {})
+                        if isinstance(inner, dict):
+                            balance_usdt = float(inner.get('balance', 0))
+                        else:
+                            balance_usdt = float(inner)
+                    report = f"""📊 <b>Ежечасный отчёт</b>
+
+💰 Баланс: <b>{balance_usdt:.2f} USDT</b>
+📈 Всего сделок: <b>{stats['total_trades']}</b>
+✅ Win Rate: <b>{stats['win_rate']}%</b>
+💵 Общая прибыль: <b>{stats['total_profit']:+.2f}%</b>
+⭐ Лучшая сделка: <b>{stats['best_trade']:+.2f}%</b>
+💔 Худшая сделка: <b>{stats['worst_trade']:+.2f}%</b>
+⏰ Время: {datetime.now().strftime('%Y-%m-%d %H:%M')}"""
+                    self.notifier.send_message(report)
+                    # Сохраняем баланс для графика
+                    try:
+                        import json as _j
+                        hist_file = '/root/bingx-bot/balance_history.json'
+                        # ПАТЧ 20: Equity curve
+                        try:
+                            _ec = sqlite3.connect("/root/bingx-bot/market_data.db")
+                            _ec.execute("CREATE TABLE IF NOT EXISTS equity_curve (timestamp INTEGER PRIMARY KEY, balance REAL)")
+                            import time as _tt
+                            _ec.execute("INSERT OR REPLACE INTO equity_curve VALUES (?,?)", (int(_tt.time()*1000), balance_usdt))
+                            _ec.commit(); _ec.close()
+                        except: pass
+
+                        hist = _j.load(open(hist_file)) if os.path.exists(hist_file) else []
+                        hist.append({'time': datetime.now().strftime('%d/%m %H:%M'), 'balance': balance_usdt})
+                        if hasattr(self, "equity_history"): self.equity_history.append(balance_usdt); self.equity_history = self.equity_history[-50:]
+                        hist = hist[-48:]
+                        _j.dump(hist, open(hist_file, 'w'))
+                    except: pass
+                    print(f"📊 Hourly report sent")
+
+                    # === Pairs Trading (изолирован от SMC) ===
+                    try:
+                        self.pairs_trader.check_pairs()
+                    except Exception as _pe:
+                        print(f"[PAIRS] cycle error: {_pe}")
+
+                # Сброс дневного лимита в полночь
+                current_day = datetime.now().day
+                if current_day != self.last_reset_day:
+                    self.last_reset_day = current_day
+                    self.daily_loss = 0.0
+                    self.trading_enabled = True
+                    self.notifier.send_message("🌅 <b>Новый день — лимит потерь сброшен</b>\nТорговля возобновлена.")
+                    # Авто-бэкап данных
+                    try:
+                        import shutil as _sh, os as _os
+                        from datetime import date as _dt
+                        _bdir = "/root/bingx-bot/backups"
+                        _os.makedirs(_bdir, exist_ok=True)
+                        _today = _dt.today().strftime("%Y-%m-%d")
+                        for _fn in ["trades.json", "balance_history.json"]:
+                            _src = "/root/bingx-bot/" + _fn
+                            _dst = _bdir + "/" + _fn.split(".")[0] + "_" + _today + ".json"
+                            if _os.path.exists(_src): _sh.copy(_src, _dst)
+                        print("[BACKUP] Created: " + _today)
+                        self.check_symbol_performance()
+                    except Exception as _be:
+                        print("[BACKUP] Error: " + str(_be))
+
+                time.sleep(60)  # Check every minute
+                
+            except Exception as e:
+                print(f"❌ Error: {e}")
+                self.notifier.notify_error(str(e))
+                time.sleep(10)
+    
+    def check_symbol(self, symbol):
+        try:
+            # Session filter: London (07-12 UTC) + NY (13-20 UTC)
+            from datetime import timezone
+            _hour = datetime.now(timezone.utc).hour
+            if not (7 <= _hour <= 20):
+                return
+            # Get current position
+            positions = self.api.get_positions()
+            current_position = None
+            for pos in positions:
+                if pos['symbol'] == symbol:
+                    current_position = pos
+                    break
+            
+            # Get signal from ML strategy
+            signal, ml_conf = self.strategy.get_signal(symbol, self.api)
+
+            # Kelly Criterion — оптимальный размер позиции
+            balance_data = self.api.get_balance()
+            current_balance = 100.0
+            if balance_data and isinstance(balance_data, dict):
+                inner = balance_data.get('balance', balance_data)
+                if isinstance(inner, dict):
+                    current_balance = float(inner.get('balance', 100))
+
+            # Считаем просадку от пика
+            drawdown_pct = None
+            if self.peak_balance > 0 and current_balance > 0:
+                dd = (self.peak_balance - current_balance) / self.peak_balance * 100.0
+                drawdown_pct = max(0.0, dd)
+            if current_balance > self.peak_balance:
+                self.peak_balance = current_balance
+
+            # Kelly определяет размер позиции с учётом просадки
+            position_size = self.kelly.get_size(self.analytics, current_balance, ml_conf, drawdown_pct=drawdown_pct)
+            if hasattr(self, "equity_reduction") and self.equity_reduction: position_size = position_size * 0.5; print(f"[EQUITY] Размер уменьшен: {position_size:.2f} USDT")
+
+
+            # Проверка SL/TP
+            ticker = self.api.get_ticker(symbol)
+            price = float(ticker['lastPrice'])
+            risk_action = self.risk_manager.check_position(symbol, price)
+
+            # === Smart Exit по SMC — закрытие при сильном противоположном сигнале ===
+            if current_position and risk_action == 'HOLD':
+                try:
+                    pos_side = current_position.get('positionSide', 'LONG')
+                    _kl_exit = self.api.get_klines(symbol, interval="1h", limit=50)
+                    if _kl_exit and _kl_exit.get("code") == 0:
+                        _kl_data = _kl_exit["data"]
+                        _smc_exit = self.strategy.smc.analyze(_kl_data[-50:])
+                        _exit_signal = _smc_exit.get("signal", "NEUTRAL")
+                        _exit_score = _smc_exit.get("score", 0)
+                        _exit_details = _smc_exit.get("details", {})
+                        
+                        # LONG позиция + сильный BEARISH SMC = закрываем
+                        if pos_side == 'LONG' and _exit_signal == "BEARISH" and _exit_score >= 4:
+                            _exit_conf = _exit_details.get("bear_confluence", 0)
+                            if _exit_conf >= 2:
+                                quantity = abs(float(current_position['positionAmt']))
+                                pnl = self.risk_manager.get_position_pnl(symbol, price)
+                                order = self.api.close_position(symbol=symbol, side='SELL', quantity=quantity, price=price)
+                                if order:
+                                    self.risk_manager.remove_position(symbol)
+                                    self.analytics.log_trade(symbol=symbol, side='SELL', price=price, quantity=quantity, reason='SMC Exit', pnl=pnl)
+                                    self.notifier.notify_trade_close(symbol, 'SELL', price, quantity, profit=pnl)
+                                    try: self.rl_logger.log_reward(symbol, pnl)
+                                    except: pass
+                                    print(f"🧠 SMC EXIT LONG {symbol} @ {price} | score={_exit_score} conf={_exit_conf} | PnL: {pnl:.2f}%")
+                                    return
+                        
+                        # SHORT позиция + сильный BULLISH SMC = закрываем
+                        elif pos_side == 'SHORT' and _exit_signal == "BULLISH" and _exit_score >= 4:
+                            _exit_conf = _exit_details.get("bull_confluence", 0)
+                            if _exit_conf >= 2:
+                                quantity = abs(float(current_position['positionAmt']))
+                                pnl = self.risk_manager.get_position_pnl(symbol, price)
+                                order = self.api.close_position(symbol=symbol, side='BUY', quantity=quantity, price=price)
+                                if order:
+                                    self.risk_manager.remove_position(symbol)
+                                    self.analytics.log_trade(symbol=symbol, side='BUY', price=price, quantity=quantity, reason='SMC Exit', pnl=pnl)
+                                    self.notifier.notify_trade_close(symbol, 'BUY', price, quantity, profit=pnl)
+                                    try: self.rl_logger.log_reward(symbol, pnl)
+                                    except: pass
+                                    print(f"🧠 SMC EXIT SHORT {symbol} @ {price} | score={_exit_score} conf={_exit_conf} | PnL: {pnl:.2f}%")
+                                    return
+                except Exception as _se:
+                    print(f"[SMC-EXIT] {symbol} error: {_se}")
+
+            # Fibonacci Take Profit
+            fib_tp = self.risk_manager.check_fib_tp(symbol, price)
+            if fib_tp and current_position:
+                pos_side = current_position.get('positionSide', 'LONG')
+                close_side = 'SELL' if pos_side == 'LONG' else 'BUY'
+                order = self.api.close_position(symbol=symbol, side=close_side, quantity=fib_tp['qty'], price=price)
+                if order:
+                    pnl = self.risk_manager.get_position_pnl(symbol, price)
+                    self.analytics.log_trade(symbol=symbol, side=close_side, price=price, quantity=fib_tp['qty'], reason='Fib TP ' + fib_tp['level'], pnl=pnl)
+                    msg = f"🎯 Fib TP {fib_tp['level']} {symbol}: +{pnl:.2f}% | Закрыто {int(fib_tp['ratio']*100)}%"
+                    self.notifier.send_message(msg)
+                    print(f"🎯 FIB TP {fib_tp['level']} {symbol} @ {price} | {int(fib_tp['ratio']*100)}%")
+
+            # Частичное закрытие прибыли
+            if risk_action == 'PARTIAL_TP' and current_position:
+                partial_qty = self.risk_manager.get_partial_qty(symbol)
+                if partial_qty > 0:
+                    pos_side = current_position.get('positionSide', 'LONG')
+                    close_side = 'SELL' if pos_side == 'LONG' else 'BUY'
+                    order = self.api.close_position(symbol=symbol, side=close_side, quantity=partial_qty, price=price)
+                    if order:
+                        pnl = self.risk_manager.get_position_pnl(symbol, price)
+                        self.analytics.log_trade(symbol=symbol, side=close_side, price=price, quantity=partial_qty, reason='Partial TP', pnl=pnl)
+                        msg = "💰 Частичная фиксация " + symbol + f": +{pnl:.2f}% | Закрыто 50%"
+                        self.notifier.send_message(msg)
+                        print(f"💰 PARTIAL TP {symbol} @ {price} | PnL: {pnl:.2f}%")
+                return
+
+            if risk_action in ('STOP_LOSS', 'TAKE_PROFIT', 'TRAILING_STOP', 'HARD_STOP', 'TOXIC_CLOSE') and current_position:
+                quantity = abs(float(current_position['positionAmt']))
+                pos_side = current_position.get('positionSide', 'LONG'); close_side = 'SELL' if pos_side == 'LONG' else 'BUY'; order = self.api.close_position(symbol=symbol, side=close_side, quantity=quantity, price=price)
+                if order:
+                    pnl = self.risk_manager.get_position_pnl(symbol, price)
+                    self.risk_manager.remove_position(symbol)
+                    self.averaging_counts.pop(symbol, None)
+                    reason = 'Stop-Loss' if risk_action == 'STOP_LOSS' else ('Take-Profit' if risk_action == 'TAKE_PROFIT' else ('Trailing Stop' if risk_action == 'TRAILING_STOP' else ('Hard Stop -30%' if risk_action == 'HARD_STOP' else 'Toxic Close')))
+                    self.analytics.log_trade(symbol=symbol, side='SELL', price=price, quantity=quantity, reason=reason, pnl=pnl)
+                    self.notifier.notify_trade_close(symbol, 'SELL', price, quantity, profit=pnl)
+                    try: self.rl_logger.log_reward(symbol, pnl)
+                    except: pass
+                    print(f"🔴 {reason} {symbol} @ {price} | PnL: {pnl:.2f}%")
+                    if pnl < 0:
+                        loss_usdt = abs(pnl / 100 * quantity * price)
+                        self.daily_loss += loss_usdt
+                        self.consecutive_stops += 1
+                        print(f"[RISK] Daily loss: {self.daily_loss:.2f} USDT / {self.daily_loss_limit:.2f} USDT | Стопов подряд: {self.consecutive_stops}")
+                        if self.consecutive_stops >= self.max_consecutive_stops and not self.cooldown_until:
+                            from datetime import timedelta
+                            self.cooldown_until = datetime.now() + timedelta(hours=self.cooldown_hours)
+                            msg_cd = f"⏸ <b>Cooldown {self.cooldown_hours}ч</b>\n{self.consecutive_stops} стопов подряд\nВозобновление: {self.cooldown_until.strftime('%H:%M')}"
+                            self.notifier.send_message(msg_cd)
+                            print(f"[COOLDOWN] Активирован на {self.cooldown_hours}ч после {self.consecutive_stops} стопов")
+                    else:
+                        self.consecutive_stops = 0  # сброс при профитной сделке
+                        if self.daily_loss >= self.daily_loss_limit:
+                            self.trading_enabled = False
+                            self.notifier.send_message(f"🚨 <b>Дневной лимит потерь достигнут!</b>\n💸 Потери за день: <b>{self.daily_loss:.2f} USDT</b>\nТорговля остановлена до следующего дня.")
+                            print(f"[RISK] Daily loss limit reached: {self.daily_loss:.2f} USDT")
+                return
+
+            # === ПАТЧ 21: Breakeven SL ===
+            if current_position and symbol in self.risk_manager.positions:
+                try:
+                    self.risk_manager.check_breakeven(symbol, price)
+                    if self.risk_manager.is_breakeven_hit(symbol, price):
+                        pos_side_be = current_position.get("positionSide", "LONG")
+                        close_side_be = "SELL" if pos_side_be == "LONG" else "BUY"
+                        qty_be = abs(float(current_position.get("positionAmt", 0)))
+                        order_be = self.api.close_position(symbol=symbol, side=close_side_be, quantity=qty_be, price=price)
+                        if order_be:
+                            self.risk_manager.remove_position(symbol)
+                            self.analytics.log_trade(symbol=symbol, side=close_side_be, price=price, quantity=qty_be, reason="Breakeven SL", pnl=0.0)
+                            self.notifier.send_message(f"🟡 <b>Breakeven SL</b> {symbol} @ {price}")
+                            print(f"[BE] {symbol}: закрыт по breakeven @ {price}")
+                            return
+                except Exception as e:
+                    print(f"[BE] {symbol} error: {e}")
+
+            # === ПАТЧ 17: 3-уровневый Partial TP ===
+            if current_position and symbol in self.risk_manager.positions:
+                try:
+                    tp_result = self.risk_manager.check_multi_partial_tp(symbol, price)
+                    if tp_result["action"] == "PARTIAL_33":
+                        pos_amt = abs(float(current_position.get('positionAmt', 0)))
+                        close_qty = round(pos_amt * 0.33, 4)
+                        if close_qty > 0:
+                            pos_side_tp = current_position.get('positionSide', 'LONG')
+                            close_side_tp = 'SELL' if pos_side_tp == 'LONG' else 'BUY'
+                            order_tp = self.api.close_position(symbol=symbol, side=close_side_tp, quantity=close_qty, price=price)
+                            if order_tp:
+                                pnl_tp = tp_result["pnl_pct"]
+                                self.analytics.log_trade(symbol=symbol, side=close_side_tp, price=price, quantity=close_qty, reason='Multi TP', pnl=pnl_tp)
+                                msg_tp = f"🎯 <b>Partial TP</b> {symbol}\nЗакрыто 33%: {close_qty} @ {price}\nPnL: +{pnl_tp:.2f}%"
+                                self.notifier.send_message(msg_tp)
+                                print(f"[TP] {symbol}: partial 33% @ {price} | PnL: +{pnl_tp:.2f}%")
+                except Exception as e:
+                    print(f"[TP] {symbol} error: {e}")
+
+            # === ПАТЧ 3: FVG Partial Close === ОТКЛЮЧЁН (WR=37.5%)
+            # Деактивирован по результатам аудита индикаторов
+
+            # Антифлуд — только для открытия новых позиций (не для управления)
+            now = datetime.now()
+            # Определяем тип текущей позиции
+            long_position = None
+            short_position = None
+            # Игнорируем позиции не открытые нашим ботом
+            if current_position and symbol in self.risk_manager.positions and abs(float(current_position.get("positionAmt", 0))) > 0:
+                pos_side = current_position.get('positionSide', 'LONG')
+                if pos_side == 'LONG':
+                    long_position = current_position
+                elif pos_side == 'SHORT':
+                    short_position = current_position
+
+            # Drawdown защита
+            balance_data = self.api.get_balance()
+            if balance_data and isinstance(balance_data, dict):
+                inner = balance_data.get('balance', balance_data)
+                current_bal = float(inner.get('balance', 0)) if isinstance(inner, dict) else float(inner)
+                if current_bal > self.peak_balance:
+                    self.peak_balance = current_bal
+                if self.peak_balance > 0:
+                    drawdown = ((self.peak_balance - current_bal) / self.peak_balance) * 100
+                    if drawdown >= self.drawdown_stop:
+                        if self.trading_enabled:
+                            self.trading_enabled = False
+                        return
+                    elif drawdown >= self.drawdown_half:
+                        position_size = self.position_size * 0.5
+                        print(f"[DD] Просадка {drawdown:.1f}% — размер позиции уменьшен вдвое")
+
+            # Проверка бюджета и маржи
+            balance_data = self.api.get_balance()
+            if balance_data and isinstance(balance_data, dict):
+                inner = balance_data.get('balance', balance_data)
+                if isinstance(inner, dict):
+                    total_balance = float(inner.get('balance', 0))
+                    used_margin = float(inner.get('usedMargin', 0))
+                else:
+                    total_balance = float(inner)
+                    used_margin = 0
+                used_margin_pct = (used_margin / total_balance * 100) if total_balance > 0 else 0
+                if used_margin >= self.max_budget:
+                    print(f"[BUDGET] Лимит {self.max_budget:.0f} USDT достигнут: {used_margin:.2f} USDT в марже")
+                    return
+                if used_margin_pct >= self.max_margin_pct:
+                    print(f"[BUDGET] Лимит маржи {self.max_margin_pct:.0f}% достигнут: {used_margin_pct:.1f}%")
+                    return
+
+            # Динамическое усреднение по индикаторам
+            if self.averaging_enabled and current_position and symbol in self.risk_manager.positions:
+                pos_side = current_position.get('positionSide', 'LONG')
+                avg_price = float(current_position.get('avgPrice', 0))
+                avg_count = self.averaging_counts.get(symbol, 0)
+                pos_data = self.risk_manager.positions.get(symbol, {})
+                entry_price = pos_data.get('entry_price', avg_price)
+                sl_price = entry_price * (1 - self.risk_manager.stop_loss_pct / 100) if pos_side == 'LONG' else entry_price * (1 + self.risk_manager.stop_loss_pct / 100)
+
+                if avg_price > 0 and avg_count < self.averaging_max_times:
+                    drop_pct = ((avg_price - price) / avg_price) * 100 if pos_side == 'LONG' else ((price - avg_price) / avg_price) * 100
+
+                    if drop_pct >= self.averaging_drop_pct:
+                        sl_distance_pct = abs(price - sl_price) / price * 100
+                        safe_from_sl = sl_distance_pct >= 2.0
+
+                        klines_data = self.api.get_klines(symbol, interval="1h", limit=100)
+                        avg_confirmed = False
+                        avg_reason = []
+
+                        if klines_data and klines_data.get('code') == 0 and safe_from_sl:
+                            klines_avg = klines_data['data']
+                            closes_avg = [float(k['close']) for k in klines_avg]
+                            volumes_avg = [float(k['volume']) for k in klines_avg]
+
+                            # SMC — ОБЯЗАТЕЛЬНОЕ условие (главный фильтр)
+                            smc_avg = self.strategy.smc.analyze(klines_avg[-50:])
+                            smc_ok = (smc_avg['signal'] == 'BULLISH' and pos_side == 'LONG') or                                      (smc_avg['signal'] == 'BEARISH' and pos_side == 'SHORT')
+
+                            if not smc_ok:
+                                print(f"[AVG] {symbol} SKIP: SMC={smc_avg['signal']} — нет подтверждения разворота")
+                            else:
+                                avg_reason.append(f"SMC={smc_avg['signal']}")
+
+                                # RSI — дополнительный фильтр
+                                rsi_avg = self.strategy.calc_rsi(closes_avg, 14)
+                                rsi_ok = (rsi_avg < 32 and pos_side == 'LONG') or (rsi_avg > 68 and pos_side == 'SHORT')
+
+                                # RSI дивергенция — дополнительный фильтр
+                                div = self.strategy.detect_rsi_divergence(closes_avg)
+                                div_ok = (div == 'BULLISH' and pos_side == 'LONG') or (div == 'BEARISH' and pos_side == 'SHORT')
+
+                                if rsi_ok or div_ok:
+                                    avg_confirmed = True
+                                    if rsi_ok:
+                                        avg_reason.append(f"RSI={rsi_avg:.1f}")
+                                    if div_ok:
+                                        avg_reason.append(f"DIV={div}")
+                                else:
+                                    print(f"[AVG] {symbol} SKIP: SMC ok но RSI={rsi_avg:.1f} и div={div} — нет подтверждения")
+
+                            # Объём (информационно)
+                            if volumes_avg[-1] > sum(volumes_avg[-5:-1]) / 4:
+                                avg_reason.append("VOL+")
+
+                        if not safe_from_sl:
+                            print(f"[AVG] {symbol}: отмена — близко к SL ({sl_distance_pct:.1f}% до стопа)")
+                        elif avg_confirmed:
+                            avg_size = (position_size * self.averaging_size_mult) / price
+                            avg_side = 'BUY' if pos_side == 'LONG' else 'SELL'
+                            order = self.api.open_position(symbol=symbol, side=avg_side, quantity=avg_size, price=price)
+                            if order:
+                                self.averaging_counts[symbol] = avg_count + 1
+                                new_avg = (avg_price + price) / 2
+                                reason_str = ', '.join(avg_reason)
+                                msg = ("📉 <b>Умное усреднение #" + str(avg_count+1) + "</b> " + symbol + "\n"
+                                       + "Средняя: <b>" + f"{avg_price:.4f}" + "</b> → <b>" + f"{new_avg:.4f}" + "</b>\n"
+                                       + "Цена: <b>" + f"{price:.4f}" + "</b> (−" + f"{drop_pct:.1f}" + "%)\n"
+                                       + "Сигналы: <b>" + reason_str + "</b>\n"
+                                       + "Добавлено: <b>" + f"{avg_size:.4f}" + "</b> (" + f"{position_size * self.averaging_size_mult:.1f}" + " USDT)\n"
+                                       + "До SL: <b>" + f"{sl_distance_pct:.1f}" + "%</b>")
+                                self.notifier.send_message(msg)
+                                print(f"[AVG] #{avg_count+1} {symbol} @ {price} | -{drop_pct:.1f}% | {reason_str} | new_avg={new_avg:.4f}")
+                        else:
+                            print(f"[AVG] {symbol}: падение {drop_pct:.1f}% — нет подтверждения индикаторов")
+
+
+# Динамический лимит позиций на основе текущего Win Rate
+            try:
+                current_wr = self.analytics.get_stats().get('win_rate', 50)
+                if current_wr >= 60:
+                    dynamic_limit = 8
+                elif current_wr >= 50:
+                    dynamic_limit = 6
+                else:
+                    dynamic_limit = 4
+                self.max_same_direction = dynamic_limit
+            except:
+                pass
+
+            # Correlation Filter — считаем открытые позиции по направлению
+            positions_all = self.api.get_positions()
+            long_count = sum(1 for p in positions_all if p.get('positionSide') == 'LONG' and float(p.get('positionAmt', 0)) != 0)
+            short_count = sum(1 for p in positions_all if p.get('positionSide') == 'SHORT' and float(p.get('positionAmt', 0)) != 0)
+
+            # Correlation Filter — группы коррелирующих пар
+            CORR_GROUPS = [
+                ['XRP-USDT', 'ADA-USDT', 'DOGE-USDT', 'TIA-USDT', 'EIGEN-USDT', 'SUI-USDT', 'INJ-USDT', 'ARB-USDT'],
+                ['ETH-USDT', 'BNB-USDT', 'AVAX-USDT']]
+            def corr_group_blocked(sym, direction):
+                for group in CORR_GROUPS:
+                    if sym not in group:
+                        continue
+                    group_side = 'LONG' if direction == 'BUY' else 'SHORT'
+                    group_count = sum(
+                        1 for p in positions_all
+                        if p.get('symbol') in group
+                        and p.get('positionSide') == group_side
+                        and float(p.get('positionAmt', 0)) != 0
+                    )
+                    if group_count >= 2:
+                        print(f'[CORR-GROUP] {sym}: блокируем {direction} — уже {group_count} позиций в группе {group_side}')
+                        return True
+                return False
+
+            # === Auto Blacklist фильтр ===
+            if self.auto_blacklist.check_and_update(symbol):
+                return
+
+            # === Макс просадка за неделю ===
+            try:
+                import json as _json
+                _bh_file = "/root/bingx-bot/balance_history.json"
+                if os.path.exists(_bh_file):
+                    with open(_bh_file) as _f:
+                        _bh = _json.load(_f)
+                    if len(_bh) >= 2:
+                        # Берём баланс 7 дней назад (или самый ранний)
+                        _week_ago = None
+                        _now_ts = time.time()
+                        for _entry in _bh:
+                            _ts = _entry.get("timestamp", 0)
+                            if _now_ts - _ts <= 7 * 86400:
+                                _week_ago = _entry.get("balance", 0)
+                                break
+                        if not _week_ago:
+                            _week_ago = _bh[0].get("balance", 0)
+                        _current_bal = _bh[-1].get("balance", 0)
+                        if _week_ago > 0:
+                            _week_dd = (_current_bal - _week_ago) / _week_ago * 100
+                            if _week_dd <= -5.0:
+                                if not getattr(self, '_dd_cooldown_logged', False):
+                                    print(f"[DRAWDOWN] Просадка за неделю {_week_dd:.2f}% — БЛОКИРУЕМ новые входы (только закрытие)")
+                                    self._dd_cooldown_logged = True
+                                return
+                            else:
+                                self._dd_cooldown_logged = False
+            except Exception as _dd_e:
+                pass
+
+            # Liquidity Map фильтр
+            liq_signal, liq_data = self.liq_map.get_signal(symbol, price, signal)
+            if liq_signal == 'AVOID_LONG' and signal == 'BUY':
+                print(f'[LIQ] {symbol}: блокируем LONG — зона ликвидации лонгов близко')
+                return
+            if liq_signal == 'AVOID_SHORT' and signal == 'SELL':
+                print(f'[LIQ] {symbol}: блокируем SHORT — зона ликвидации шортов близко')
+                return
+            # Liq подтверждение направления
+            if liq_signal == 'BULLISH' and signal == 'SELL':
+                print(f'[LIQ] {symbol}: стена BID — не открываем SHORT против поддержки')
+                return
+            if liq_signal == 'BEARISH' and signal == 'BUY':
+                print(f'[LIQ] {symbol}: стена ASK — не открываем LONG против сопротивления')
+                return
+
+            # === ПАТЧ 23: Equity curve trading ===
+            if hasattr(self, "equity_history") and len(self.equity_history) >= 20:
+                _eq_ema = sum(self.equity_history[-20:]) / 20
+                _eq_cur = self.equity_history[-1]
+                if _eq_cur < _eq_ema and not self.equity_reduction:
+                    self.equity_reduction = True
+                    print(f"[EQUITY] {_eq_cur:.2f} < EMA20 {_eq_ema:.2f} -> позиция -50%")
+                elif _eq_cur >= _eq_ema and self.equity_reduction:
+                    self.equity_reduction = False
+                    print(f"[EQUITY] {_eq_cur:.2f} >= EMA20 {_eq_ema:.2f} -> размер восстановлен")
+
+            # === ПАТЧ 8: Cooldown после серии стопов ===
+            if self.cooldown_until and datetime.now() < self.cooldown_until:
+                remaining = int((self.cooldown_until - datetime.now()).total_seconds() / 60)
+                print(f"[COOLDOWN] {symbol}: пауза ещё {remaining} мин после {self.max_consecutive_stops} стопов подряд")
+                return
+            elif self.cooldown_until and datetime.now() >= self.cooldown_until:
+                print(f"[COOLDOWN] Cooldown завершён, торговля возобновлена")
+                self.cooldown_until = None
+                self.consecutive_stops = 0
+
+            # === ПАТЧ 9: Funding Rate Filter ===
+            try:
+                fund_signal_bot, fund_rate_bot = self.strategy.check_funding_rate(symbol, self.api)
+                if fund_rate_bot is not None:
+                    if fund_rate_bot > 0.03 and signal == "BUY":
+                        print(f"[FUND] {symbol}: блокируем LONG — funding {fund_rate_bot:.4f}% (лонги платят)")
+                        return
+                    if fund_rate_bot < -0.03 and signal == "SELL":
+                        print(f"[FUND] {symbol}: блокируем SHORT — funding {fund_rate_bot:.4f}% (шорты платят)")
+                        return
+                    print(f"[FUND] {symbol}: funding={fund_rate_bot:.4f}% -> OK")
+            except Exception as e:
+                print(f"[FUND] {symbol} error: {e}")
+
+            # === ПАТЧ 5: BTC Dominance Filter ===
+            # При росте BTC доминации — блокируем alt-longs
+            # Логика: сравниваем %change BTC vs %change текущего альта за 4h
+            # Если BTC растёт, а альт отстаёт — доминация BTC растёт -> alt-long опасен
+            try:
+                if symbol != 'BTC-USDT':
+                    klines_btc_dom = self.api.get_klines('BTC-USDT', interval='1h', limit=5)
+                    klines_alt_dom = self.api.get_klines(symbol, interval='1h', limit=5)
+
+                    if (klines_btc_dom and klines_btc_dom.get('code') == 0 and
+                        klines_alt_dom and klines_alt_dom.get('code') == 0):
+
+                        btc_data = klines_btc_dom['data']
+                        alt_data = klines_alt_dom['data']
+
+                        if len(btc_data) >= 4 and len(alt_data) >= 4:
+                            btc_open = float(btc_data[-4]['open'])
+                            btc_close = float(btc_data[-1]['close'])
+                            alt_open = float(alt_data[-4]['open'])
+                            alt_close = float(alt_data[-1]['close'])
+
+                            btc_change = (btc_close - btc_open) / btc_open * 100 if btc_open > 0 else 0
+                            alt_change = (alt_close - alt_open) / alt_open * 100 if alt_open > 0 else 0
+
+                            # BTC доминация растёт: BTC растёт, альт отстаёт или падает
+                            dom_spread = btc_change - alt_change
+
+                            # Если BTC обгоняет альт на 1.5%+ за 4h И BTC растёт -> блокируем alt-long
+                            if btc_change > 0.5 and dom_spread > 1.5 and signal == 'BUY':
+                                print(f"[BTC-DOM] {symbol}: блокируем LONG — BTC доминация растёт (BTC={btc_change:+.2f}%, ALT={alt_change:+.2f}%, spread={dom_spread:.2f}%)")
+                                return
+
+                            # Если BTC падает, а альт падает сильнее на 1.5%+ -> блокируем alt-short (альт уже перепродан)
+                            if btc_change < -0.5 and dom_spread < -1.5 and signal == 'SELL':
+                                print(f"[BTC-DOM] {symbol}: блокируем SHORT — альт перепродан vs BTC (BTC={btc_change:+.2f}%, ALT={alt_change:+.2f}%, spread={dom_spread:.2f}%)")
+                                return
+
+                            print(f"[BTC-DOM] {symbol}: BTC={btc_change:+.2f}% ALT={alt_change:+.2f}% spread={dom_spread:+.2f}% -> OK")
+            except Exception as e:
+                print(f"[BTC-DOM] {symbol} error: {e}")
+
+            # === ПАТЧ 4: Market Regime Filter ===
+            # Определяем режим рынка: trend / range / volatile
+            # В range — не открываем новые позиции
+            try:
+                klines_regime = self.api.get_klines(symbol, interval='1h', limit=30)
+                if klines_regime and klines_regime.get('code') == 0:
+                    rg_data = klines_regime['data']
+                    if len(rg_data) >= 20:
+                        rg_closes = [float(k['close']) for k in rg_data[-20:]]
+                        rg_highs  = [float(k['high'])  for k in rg_data[-20:]]
+                        rg_lows   = [float(k['low'])   for k in rg_data[-20:]]
+
+                        # ATR для определения волатильности
+                        trs = []
+                        for ri in range(1, len(rg_closes)):
+                            tr = max(
+                                rg_highs[ri] - rg_lows[ri],
+                                abs(rg_highs[ri] - rg_closes[ri-1]),
+                                abs(rg_lows[ri] - rg_closes[ri-1])
+                            )
+                            trs.append(tr)
+                        atr_val = sum(trs) / len(trs) if trs else 0
+                        atr_pct = (atr_val / rg_closes[-1] * 100) if rg_closes[-1] != 0 else 0
+
+                        # ADX (упрощённый — через направленное движение)
+                        plus_dm_list = []
+                        minus_dm_list = []
+                        for ri in range(1, len(rg_closes)):
+                            up_move = rg_highs[ri] - rg_highs[ri-1]
+                            down_move = rg_lows[ri-1] - rg_lows[ri]
+                            plus_dm = up_move if (up_move > down_move and up_move > 0) else 0
+                            minus_dm = down_move if (down_move > up_move and down_move > 0) else 0
+                            plus_dm_list.append(plus_dm)
+                            minus_dm_list.append(minus_dm)
+
+                        avg_plus_dm = sum(plus_dm_list[-14:]) / 14 if len(plus_dm_list) >= 14 else 0
+                        avg_minus_dm = sum(minus_dm_list[-14:]) / 14 if len(minus_dm_list) >= 14 else 0
+                        avg_tr = sum(trs[-14:]) / 14 if len(trs) >= 14 else 1
+
+                        plus_di = (avg_plus_dm / avg_tr * 100) if avg_tr > 0 else 0
+                        minus_di = (avg_minus_dm / avg_tr * 100) if avg_tr > 0 else 0
+                        dx = abs(plus_di - minus_di) / (plus_di + minus_di) * 100 if (plus_di + minus_di) > 0 else 0
+
+                        # Определяем режим
+                        # ADX < 20 и ATR < 1.0% = range (боковик)
+                        # ADX > 25 = trend
+                        # ATR > 3.0% = volatile
+                        if atr_pct > 3.0:
+                            market_regime = "VOLATILE"
+                        elif dx < 15 and atr_pct < 0.6:  # было dx<20 atr<1.0, смягчено
+                            market_regime = "RANGE"
+                        elif dx >= 25:
+                            market_regime = "TREND"
+                        else:
+                            market_regime = "MIXED"
+
+                        print(f"[REGIME] {symbol}: {market_regime} (ADX~{dx:.1f}, ATR={atr_pct:.2f}%)")
+
+                        # Адаптация параметров по режиму
+                        if market_regime == "RANGE":
+                            print(f"[REGIME] {symbol}: RANGE — пропускаем открытие {signal}")
+                            return
+                        elif market_regime == "TREND":
+                            # Тренд: широкий SL, дать позиции дышать
+                            if symbol in self.risk_manager.positions:
+                                pos = self.risk_manager.positions[symbol]
+                                base_sl = pos.get("dynamic_sl_pct", 3.0)
+                                pos["dynamic_sl_pct"] = max(base_sl, base_sl * 1.3)  # +30% к SL
+                                pos["trailing_step"] = 0.3  # Мягкий трейлинг
+                            print(f"[REGIME] {symbol}: TREND — SL расширен, трейлинг мягкий")
+                        elif market_regime == "VOLATILE":
+                            # Волатильность: узкий SL, быстрый выход
+                            if symbol in self.risk_manager.positions:
+                                pos = self.risk_manager.positions[symbol]
+                                base_sl = pos.get("dynamic_sl_pct", 3.0)
+                                pos["dynamic_sl_pct"] = min(base_sl, base_sl * 0.7)  # -30% к SL
+                                pos["trailing_step"] = 0.15  # Жёсткий трейлинг
+                            print(f"[REGIME] {symbol}: VOLATILE — SL сужен, трейлинг жёсткий")
+            except Exception as e:
+                print(f"[REGIME] {symbol} error: {e}")
+
+            if signal == 'BUY':
+                # Закрыть SHORT если есть (только при уверенности >= 0.60)
+                if short_position and ml_conf >= 0.60:
+                    quantity = abs(float(short_position['positionAmt']))
+                    order = self.api.close_position(symbol=symbol, side='BUY', quantity=quantity, price=price)
+                    if order:
+                        pnl = self.risk_manager.get_position_pnl(symbol, price)
+                        self.risk_manager.remove_position(symbol)
+                        self.analytics.log_trade(symbol=symbol, side='BUY', price=price, quantity=quantity, reason='Close SHORT', pnl=pnl)
+                        self.notifier.notify_trade_close(symbol, 'BUY', price, quantity, profit=pnl)
+                        try: self.rl_logger.log_reward(symbol, pnl)
+                        except: pass
+                        print(f"🟢 CLOSE SHORT {symbol} @ {price} | PnL: {pnl:.2f}%")
+
+                # Открыть LONG если нет позиции и не превышен лимит корреляции
+                if not long_position and long_count < self.max_same_direction and not corr_group_blocked(symbol, 'BUY'):
+                    # Антифлуд — не открывать по паре чаще 4 часов
+                    last_trade = self.last_trade_time.get(symbol)
+                    if last_trade and (now - last_trade).total_seconds() < 1 * 3600:
+                        remaining = int((1 * 3600 - (now - last_trade).total_seconds()) / 60)
+                        print(f"[ANTIFLOOD] {symbol}: ждём ещё {remaining} мин перед новым LONG")
+                    else:
+                        # Volume Profile фильтр
+                        klines_vol = self.api.get_klines(symbol, interval="1h", limit=23)
+                        klines_vol_data = klines_vol.get("data", []) if klines_vol and klines_vol.get("code")==0 else []
+                        vol_ok, vol_ratio, vol_signal = self.volume_profile.analyze(klines_vol_data)
+                        if not vol_ok:
+                            print(f"[VOL] {symbol}: пропускаем LONG — слабый объём {vol_ratio:.2f}x (нужно {self.volume_profile.min_volume_ratio}x)")
+                        else:
+                            print(f"[VOL] {symbol}: объём {vol_ratio:.2f}x ({vol_signal}) — входим LONG")
+                        if vol_ok:
+                            quantity = position_size / price
+                            # ПАТЧ 26: R:R minimum 1:2 (блокирующий)
+                            try:
+                                _rr_sl = atr_sl if "atr_sl" in dir() else 3.0
+                                _rr_tp = _rr_sl * 2.0
+                                # Проверяем ATR — если ATR слишком мал, потенциал движения низкий
+                                _kl_rr = self.api.get_klines(symbol, interval="1h", limit=20)
+                                if _kl_rr and _kl_rr.get("code") == 0:
+                                    _kl_d = _kl_rr["data"]
+                                    _atr_vals = []
+                                    for _ri in range(1, len(_kl_d)):
+                                        _h = float(_kl_d[_ri]["high"]); _l = float(_kl_d[_ri]["low"]); _pc = float(_kl_d[_ri-1]["close"])
+                                        _atr_vals.append(max(_h-_l, abs(_h-_pc), abs(_l-_pc)))
+                                    if _atr_vals:
+                                        _avg_move = sum(_atr_vals[-6:]) / 6 / price * 100 * 6  # потенциал за 6 свечей
+                                        if _avg_move < _rr_tp:
+                                            print(f"[RR] {symbol}: БЛОК — потенциал {_avg_move:.2f}% < min TP {_rr_tp:.2f}% (SL={_rr_sl:.2f}%)")
+                                            return
+                                        else:
+                                            print(f"[RR] {symbol}: OK — потенциал {_avg_move:.2f}% >= {_rr_tp:.2f}%")
+                            except Exception as _rr_e:
+                                print(f"[RR] error: {_rr_e}")
+
+                            order = self.api.open_position(symbol=symbol, side='BUY', quantity=quantity, price=price)
+                            if order:
+                                klines_for_atr = self.api.get_klines(symbol, interval="1h", limit=20)
+                                klines_data = klines_for_atr.get("data", []) if klines_for_atr and klines_for_atr.get("code")==0 else []
+                                atr_sl = self.risk_manager.calc_smc_sl(klines_data, "LONG") if klines_data else 3.0
+                                self.risk_manager.add_position(symbol, price, 'LONG', quantity, atr_pct=atr_sl/2.0)
+                                self.risk_manager.positions[symbol]["dynamic_sl_pct"] = atr_sl
+                                self.analytics.log_trade(symbol=symbol, side='BUY', price=price, quantity=quantity, reason='Open LONG')
+                                self.notifier.notify_trade_open(symbol, 'BUY', price, quantity)
+                                self.last_trade_time[symbol] = now
+                                print(f'✅ OPEN LONG {symbol} @ {price} | ATR SL: {atr_sl:.2f}%')
+                elif not long_position and long_count >= self.max_same_direction:
+                    print(f'[CORR] {symbol}: блокируем LONG — уже {long_count} лонгов открыто')
+
+            elif signal == 'SELL':
+                # ПАТЧ 14: Закрыть LONG только при высокой уверенности (Close LONG часто убыточен)
+                if long_position and ml_conf >= 0.70:
+                    quantity = abs(float(long_position['positionAmt']))
+                    order = self.api.close_position(symbol=symbol, side='SELL', quantity=quantity, price=price)
+                elif long_position and ml_conf < 0.70:
+                    print(f"[CLOSE-FILTER] {symbol}: НЕ закрываем LONG — ml_conf={ml_conf:.3f} < 0.70")
+                    if order:
+                        pnl = self.risk_manager.get_position_pnl(symbol, price)
+                        self.risk_manager.remove_position(symbol)
+                        self.analytics.log_trade(symbol=symbol, side='SELL', price=price, quantity=quantity, reason='Close LONG', pnl=pnl)
+                        self.notifier.notify_trade_close(symbol, 'SELL', price, quantity, profit=pnl)
+                        print(f"🔴 CLOSE LONG {symbol} @ {price} | PnL: {pnl:.2f}%")
+
+                # Открыть SHORT если нет позиции и не превышен лимит корреляции
+                if not short_position and short_count < self.max_same_direction and not corr_group_blocked(symbol, 'SELL'):
+                    # ПАТЧ 13 v2: SHORT с адаптивным порогом
+                    # В Premium зоне SHORT безопаснее -> порог ниже
+                    _short_thresh = 0.58 if hasattr(self, "_last_pd_zone") and self._last_pd_zone == "PREMIUM" else 0.65
+                    if ml_conf < _short_thresh:
+                        print(f"[SHORT-FILTER] {symbol}: пропускаем SHORT — ml_conf={ml_conf:.3f} < {_short_thresh}")
+                        return
+                    # Volume Profile фильтр
+                    klines_vol = self.api.get_klines(symbol, interval="1h", limit=23)
+                    klines_vol_data = klines_vol.get("data", []) if klines_vol and klines_vol.get("code")==0 else []
+                    vol_ok, vol_ratio, vol_signal = self.volume_profile.analyze(klines_vol_data)
+                    if not vol_ok:
+                        print(f"[VOL] {symbol}: пропускаем SHORT — слабый объём {vol_ratio:.2f}x (нужно {self.volume_profile.min_volume_ratio}x)")
+                    else:
+                        print(f"[VOL] {symbol}: объём {vol_ratio:.2f}x ({vol_signal}) — входим SHORT")
+                    if vol_ok:
+                        quantity = position_size / price
+                        order = self.api.open_position(symbol=symbol, side='SELL', quantity=quantity, price=price)
+                        if order:
+                            klines_for_atr = self.api.get_klines(symbol, interval="1h", limit=20)
+                            klines_data = klines_for_atr.get("data", []) if klines_for_atr and klines_for_atr.get("code")==0 else []
+                            atr_sl = self.risk_manager.calc_smc_sl(klines_data, "SHORT") if klines_data else 3.0
+                            self.risk_manager.add_position(symbol, price, 'SHORT', quantity, atr_pct=atr_sl/2.0)
+                            self.risk_manager.positions[symbol]["dynamic_sl_pct"] = atr_sl
+                            self.analytics.log_trade(symbol=symbol, side='SELL', price=price, quantity=quantity, reason='Open SHORT')
+                            self.notifier.notify_trade_open(symbol, 'SELL', price, quantity)
+                            print(f'🔻 OPEN SHORT {symbol} @ {price} | ATR SL: {atr_sl:.2f}%')
+                elif not short_position and short_count >= self.max_same_direction:
+                    print(f'[CORR] {symbol}: блокируем SHORT — уже {short_count} шортов открыто')
+        
+        except Exception as e:
+            print(f"⚠️  Error checking {symbol}: {e}")
+
+if __name__ == '__main__':
+    bot = TradingBot()
+    bot.run()

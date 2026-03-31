@@ -1,0 +1,8 @@
+{
+  "symbol": "ADA-USDT",
+  "xgb_acc": 0.6586,
+  "lgb_acc": 0.6586,
+  "ensemble_acc": 0.6724,
+  "agree_pct": 93.5,
+  "samples": 1239
+}

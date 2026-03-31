@@ -1,0 +1,77 @@
+[
+  {
+    "date": "2026-03-28",
+    "importances": {
+      "RSI": 3.75,
+      "EMA_fast": 3.54,
+      "EMA_slow": 4.09,
+      "Stoch_K": 21.97,
+      "Williams_R": 11.7,
+      "CCI": 4.8,
+      "ROC_1": 3.31,
+      "ROC_3": 3.61,
+      "ROC_7": 3.65,
+      "MACD_hist": 4.28,
+      "BB_width": 3.59,
+      "BB_pct": 7.44,
+      "ATR_pct": 5.76,
+      "ATR_ratio": 4.65,
+      "EMA200_dist": 3.41
+    }
+  },
+  {
+    "date": "2026-03-29",
+    "importances": {
+      "RSI": 3.39,
+      "EMA_fast": 2.93,
+      "EMA_slow": 3.62,
+      "Stoch_K": 24.9,
+      "Williams_R": 10.99,
+      "CCI": 4.95,
+      "ROC_1": 3.53,
+      "ROC_3": 3.17,
+      "ROC_7": 3.64,
+      "MACD_hist": 3.67,
+      "BB_width": 3.41,
+      "BB_pct": 7.09,
+      "ATR_pct": 4.97,
+      "ATR_ratio": 3.63,
+      "EMA200_dist": 3.11
+    }
+  },
+  {
+    "date": "2026-03-30",
+    "importances": {
+      "RSI": 3.36,
+      "EMA_fast": 3.01,
+      "EMA_slow": 3.83,
+      "Stoch_K": 24.56,
+      "Williams_R": 10.92,
+      "CCI": 4.83,
+      "ROC_1": 3.57,
+      "ROC_3": 3.19,
+      "ROC_7": 3.51,
+      "MACD_hist": 3.71,
+      "BB_width": 3.28,
+      "BB_pct": 7.43,
+      "ATR_pct": 5.07,
+      "ATR_ratio": 3.7,
+      "EMA200_dist": 3.1
+    }
+  },
+  {
+    "date": "2026-03-31",
+    "importances": {
+      "RSI": 6.21,
+      "EMA_fast": 8.5,
+      "EMA_slow": 4.15,
+      "Stoch_K": 22.02,
+      "Williams_R": 9.74,
+      "CCI": 4.72,
+      "ROC_1": 2.98,
+      "ROC_3": 3.14,
+      "ROC_7": 3.49,
+      "MACD_hist": 3.73
+    }
+  }
+]

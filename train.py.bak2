@@ -1,0 +1,119 @@
+import requests
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import joblib
+import os
+import time
+
+BASE_URL = "https://open-api.bingx.com"
+SYMBOLS = ["SOL-USDT", "BNB-USDT", "SUI-USDT", "LINK-USDT", "RIVER-USDT"]
+MODEL_DIR = "/root/bingx-bot/models"
+os.makedirs(MODEL_DIR, exist_ok=True)
+
+def get_klines(symbol, interval="1h", limit=1000):
+    url = f"{BASE_URL}/openApi/swap/v2/quote/klines"
+    params = {"symbol": symbol, "interval": interval, "limit": limit}
+    try:
+        r = requests.get(url, params=params, timeout=15)
+        data = r.json()
+        if data.get("code") == 0 and data.get("data"):
+            return data["data"]
+    except Exception as e:
+        print(f"Ошибка получения данных {symbol}: {e}")
+    return []
+
+def calc_rsi(closes, period=14):
+    deltas = np.diff(closes)
+    gains = np.where(deltas > 0, deltas, 0)
+    losses = np.where(deltas < 0, -deltas, 0)
+    rsi_vals = []
+    for i in range(period, len(closes)):
+        ag = np.mean(gains[i-period:i])
+        al = np.mean(losses[i-period:i])
+        rs = ag / al if al != 0 else 100
+        rsi_vals.append(100 - 100/(1+rs))
+    return rsi_vals
+
+def calc_ema(closes, period):
+    return pd.Series(closes).ewm(span=period, adjust=False).mean().values
+
+def prepare_features(klines):
+    closes = np.array([float(k["close"]) for k in klines])
+    highs  = np.array([float(k["high"]) for k in klines])
+    lows   = np.array([float(k["low"]) for k in klines])
+    volumes= np.array([float(k["volume"]) for k in klines])
+
+    rsi = calc_rsi(closes, 14)
+    ema9  = calc_ema(closes, 9)
+    ema21 = calc_ema(closes, 21)
+    ema50 = calc_ema(closes, 50)
+
+    min_len = min(len(rsi), len(ema9)-50, len(ema21)-50, len(ema50)-50)
+    offset = len(closes) - min_len
+
+    features, labels = [], []
+    for i in range(min_len - 1):
+        idx = offset + i
+        price_change = (closes[idx+1] - closes[idx]) / closes[idx] * 100
+        label = 1 if price_change > 0.3 else (0 if price_change < -0.3 else -1)
+        if label == -1:
+            continue
+        f = [
+            rsi[i],
+            ema9[idx] - ema21[idx],
+            ema21[idx] - ema50[idx],
+            (closes[idx] - lows[idx]) / (highs[idx] - lows[idx] + 1e-9),
+            volumes[idx] / (np.mean(volumes[max(0,idx-20):idx]) + 1e-9),
+            (closes[idx] - closes[idx-1]) / closes[idx-1] * 100 if idx > 0 else 0,
+            (closes[idx] - closes[idx-3]) / closes[idx-3] * 100 if idx > 2 else 0,
+            (closes[idx] - closes[idx-7]) / closes[idx-7] * 100 if idx > 6 else 0,
+        ]
+        features.append(f)
+        labels.append(label)
+    return np.array(features), np.array(labels)
+
+print("=" * 60)
+print("  ОБУЧЕНИЕ ML-МОДЕЛИ НА ИСТОРИЧЕСКИХ ДАННЫХ")
+print("=" * 60)
+
+all_features, all_labels = [], []
+
+for symbol in SYMBOLS:
+    print(f"\n[{symbol}] Скачиваю исторические данные (1000 свечей 1h)...")
+    klines = get_klines(symbol, "1h", 1000)
+    if len(klines) < 100:
+        print(f"  Недостаточно данных для {symbol}, пропускаю")
+        continue
+    print(f"  Получено {len(klines)} свечей")
+    X, y = prepare_features(klines)
+    print(f"  Подготовлено {len(X)} обучающих примеров")
+    all_features.append(X)
+    all_labels.append(y)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = RandomForestClassifier(n_estimators=200, max_depth=8, random_state=42, n_jobs=-1)
+    model.fit(X_train, y_train)
+    acc = accuracy_score(y_test, model.predict(X_test))
+    print(f"  Точность модели: {acc*100:.1f}%")
+    path = f"{MODEL_DIR}/{symbol.replace('-','_')}_model.pkl"
+    joblib.dump(model, path)
+    print(f"  Модель сохранена: {path}")
+    time.sleep(1)
+
+print("\n" + "=" * 60)
+print("  Обучение общей модели на всех парах...")
+X_all = np.vstack(all_features)
+y_all = np.concatenate(all_labels)
+X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.2, random_state=42)
+model_all = RandomForestClassifier(n_estimators=300, max_depth=10, random_state=42, n_jobs=-1)
+model_all.fit(X_train, y_train)
+acc_all = accuracy_score(y_test, model_all.predict(X_test))
+print(f"  Общая точность модели: {acc_all*100:.1f}%")
+joblib.dump(model_all, f"{MODEL_DIR}/general_model.pkl")
+print(f"  Общая модель сохранена: {MODEL_DIR}/general_model.pkl")
+print("=" * 60)
+print("  ОБУЧЕНИЕ ЗАВЕРШЕНО")
+print("=" * 60)

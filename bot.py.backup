@@ -1,0 +1,107 @@
+import os
+import time
+from dotenv import load_dotenv
+from bingx_api import BingXAPI
+from strategy_ml import MLStrategy
+from analytics import Analytics
+from risk_manager import RiskManager
+
+load_dotenv()
+
+class TradingBot:
+    def __init__(self):
+        self.api = BingXAPI(
+            api_key=os.getenv('BINGX_API_KEY'),
+            secret_key=os.getenv('BINGX_SECRET_KEY')
+        )
+        self.strategy = MLStrategy()
+        self.analytics = Analytics()
+        self.symbols = ['RIVER-USDT', 'BNB-USDT', 'SUI-USDT', 'SOL-USDT', 'LINK-USDT']
+        self.position_size = 10  # USDT per trade
+        
+    def run(self):
+        print("🤖 Trading Bot Started")
+        print(f"📊 Symbols: {', '.join(self.symbols)}")
+        print(f"💰 Position Size: {self.position_size} USDT")
+        
+        while True:
+            try:
+                for symbol in self.symbols:
+                    self.check_symbol(symbol)
+                
+                # Show stats every 10 minutes
+                stats = self.analytics.get_stats()
+                if stats['total_trades'] > 0:
+                    print(f"\n📈 Stats: {stats['total_trades']} trades | Win Rate: {stats['win_rate']:.1f}% | Profit: {stats['total_profit']:.2f} USDT")
+                
+                time.sleep(60)  # Check every minute
+                
+            except Exception as e:
+                print(f"❌ Error: {e}")
+                time.sleep(10)
+    
+    def check_symbol(self, symbol):
+        try:
+            # Get current position
+            positions = self.api.get_positions()
+            current_position = None
+            for pos in positions:
+                if pos['symbol'] == symbol:
+                    current_position = pos
+                    break
+            
+            # Get signal from ML strategy
+            signal = self.strategy.get_signal(symbol, self.api)
+            
+            if signal == 'BUY' and not current_position:
+                # Open LONG
+                ticker = self.api.get_ticker(symbol)
+                price = float(ticker['lastPrice'])
+                quantity = self.position_size / price
+                
+                order = self.api.open_position(
+                    symbol=symbol,
+                    side='LONG',
+                    quantity=quantity,
+                    price=price
+                )
+                
+                if order:
+                    self.analytics.log_trade(
+                        symbol=symbol,
+                        side='BUY',
+                        price=price,
+                        quantity=quantity,
+                        reason='ML Strategy Signal'
+                    )
+                    print(f"✅ LONG {symbol} @ {price}")
+            
+            elif signal == 'SELL' and current_position:
+                # Close LONG
+                ticker = self.api.get_ticker(symbol)
+                price = float(ticker['lastPrice'])
+                quantity = abs(float(current_position['positionAmt']))
+                
+                order = self.api.close_position(
+                    symbol=symbol,
+                    side='LONG',
+                    quantity=quantity,
+                    price=price
+                )
+                
+                if order:
+                    self.analytics.log_trade(
+                        symbol=symbol,
+                        side='SELL',
+                        price=price,
+                        quantity=quantity,
+                        reason='ML Strategy Exit'
+                    )
+                    print(f"🔴 CLOSE {symbol} @ {price}")
+        
+        except Exception as e:
+            print(f"⚠️  Error checking {symbol}: {e}")
+
+if __name__ == '__main__':
+    bot = TradingBot()
+    bot.run()

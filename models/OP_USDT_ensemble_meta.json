@@ -1,0 +1,8 @@
+{
+  "symbol": "OP-USDT",
+  "xgb_acc": 0.6102,
+  "lgb_acc": 0.5941,
+  "ensemble_acc": 0.6116,
+  "agree_pct": 92.7,
+  "samples": 1239
+}

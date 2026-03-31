@@ -1,0 +1,316 @@
+import os
+import time
+import json
+from datetime import datetime
+from dotenv import load_dotenv
+from bingx_api import BingXAPI
+from strategy_ml import MLStrategy
+from analytics import Analytics
+from risk_manager import RiskManager
+from telegram_notifier import TelegramNotifier
+from telegram_commander import TelegramCommander
+from kelly import KellyCriterion
+from econ_calendar import EconCalendar
+from liquidation_map import LiquidationMap
+from volume_profile import VolumeProfile
+from rl_logger import RLLogger
+from auto_blacklist import AutoBlacklist
+from pairs_trading import PairsTrader
+
+load_dotenv()
+
+class TradingBot:
+    def __init__(self):
+        self.api = BingXAPI(
+            api_key=os.getenv('BINGX_API_KEY'),
+            secret_key=os.getenv('BINGX_SECRET_KEY')
+        )
+        self.strategy = MLStrategy()
+        self.analytics = Analytics()
+        self.risk_manager = RiskManager(stop_loss_pct=3.0, take_profit_pct=999.0, trailing_pct=1.0)
+        self.notifier = TelegramNotifier()
+        self.commander = TelegramCommander(self)
+        self.kelly = KellyCriterion(max_position=70.0, min_position=20.0)
+        self.econ_calendar = EconCalendar()
+        self.liq_map = LiquidationMap()
+        self.volume_profile = VolumeProfile(self.api)
+        self.rl_logger = RLLogger()
+        self.auto_blacklist = AutoBlacklist()
+        self.pairs_trader = PairsTrader(self.api, self.notifier, self.analytics)
+        self.trading_enabled = True
+        self.daily_loss = 0.0
+        self.max_budget = 500.0
+        self.peak_balance = 0.0
+        self.daily_loss_limit = 30.0
+        self.consecutive_stops = 0
+        self.cooldown_until = None
+        self.cooldown_hours = 3
+        self.max_consecutive_stops = 3
+        self.weekly_pnl = 0.0
+        self.week_start = datetime.now()
+        self.symbols = [
+            'ETH-USDT', 'SUI-USDT', 'DOGE-USDT', 'ADA-USDT',
+            'XRP-USDT', 'OP-USDT', 'LINK-USDT', 'FET-USDT',
+            'WLD-USDT', 'SOL-USDT', 'TAO-USDT', 'DOT-USDT',
+            'ARB-USDT', 'PENDLE-USDT', 'FIL-USDT'
+        ]
+        self.position_size = 40
+        self.consecutive_stops = 0
+        self.cooldown_until = None
+        self.cooldown_hours = 3
+        self.max_consecutive_stops = 3
+        self.weekly_pnl = 0.0
+        self.week_start = datetime.now()
+        self.symbols = [
+            'ETH-USDT', 'SUI-USDT', 'DOGE-USDT', 'ADA-USDT',
+            'XRP-USDT', 'OP-USDT', 'LINK-USDT', 'FET-USDT',
+            'WLD-USDT', 'SOL-USDT', 'TAO-USDT', 'DOT-USDT',
+            'ARB-USDT', 'PENDLE-USDT', 'FIL-USDT'
+        ]
+        self.position_size = 40
+
+    def check_symbol(self, symbol):
+        try:
+            if not self.trading_enabled:
+                return
+            if self.cooldown_until and datetime.now() < self.cooldown_until:
+                return
+            try:
+                if self.auto_blacklist.is_blocked(symbol):
+                    print(f"[BL] {symbol}: blacklisted, skip")
+                    return
+            except:
+                pass
+            now = datetime.utcnow()
+            if now.hour not in [7,8,9,10,11,12,13,14,15,16,19,20,21]:
+                print(f"[SESSION] {symbol}: outside trading hours UTC={now.hour}")
+                return
+            ticker = self.api.get_ticker(symbol)
+            if not ticker:
+                return
+            price = float(ticker.get("lastPrice", 0) or 0)
+            if price <= 0:
+                return
+            try:
+                strategy_signal = self.strategy.get_signal(symbol, self.api)
+            except Exception as se:
+                print(f"[SMC] {symbol}: signal error: {se}")
+                return
+            if isinstance(strategy_signal, (list, tuple)) and len(strategy_signal) >= 2:
+                sig, prob = strategy_signal[0], strategy_signal[1]
+            else:
+                sig, prob = strategy_signal, 0.5
+            side = str(sig).upper()
+            if side == "BUY":
+                side = "LONG"
+            elif side == "SELL":
+                side = "SHORT"
+            elif side not in ("LONG", "SHORT"):
+                side = "HOLD"
+            print(f"[SMC] {symbol}: signal={sig} side={side} prob={prob:.3f}")
+            if side == "HOLD":
+                return
+            if self.weekly_pnl <= -5.0:
+                print(f"[DRAWDOWN] weekly PnL={self.weekly_pnl:.2f}%, block")
+                return
+            positions = self.api.get_positions() or []
+            current_position = None
+            for p in positions:
+                psym = str(p.get("symbol", "")).replace("_", "-")
+                if psym == symbol:
+                    amt = abs(float(p.get("positionAmt", 0) or 0))
+                    if amt > 0:
+                        current_position = p
+                        break
+            pos_side = None
+            if current_position:
+                ps = str(current_position.get("positionSide", "")).upper()
+                if ps == "BUY": pos_side = "LONG"
+                elif ps == "SELL": pos_side = "SHORT"
+                else: pos_side = ps
+            if pos_side == side:
+                return
+            if current_position and pos_side and pos_side != side:
+                cq = abs(float(current_position.get("positionAmt", 0) or 0))
+                cs = "SELL" if pos_side == "LONG" else "BUY"
+                print(f"[CLOSE] {symbol}: closing {pos_side} qty={cq}")
+                try:
+                    self.api.close_position(symbol=symbol, side=cs, quantity=cq, price=price)
+                except Exception as e:
+                    print(f"[CLOSE] {symbol}: error: {e}")
+                    return
+            try:
+                bal_data = self.api.get_balance()
+                bal = 0
+                if bal_data and isinstance(bal_data, dict):
+                    inner = bal_data.get('balance', {})
+                    bal = float(inner.get('balance', 0)) if isinstance(inner, dict) else float(inner)
+                entry_qty = self.kelly.get_size(self.analytics, bal, prob)
+                if entry_qty < 5:
+                    entry_qty = 5.0
+                if entry_qty > 70:
+                    entry_qty = 70.0
+                print(f"[KELLY] {symbol}: bal={bal:.1f} prob={prob:.3f} qty={entry_qty:.1f}")
+            except Exception as ke:
+                entry_qty = self.position_size
+                print(f"[KELLY] {symbol}: fallback qty={entry_qty}, err={ke}")
+            entry_qty = round(entry_qty / price, 6)
+            print(f"[OPEN] {symbol}: {side} qty={entry_qty} price={price} prob={prob:.3f}")
+            try:
+                api_side = "BUY" if side == "LONG" else "SELL"
+                order = self.api.open_position(
+                    symbol=symbol, side=api_side,
+                    quantity=entry_qty, price=price
+                )
+                print(f"[OPEN] {symbol}: order={order}")
+                self.notifier.send_message(
+                    f"{'🟢' if side=='LONG' else '🔴'} {side} {symbol}\n"
+                    f"Price: {price}\nQty: {entry_qty} USDT\nProb: {prob:.1%}"
+                )
+            except Exception as e:
+                print(f"[OPEN] {symbol}: error: {e}")
+            try:
+                self.rl_logger.log(symbol, side, price, prob)
+            except:
+                pass
+        except Exception as e:
+            print(f"[ERR] check_symbol({symbol}): {e}")
+
+    def manage_positions(self):
+        try:
+            positions = self.api.get_positions() or []
+            for pos in positions:
+                symbol = pos.get("symbol", "")
+                amt = float(pos.get("positionAmt", 0) or 0)
+                if amt == 0:
+                    continue
+                if symbol not in self.symbols:
+                    continue
+                entry = float(pos.get("avgPrice", 0) or pos.get("entryPrice", 0) or 0)
+                if entry <= 0:
+                    continue
+                ticker = self.api.get_ticker(symbol)
+                if not ticker:
+                    continue
+                price = float(ticker.get("lastPrice", 0) or 0)
+                if price <= 0:
+                    continue
+                ps = str(pos.get("positionSide", "")).upper()
+                if ps == "SHORT":
+                    pnl_pct = (entry - price) / entry * 100
+                    close_side = "BUY"
+                else:
+                    pnl_pct = (price - entry) / entry * 100
+                    close_side = "SELL"
+                qty = abs(amt)
+                # Stop Loss -3%
+                if pnl_pct <= -3.0:
+                    print(f"[SL] {symbol}: pnl={pnl_pct:.2f}% -> STOP LOSS")
+                    self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
+                    self.notifier.send_message(f"🛑 SL {symbol} pnl={pnl_pct:.2f}%")
+                    self.consecutive_stops += 1
+                    if self.consecutive_stops >= self.max_consecutive_stops:
+                        self.cooldown_until = datetime.now()
+                        from datetime import timedelta
+                        self.cooldown_until += timedelta(hours=self.cooldown_hours)
+                        print(f"[COOLDOWN] {self.consecutive_stops} stops -> cooldown {self.cooldown_hours}h")
+                    continue
+                # Take Profit +4%
+                if pnl_pct >= 4.0:
+                    print(f"[TP] {symbol}: pnl={pnl_pct:.2f}% -> TAKE PROFIT")
+                    self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
+                    self.notifier.send_message(f"🎯 TP {symbol} pnl={pnl_pct:.2f}%")
+                    self.consecutive_stops = 0
+                    continue
+                # Безубыток 0.5% -> перемещаем SL в ноль (лог)
+                if pnl_pct >= 0.5:
+                    print(f"[BE] {symbol}: pnl={pnl_pct:.2f}% -> breakeven zone")
+                # Трейлинг: при +2% закрываем 50% (однократно)
+                if pnl_pct >= 2.0:
+                    if not hasattr(self, '_partial_done'):
+                        self._partial_done = {}
+                    if symbol not in self._partial_done:
+                        partial = round(qty * 0.5, 6)
+                        if partial > 0:
+                            print(f"[TRAIL] {symbol}: pnl={pnl_pct:.2f}% -> partial close 50%")
+                            try:
+                                self.api.close_position(symbol=symbol, side=close_side, quantity=partial, price=price)
+                                self._partial_done[symbol] = True
+                                self.notifier.send_message(f"📊 Partial {symbol} 50% at {pnl_pct:.2f}%")
+                            except Exception as e:
+                                print(f"[TRAIL] {symbol}: error: {e}")
+                # SMC Averaging: 1 раз при -1.5%, если SMC подтверждает
+                if -2.5 <= pnl_pct <= -1.5:
+                    avg_key = f"avg_{symbol}"
+                    if not hasattr(self, '_avg_done'):
+                        self._avg_done = {}
+                    if avg_key not in self._avg_done:
+                        try:
+                            from smc_analyzer import SMCAnalyzer
+                            _smc = SMCAnalyzer()
+                            kl = self.api.get_klines(symbol, interval="1h", limit=30)
+                            if kl and kl.get("code") == 0 and kl.get("data"):
+                                smc_r = _smc.analyze(kl["data"][-30:])
+                                sc = smc_r.get("score", 0)
+                                sig = smc_r.get("signal", "NEUTRAL")
+                                need = "BULLISH" if ps == "LONG" else "BEARISH"
+                                if sig == need and sc >= 3:
+                                    avg_qty = round(qty * 0.5, 6)
+                                    avg_side = "BUY" if ps == "LONG" else "SELL"
+                                    print(f"[AVG] {symbol}: SMC {sig} sc={sc}, averaging {avg_side} qty={avg_qty}")
+                                    self.api.open_position(symbol=symbol, side=avg_side, quantity=avg_qty, price=price)
+                                    self._avg_done[avg_key] = True
+                                    self.notifier.send_message(f"📉 AVG {symbol} {avg_side} qty={avg_qty} pnl={pnl_pct:.2f}% SMC={sc}")
+                                else:
+                                    print(f"[AVG] {symbol}: SMC {sig} sc={sc} != {need}, no avg")
+                        except Exception as ae:
+                            print(f"[AVG] {symbol}: error: {ae}")
+                print(f"[POS] {symbol}: pnl={pnl_pct:+.2f}%")
+        except Exception as e:
+            print(f"[MANAGE] error: {e}")
+
+    def run(self):
+        print("🤖 Trading Bot Started")
+        print(f"📊 Symbols: {', '.join(self.symbols)}")
+        print(f"💰 Position Size: {self.position_size} USDT")
+        self.notifier.notify_bot_start(self.symbols, self.position_size)
+        self.commander.start()
+        last_report_hour = -1
+        while True:
+            try:
+                try:
+                    self.pairs_trader.run_cycle()
+                except Exception as e:
+                    print(f"[PAIRS] error: {e}")
+                self.manage_positions()
+                for symbol in self.symbols:
+                    self.check_symbol(symbol)
+                    time.sleep(2)
+                now = datetime.now()
+                if now.hour != last_report_hour:
+                    last_report_hour = now.hour
+                    try:
+                        stats = self.analytics.get_stats()
+                        bal = self.api.get_balance()
+                        b = 0
+                        if bal and isinstance(bal, dict):
+                            inner = bal.get('balance', {})
+                            if isinstance(inner, dict):
+                                b = float(inner.get('balance', 0))
+                            else:
+                                b = float(inner)
+                        rpt = (f"📊 Hourly\n"
+                               f"💰 {b:.2f} USDT\n"
+                               f"📈 Trades: {stats['total_trades']}\n"
+                               f"✅ WR: {stats['win_rate']}%\n"
+                               f"💵 PnL: {stats['total_profit']:+.2f}%")
+                        self.notifier.send_message(rpt)
+                    except:
+                        pass
+            except Exception as e:
+                print(f"[MAIN] Error: {e}")
+                time.sleep(5)
+
+if __name__ == "__main__":
+    bot = TradingBot()
+    bot.run()

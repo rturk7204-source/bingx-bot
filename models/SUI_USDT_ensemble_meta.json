@@ -1,0 +1,8 @@
+{
+  "symbol": "SUI-USDT",
+  "xgb_acc": 0.6425,
+  "lgb_acc": 0.6532,
+  "ensemble_acc": 0.6618,
+  "agree_pct": 91.4,
+  "samples": 1239
+}

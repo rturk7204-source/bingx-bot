@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+"""
+Pairs Trading — статистический арбитраж.
+Полностью изолирован от SMC стратегии.
+Отдельный бюджет, отдельные позиции.
+"""
+import numpy as np
+import requests
+import time
+import json
+import os
+from datetime import datetime, timezone
+
+class PairsTrader:
+    def __init__(self, api, notifier=None, analytics=None):
+        self.api = api
+        self.notifier = notifier
+        self.analytics = analytics
+        self.bingx_api = "https://open-api.bingx.com"
+        
+        # Бюджет pairs trading — изолирован от SMC
+        self.max_position_size = 30.0  # USDT на одну ногу (30+30=60 на пару)
+        self.max_pairs_open = 2  # макс одновременно открытых пар
+        
+        # Пары для арбитража (высокая корреляция)
+        self.pairs = [
+            ("ETH-USDT", "SOL-USDT"),     # L1 vs L1
+            ("DOGE-USDT", "FLOKI-USDT"),   # мем vs мем — нет в списке, заменим
+            ("ARB-USDT", "OP-USDT"),       # L2 vs L2
+            ("DOT-USDT", "NEAR-USDT"),     # L1 vs L1 (нет NEAR, пропустим)
+            ("FET-USDT", "TAO-USDT"),      # AI vs AI
+        ]
+        
+        # Параметры
+        self.lookback = 72  # часов для расчёта корреляции
+        self.z_entry = 2.0   # Z-score для входа
+        self.z_exit = 0.3    # Z-score для выхода
+        self.z_stop = 3.5    # Z-score для стоп-лосса
+        self.min_correlation = 0.7
+        
+        # Состояние
+        self.state_file = "/root/bingx-bot/pairs_state.json"
+        self.open_pairs = self._load_state()
+    
+    def _load_state(self):
+        try:
+            if os.path.exists(self.state_file):
+                with open(self.state_file) as f:
+                    return json.load(f)
+        except: pass
+        return {}
+    
+    def _save_state(self):
+        try:
+            with open(self.state_file, "w") as f:
+                json.dump(self.open_pairs, f, indent=2)
+        except: pass
+    
+    def get_prices(self, symbol, limit=72):
+        """Получаем часовые close цены"""
+        try:
+            r = requests.get(f"{self.bingx_api}/openApi/swap/v3/quote/klines",
+                params={"symbol": symbol, "interval": "1h", "limit": limit}, timeout=10)
+            d = r.json()
+            if d.get("code") == 0:
+                return [float(k["close"]) for k in d["data"]]
+        except: pass
+        return []
+    
+    def calc_spread(self, prices_a, prices_b):
+        """Считаем spread = log(A) - log(B), Z-score"""
+        if len(prices_a) != len(prices_b) or len(prices_a) < 20:
+            return None, None, None
+        
+        log_a = np.log(prices_a)
+        log_b = np.log(prices_b)
+        spread = log_a - log_b
+        
+        # Корреляция
+        corr = np.corrcoef(prices_a, prices_b)[0, 1]
+        
+        # Z-score
+        mean = np.mean(spread)
+        std = np.std(spread)
+        if std == 0:
+            return None, None, None
+        
+        z_score = (spread[-1] - mean) / std
+        return z_score, corr, spread[-1]
+    
+    def check_pairs(self):
+        """Основной цикл — проверяет все пары"""
+        for sym_a, sym_b in self.pairs:
+            pair_key = f"{sym_a}|{sym_b}"
+            
+            try:
+                prices_a = self.get_prices(sym_a, self.lookback)
+                prices_b = self.get_prices(sym_b, self.lookback)
+                
+                if not prices_a or not prices_b:
+                    continue
+                
+                min_len = min(len(prices_a), len(prices_b))
+                prices_a = prices_a[-min_len:]
+                prices_b = prices_b[-min_len:]
+                
+                z_score, corr, spread = self.calc_spread(prices_a, prices_b)
+                
+                if z_score is None:
+                    continue
+                
+                if abs(corr) < self.min_correlation:
+                    continue
+                
+                price_a = prices_a[-1]
+                price_b = prices_b[-1]
+                
+                # === Управление открытой парой ===
+                if pair_key in self.open_pairs:
+                    pos = self.open_pairs[pair_key]
+                    
+                    # Выход: Z вернулся к нулю
+                    if abs(z_score) <= self.z_exit:
+                        self._close_pair(pair_key, price_a, price_b, "Z-exit")
+                        continue
+                    
+                    # Стоп: Z ушёл ещё дальше
+                    if pos["direction"] == "short_a" and z_score > self.z_stop:
+                        self._close_pair(pair_key, price_a, price_b, "Z-stop")
+                        continue
+                    elif pos["direction"] == "long_a" and z_score < -self.z_stop:
+                        self._close_pair(pair_key, price_a, price_b, "Z-stop")
+                        continue
+                    
+                    continue
+                
+                # === Новый вход ===
+                if len(self.open_pairs) >= self.max_pairs_open:
+                    continue
+                
+                if z_score > self.z_entry:
+                    # A переоценён vs B → шорт A, лонг B
+                    self._open_pair(pair_key, sym_a, sym_b, price_a, price_b, z_score, corr, "short_a")
+                elif z_score < -self.z_entry:
+                    # B переоценён vs A → лонг A, шорт B
+                    self._open_pair(pair_key, sym_a, sym_b, price_a, price_b, z_score, corr, "long_a")
+                
+            except Exception as e:
+                print(f"[PAIRS] {pair_key} error: {e}")
+    
+    def _open_pair(self, pair_key, sym_a, sym_b, price_a, price_b, z_score, corr, direction):
+        """Открываем pair trade"""
+        try:
+            qty_a = self.max_position_size / price_a
+            qty_b = self.max_position_size / price_b
+            qty_a = self.api.round_quantity(sym_a, qty_a)
+            qty_b = self.api.round_quantity(sym_b, qty_b)
+            
+            if qty_a <= 0 or qty_b <= 0:
+                return
+            
+            if direction == "short_a":
+                order_a = self.api.open_position(sym_a, "SELL", qty_a)
+                order_b = self.api.open_position(sym_b, "BUY", qty_b)
+            else:
+                order_a = self.api.open_position(sym_a, "BUY", qty_a)
+                order_b = self.api.open_position(sym_b, "SELL", qty_b)
+            
+            if order_a and order_b:
+                self.open_pairs[pair_key] = {
+                    "sym_a": sym_a, "sym_b": sym_b,
+                    "entry_a": price_a, "entry_b": price_b,
+                    "qty_a": qty_a, "qty_b": qty_b,
+                    "direction": direction, "z_entry": round(z_score, 2),
+                    "corr": round(corr, 3),
+                    "time": datetime.now(timezone.utc).isoformat()
+                }
+                self._save_state()
+                
+                side_a = "SHORT" if direction == "short_a" else "LONG"
+                side_b = "LONG" if direction == "short_a" else "SHORT"
+                print(f"[PAIRS] OPEN {sym_a} {side_a} + {sym_b} {side_b} | Z={z_score:.2f} corr={corr:.3f}")
+                
+                if self.notifier:
+                    self.notifier.send_message(
+                        f"📊 <b>Pairs Trade</b>\n"
+                        f"{sym_a} {side_a} @ {price_a}\n"
+                        f"{sym_b} {side_b} @ {price_b}\n"
+                        f"Z-score: {z_score:.2f} | Corr: {corr:.3f}"
+                    )
+            else:
+                # Откатываем если одна нога не открылась
+                if order_a and not order_b:
+                    close_side = "BUY" if direction == "short_a" else "SELL"
+                    self.api.close_position(sym_a, close_side, qty_a)
+                elif order_b and not order_a:
+                    close_side = "SELL" if direction == "short_a" else "BUY"
+                    self.api.close_position(sym_b, close_side, qty_b)
+                    
+        except Exception as e:
+            print(f"[PAIRS] Open error {pair_key}: {e}")
+    
+    def _close_pair(self, pair_key, price_a, price_b, reason):
+        """Закрываем pair trade"""
+        try:
+            pos = self.open_pairs[pair_key]
+            sym_a, sym_b = pos["sym_a"], pos["sym_b"]
+            
+            if pos["direction"] == "short_a":
+                self.api.close_position(sym_a, "BUY", pos["qty_a"])
+                self.api.close_position(sym_b, "SELL", pos["qty_b"])
+                pnl_a = (pos["entry_a"] - price_a) / pos["entry_a"] * 100
+                pnl_b = (price_b - pos["entry_b"]) / pos["entry_b"] * 100
+            else:
+                self.api.close_position(sym_a, "SELL", pos["qty_a"])
+                self.api.close_position(sym_b, "BUY", pos["qty_b"])
+                pnl_a = (price_a - pos["entry_a"]) / pos["entry_a"] * 100
+                pnl_b = (pos["entry_b"] - price_b) / pos["entry_b"] * 100
+            
+            total_pnl = (pnl_a + pnl_b) / 2
+            
+            del self.open_pairs[pair_key]
+            self._save_state()
+            
+            print(f"[PAIRS] CLOSE {sym_a}/{sym_b} | {reason} | PnL: A={pnl_a:+.2f}% B={pnl_b:+.2f}% Total={total_pnl:+.2f}%")
+            
+            if self.analytics:
+                self.analytics.log_trade(symbol=f"{sym_a}/{sym_b}", side="PAIRS", price=0, quantity=0, reason=f"Pairs {reason}", pnl=total_pnl)
+            
+            if self.notifier:
+                emoji = "✅" if total_pnl > 0 else "❌"
+                self.notifier.send_message(
+                    f"{emoji} <b>Pairs Close</b> ({reason})\n"
+                    f"{sym_a}: {pnl_a:+.2f}% | {sym_b}: {pnl_b:+.2f}%\n"
+                    f"Total: <b>{total_pnl:+.2f}%</b>"
+                )
+                
+        except Exception as e:
+            print(f"[PAIRS] Close error {pair_key}: {e}")

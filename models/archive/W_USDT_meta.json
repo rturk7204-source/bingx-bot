@@ -1,0 +1,8 @@
+{
+  "symbol": "W-USDT",
+  "interval": "1h",
+  "samples": 1239,
+  "train_acc": 0.9123,
+  "test_acc": 0.621,
+  "n_features": 23
+}

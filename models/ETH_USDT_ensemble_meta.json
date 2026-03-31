@@ -1,0 +1,8 @@
+{
+  "symbol": "ETH-USDT",
+  "xgb_acc": 0.7177,
+  "lgb_acc": 0.7124,
+  "ensemble_acc": 0.726,
+  "agree_pct": 95.2,
+  "samples": 1239
+}
