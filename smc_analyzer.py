@@ -518,6 +518,26 @@ class SMCAnalyzer:
                 return False  # mitigated
         return True  # still unmitigated
 
+
+    def detect_displacement(self, klines):
+        """Detect displacement candle - strong impulse move confirming direction"""
+        if len(klines) < 5:
+            return 'NEUTRAL'
+        last = klines[-1]
+        prev = klines[-2]
+        body = abs(float(last['close']) - float(last['open']))
+        wick_high = float(last['high']) - max(float(last['close']), float(last['open']))
+        wick_low = min(float(last['close']), float(last['open'])) - float(last['low'])
+        avg_body = sum(abs(float(k['close']) - float(k['open'])) for k in klines[-10:-1]) / 9
+        # Displacement: body > 2x average, small wicks
+        if body > avg_body * 2 and body > (wick_high + wick_low) * 2:
+            if float(last['close']) > float(last['open']):
+                print(f'[DISPLACEMENT] Bullish displacement candle detected (body={body:.4f} vs avg={avg_body:.4f})')
+                return 'BULLISH_DISP'
+            else:
+                print(f'[DISPLACEMENT] Bearish displacement candle detected (body={body:.4f} vs avg={avg_body:.4f})')
+                return 'BEARISH_DISP'
+        return 'NEUTRAL'
     def analyze(self, klines):
         """Полный SMC анализ"""
         if len(klines) < 30:
