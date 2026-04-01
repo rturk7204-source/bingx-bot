@@ -464,6 +464,60 @@ class SMCAnalyzer:
         except:
             return True
 
+
+    def detect_equal_highs_lows(self, klines, tolerance=0.001):
+        """Detect Equal Highs (EQH) and Equal Lows (EQL) — liquidity pools"""
+        if len(klines) < 20:
+            return "NEUTRAL", None
+        highs = [float(k["high"]) for k in klines[-20:]]
+        lows = [float(k["low"]) for k in klines[-20:]]
+        current = float(klines[-1]["close"])
+        
+        # EQH: 2+ highs within tolerance
+        eqh_count = 0
+        eqh_level = None
+        for i in range(len(highs)-1):
+            for j in range(i+1, len(highs)):
+                if abs(highs[i] - highs[j]) / highs[i] < tolerance:
+                    eqh_count += 1
+                    eqh_level = (highs[i] + highs[j]) / 2
+        
+        # EQL: 2+ lows within tolerance
+        eql_count = 0
+        eql_level = None
+        for i in range(len(lows)-1):
+            for j in range(i+1, len(lows)):
+                if abs(lows[i] - lows[j]) / lows[i] < tolerance:
+                    eql_count += 1
+                    eql_level = (lows[i] + lows[j]) / 2
+        
+        # EQL ниже цены = ликвидность для лонгов (sweep down)
+        if eql_count >= 2 and eql_level and current > eql_level:
+            print(f"[EQL] Equal Lows at {eql_level:.4f} — liquidity below ({eql_count} touches)")
+            return "BULLISH_EQL", eql_level
+        # EQH выше цены = ликвидность для шортов (sweep up)
+        if eqh_count >= 2 and eqh_level and current < eqh_level:
+            print(f"[EQH] Equal Highs at {eqh_level:.4f} — liquidity above ({eqh_count} touches)")
+            return "BEARISH_EQH", eqh_level
+        
+        return "NEUTRAL", None
+
+
+    def is_fvg_unmitigated(self, fvg, klines):
+        """Check if FVG has NOT been revisited (unmitigated)"""
+        if not fvg or len(klines) < 5:
+            return False
+        fvg_high = fvg["high"]
+        fvg_low = fvg["low"]
+        # Check last 10 candles — if price passed through FVG, it's mitigated
+        for k in klines[-10:-1]:
+            c_low = float(k["low"])
+            c_high = float(k["high"])
+            # Price passed through entire FVG zone
+            if c_low <= fvg_low and c_high >= fvg_high:
+                return False  # mitigated
+        return True  # still unmitigated
+
     def analyze(self, klines):
         """Полный SMC анализ"""
         if len(klines) < 30:
@@ -620,6 +674,24 @@ class SMCAnalyzer:
             details["bear_breaker"] = bear_breaker
             print(f"[SMC] Медвежий Breaker Block: {bear_breaker['low']:.4f} - {bear_breaker['high']:.4f}")
 
+
+        # EQH/EQL detection
+        eqhl_signal, eqhl_level = self.detect_equal_highs_lows(klines)
+        details["eqhl"] = eqhl_signal
+        if eqhl_signal == "BULLISH_EQL":
+            bull_confluence += 1
+            buy_score += 1
+        elif eqhl_signal == "BEARISH_EQH":
+            bear_confluence += 1
+            sell_score += 1
+
+        # FVG Mitigation check — only count unmitigated FVGs
+        if details.get("bullish_fvg") and not self.is_fvg_unmitigated(details["bullish_fvg"], klines):
+            if bull_confluence > 0: bull_confluence -= 1
+            print(f"[FVG] Bullish FVG mitigated — removing from confluence")
+        if details.get("bearish_fvg") and not self.is_fvg_unmitigated(details["bearish_fvg"], klines):
+            if bear_confluence > 0: bear_confluence -= 1
+            print(f"[FVG] Bearish FVG mitigated — removing from confluence")
         details["bull_confluence"] = bull_confluence
         details["bear_confluence"] = bear_confluence
         print(f"[CONFLUENCE] bull={bull_confluence}, bear={bear_confluence}")

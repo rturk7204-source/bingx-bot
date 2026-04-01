@@ -214,7 +214,12 @@ class TradingBot:
                     close_side = "SELL"
                 qty = abs(amt)
                 # Stop Loss -3%
-                if pnl_pct <= -1.5:
+                # Dynamic SL по ATR
+                try:
+                    _atr_sl = getattr(self, '_atr_sl_pct', {}).get(symbol, 1.5)
+                except:
+                    _atr_sl = 1.5
+                if pnl_pct <= -_atr_sl:
                     print(f"[SL] {symbol}: pnl={pnl_pct:.2f}% -> STOP LOSS")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
                     self.notifier.send_message(f"🛑 SL {symbol} pnl={pnl_pct:.2f}%")

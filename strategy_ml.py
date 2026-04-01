@@ -802,6 +802,7 @@ class MLStrategy:
                         "smc_score": smc_score_val, "ml_conf": round(ml_confidence, 3),
                         "rsi": round(rsi, 1), "macd": round(macd_hist, 6),
                         "trend_4h": trend_4h, "trend_1d": trend_1d,
+                        "atr_sl": self._atr_sl_store.get(symbol, 1.5) if hasattr(self, "_atr_sl_store") else 1.5,
                         "bull_conf": smc_details.get("bull_confluence", 0),
                         "bear_conf": smc_details.get("bear_confluence", 0),
                     }, "BUY")
@@ -826,6 +827,7 @@ class MLStrategy:
                         "smc_score": smc_score_val, "ml_conf": round(ml_confidence, 3),
                         "rsi": round(rsi, 1), "macd": round(macd_hist, 6),
                         "trend_4h": trend_4h, "trend_1d": trend_1d,
+                        "atr_sl": self._atr_sl_store.get(symbol, 1.5) if hasattr(self, "_atr_sl_store") else 1.5,
                         "bull_conf": smc_details.get("bull_confluence", 0),
                         "bear_conf": smc_details.get("bear_confluence", 0),
                     }, "SELL")
