@@ -579,8 +579,6 @@ class SMCAnalyzer:
         elif ote_signal == "BEARISH_OTE":
             bear_confluence += 1
 
-        details["bull_confluence"] = bull_confluence
-        details["bear_confluence"] = bear_confluence
 
         if buy_score > sell_score and buy_score >= 2:
             signal = "BULLISH"
@@ -621,6 +619,10 @@ class SMCAnalyzer:
             bear_confluence += 1
             details["bear_breaker"] = bear_breaker
             print(f"[SMC] Медвежий Breaker Block: {bear_breaker['low']:.4f} - {bear_breaker['high']:.4f}")
+
+        details["bull_confluence"] = bull_confluence
+        details["bear_confluence"] = bear_confluence
+        print(f"[CONFLUENCE] bull={bull_confluence}, bear={bear_confluence}")
 
         # MSS — ранний сигнал смены тренда
         mss = self.detect_market_structure_shift(klines)

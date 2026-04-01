@@ -727,6 +727,17 @@ class MLStrategy:
             smc_bull_conf = smc_details.get("bull_confluence", 0)
             smc_bear_conf = smc_details.get("bear_confluence", 0)
 
+            # Добавляем MTF confluence к SMC conf
+            try:
+                if mtf_signal == "BULLISH" and mtf_score >= 3:
+                    smc_bull_conf += 1
+                    print(f"[SMC-CONF] {symbol}: +1 bull conf от MTF (итого {smc_bull_conf})")
+                elif mtf_signal == "BEARISH" and mtf_score >= 3:
+                    smc_bear_conf += 1
+                    print(f"[SMC-CONF] {symbol}: +1 bear conf от MTF (итого {smc_bear_conf})")
+            except NameError:
+                pass
+
             if trend_4h == "BULLISH" and sell_signals > buy_signals and sell_signals >= 3:
                 if smc_score_val < 5:
                     print(f"[4H-FILTER] {symbol}: блокируем SELL — 4H бычий, SMC score={smc_score_val} < 5")
