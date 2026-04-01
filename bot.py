@@ -218,7 +218,7 @@ class TradingBot:
                     print(f"[SL] {symbol}: pnl={pnl_pct:.2f}% -> STOP LOSS")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
                     self.notifier.send_message(f"🛑 SL {symbol} pnl={pnl_pct:.2f}%")
-                for _d in ('_be_done', '_partial_done', '_avg_done'):
+                for _d in ('_be_done', '_partial_done', '_avg_done', '_tp1_done'):
                     _dd = getattr(self, _d, {})
                     _dd.pop(symbol, None)
                     _dd.pop(f'avg_{symbol}', None)
@@ -240,17 +240,30 @@ class TradingBot:
                         self.cooldown_until += timedelta(hours=self.cooldown_hours)
                         print(f"[COOLDOWN] {self.consecutive_stops} stops -> cooldown {self.cooldown_hours}h")
                     continue
-                # Take Profit +4%
-                if pnl_pct >= 2.5:
-                    print(f"[TP] {symbol}: pnl={pnl_pct:.2f}% -> TAKE PROFIT")
+                # TP1 при +1.5% — закрываем 50% (1:1 RR)
+                if pnl_pct >= 1.5:
+                    if not hasattr(self, '_tp1_done'):
+                        self._tp1_done = {}
+                    if symbol not in self._tp1_done:
+                        tp1_qty = round(qty * 0.5, 6)
+                        if tp1_qty > 0:
+                            print(f"[TP1] {symbol}: pnl={pnl_pct:.2f}% -> close 50% (1:1 RR)")
+                            try:
+                                self.api.close_position(symbol=symbol, side=close_side, quantity=tp1_qty, price=price)
+                                self._tp1_done[symbol] = True
+                                self.notifier.send_message(f"\U0001f3af TP1 {symbol} 50% at {pnl_pct:.2f}%")
+                            except Exception as e:
+                                print(f"[TP1] {symbol}: error: {e}")
+                # TP2 при +3.0% — закрываем остаток (2:1 RR)
+                if pnl_pct >= 3.0:
+                    print(f"[TP2] {symbol}: pnl={pnl_pct:.2f}% -> FULL TAKE PROFIT (2:1 RR)")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
-                    self.notifier.send_message(f"🎯 TP {symbol} pnl={pnl_pct:.2f}%")
-                for _d in ('_be_done', '_partial_done', '_avg_done'):
-                    _dd = getattr(self, _d, {})
-                    _dd.pop(symbol, None)
-                    _dd.pop(f'avg_{symbol}', None)
+                    self.notifier.send_message(f"\U0001f3af TP2 {symbol} pnl={pnl_pct:.2f}%")
+                    for _d in ('_be_done', '_partial_done', '_avg_done', '_tp1_done'):
+                        _dd = getattr(self, _d, {})
+                        _dd.pop(symbol, None)
+                        _dd.pop(f'avg_{symbol}', None)
                     self.consecutive_stops = 0
-                    # Сбрасываем счётчик убытков по паре при успехе
                     if hasattr(self, '_pair_losses') and symbol in self._pair_losses:
                         del self._pair_losses[symbol]
                     continue
@@ -278,20 +291,6 @@ class TradingBot:
                             print(f"[BE] {symbol}: error setting SL: {e}")
                     else:
                         print(f"[BE] {symbol}: pnl={pnl_pct:.2f}% (SL already at {self._be_done[symbol]})")
-                # Трейлинг: при +2% закрываем 50% (однократно)
-                if pnl_pct >= 1.5:
-                    if not hasattr(self, '_partial_done'):
-                        self._partial_done = {}
-                    if symbol not in self._partial_done:
-                        partial = round(qty * 0.5, 6)
-                        if partial > 0:
-                            print(f"[TRAIL] {symbol}: pnl={pnl_pct:.2f}% -> partial close 50%")
-                            try:
-                                self.api.close_position(symbol=symbol, side=close_side, quantity=partial, price=price)
-                                self._partial_done[symbol] = True
-                                self.notifier.send_message(f"📊 Partial {symbol} 50% at {pnl_pct:.2f}%")
-                            except Exception as e:
-                                print(f"[TRAIL] {symbol}: error: {e}")
                 # SMC Averaging: 1 раз при -1.5%, если SMC подтверждает
                 if -2.5 <= pnl_pct <= -1.5:
                     avg_key = f"avg_{symbol}"

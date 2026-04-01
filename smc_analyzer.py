@@ -408,6 +408,62 @@ class SMCAnalyzer:
         except:
             return "EQUILIBRIUM", 50.0
 
+
+    def check_ote_zone(self, klines):
+        """OTE (Optimal Trade Entry) — цена в зоне 62-79% Fibonacci от последнего BOS свинга"""
+        try:
+            if len(klines) < 30:
+                return "NEUTRAL", 0.0
+            swing_highs, swing_lows = self.get_swing_highs_lows(klines)
+            if len(swing_highs) < 2 or len(swing_lows) < 2:
+                return "NEUTRAL", 0.0
+            closes = [float(k["close"]) for k in klines]
+            current_price = closes[-1]
+            # Определяем тренд по последним свингам
+            last_sh = swing_highs[-1]["price"]
+            last_sl = swing_lows[-1]["price"]
+            swing_range = abs(last_sh - last_sl)
+            if swing_range == 0:
+                return "NEUTRAL", 0.0
+            # Бычий OTE: цена откатилась в 62-79% от swing low к swing high
+            fib_62_bull = last_sh - 0.618 * swing_range
+            fib_79_bull = last_sh - 0.786 * swing_range
+            if fib_79_bull <= current_price <= fib_62_bull:
+                pct = (last_sh - current_price) / swing_range * 100
+                print(f"[OTE] Бычья OTE зона: цена {current_price:.4f} в {pct:.1f}% retracement ({fib_79_bull:.4f}-{fib_62_bull:.4f})")
+                return "BULLISH_OTE", pct
+            # Медвежий OTE: цена откатилась вверх в 62-79% от swing high к swing low
+            fib_62_bear = last_sl + 0.618 * swing_range
+            fib_79_bear = last_sl + 0.786 * swing_range
+            if fib_62_bear <= current_price <= fib_79_bear:
+                pct = (current_price - last_sl) / swing_range * 100
+                print(f"[OTE] Медвежья OTE зона: цена {current_price:.4f} в {pct:.1f}% retracement ({fib_62_bear:.4f}-{fib_79_bear:.4f})")
+                return "BEARISH_OTE", pct
+            return "NEUTRAL", 0.0
+        except:
+            return "NEUTRAL", 0.0
+
+
+    def is_ob_unmitigated(self, ob, klines, ob_type="bullish"):
+        """Проверяет что Order Block ещё не был протестирован ценой после формирования"""
+        try:
+            if not ob or "idx" not in ob:
+                return False
+            idx = ob["idx"]
+            closes = [float(k["close"]) for k in klines]
+            # Проверяем свечи ПОСЛЕ формирования OB
+            for i in range(idx + 2, len(klines) - 1):
+                if ob_type == "bullish":
+                    # Если цена опускалась В зону OB и отскакивала — OB mitigated
+                    if closes[i] <= ob["high"] and closes[i] >= ob["low"]:
+                        return False
+                else:
+                    if closes[i] >= ob["low"] and closes[i] <= ob["high"]:
+                        return False
+            return True
+        except:
+            return True
+
     def analyze(self, klines):
         """Полный SMC анализ"""
         if len(klines) < 30:
@@ -419,9 +475,23 @@ class SMCAnalyzer:
         sweep = self.detect_liquidity_sweep(klines)
         current_price = float(klines[-1]["close"])
 
+        # OTE зона
+        ote_signal, ote_pct = self.check_ote_zone(klines)
+        details_ote = {"ote": ote_signal, "ote_pct": ote_pct}
+
+        # Unmitigated OB check
+        ob_bull_unmit = self.is_ob_unmitigated(bullish_ob, klines, "bullish") if bullish_ob else False
+        ob_bear_unmit = self.is_ob_unmitigated(bearish_ob, klines, "bearish") if bearish_ob else False
+        if bullish_ob and not ob_bull_unmit:
+            print(f"[SMC] Бычий OB MITIGATED — отклоняем")
+            bullish_ob = None
+        if bearish_ob and not ob_bear_unmit:
+            print(f"[SMC] Медвежий OB MITIGATED — отклоняем")
+            bearish_ob = None
+
         buy_score = 0
         sell_score = 0
-        details = {"bos": bos, "sweep": sweep}
+        details = {"bos": bos, "sweep": sweep, "ote": ote_signal, "ote_pct": ote_pct}
 
         # Premium/Discount зоны
         pd_zone, pd_pct = self.detect_premium_discount(klines)
@@ -469,6 +539,17 @@ class SMCAnalyzer:
             sell_score += 2
             print(f"[SMC] Медвежий ликвидити свип!")
 
+        # OTE зона — сильный бонус
+        if ote_signal == "BULLISH_OTE":
+            buy_score += 2
+            print(f"[OTE] +2 к BUY — цена в OTE зоне")
+        elif ote_signal == "BEARISH_OTE":
+            sell_score += 2
+            print(f"[OTE] +2 к SELL — цена в OTE зоне")
+
+        # Обязательный Liquidity Sweep для высокой конфлюэнции
+        details["sweep_required"] = sweep != "NEUTRAL"
+
         # Confluence — считаем сколько ТИПОВ сигналов совпало
         bull_confluence = 0
         bear_confluence = 0
@@ -491,6 +572,11 @@ class SMCAnalyzer:
         if sweep == "BULLISH_SWEEP":
             bull_confluence += 1
         elif sweep == "BEARISH_SWEEP":
+            bear_confluence += 1
+
+        if ote_signal == "BULLISH_OTE":
+            bull_confluence += 1
+        elif ote_signal == "BEARISH_OTE":
             bear_confluence += 1
 
         details["bull_confluence"] = bull_confluence

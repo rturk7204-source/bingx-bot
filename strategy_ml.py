@@ -606,9 +606,9 @@ class MLStrategy:
             # RSI Divergence — сильный сигнал разворота
             divergence = self.detect_rsi_divergence(closes)
             if divergence == "BULLISH":
-                buy_signals += 2
+                print(f"[DIV] {symbol}: бычья дивергенция (info only)")
             elif divergence == "BEARISH":
-                sell_signals += 2
+                print(f"[DIV] {symbol}: медвежья дивергенция (info only)")
 
             # EMA тренд 1h
             if current_price > ema_fast > ema_slow:
@@ -617,12 +617,11 @@ class MLStrategy:
                 sell_signals += 1
 
             # MACD пересечение 1h
+            # MACD: только лог, не добавляем баллы (шум)
             if macd_hist > 0 and macd_prev <= 0:
-                buy_signals += 1
-                print(f"[MACD] {symbol}: бычье пересечение")
+                print(f"[MACD] {symbol}: бычье пересечение (info only)")
             elif macd_hist < 0 and macd_prev >= 0:
-                sell_signals += 1
-                print(f"[MACD] {symbol}: медвежье пересечение")
+                print(f"[MACD] {symbol}: медвежье пересечение (info only)")
 
             # ML сигнал
             ml_signal, ml_confidence = self.predictor.predict_with_confidence(symbol, klines)
@@ -753,7 +752,19 @@ class MLStrategy:
 
             # Финальное решение с учётом Daily Bias и BTC корреляции
 
-            # 15M обязательное подтверждение входа
+                # === ОБЯЗАТЕЛЬНЫЙ Liquidity Sweep фильтр ===
+            # Без sweep вход блокируется (кроме очень сильных сигналов score >= 6)
+            smc_sweep = smc.get("details", {}).get("sweep", "NEUTRAL") if isinstance(smc, dict) else "NEUTRAL"
+            if buy_signals >= 3 and buy_signals > sell_signals:
+                if smc_sweep not in ("BULLISH_SWEEP",) and buy_signals < 6:
+                    print(f"[SWEEP] {symbol}: блокируем BUY — нет liquidity sweep (sweep={smc_sweep})")
+                    return "HOLD", ml_confidence
+            if sell_signals >= 4 and sell_signals > buy_signals:
+                if smc_sweep not in ("BEARISH_SWEEP",) and sell_signals < 6:
+                    print(f"[SWEEP] {symbol}: блокируем SELL — нет liquidity sweep (sweep={smc_sweep})")
+                    return "HOLD", ml_confidence
+
+        # 15M обязательное подтверждение входа
             if buy_signals >= 3 and buy_signals > sell_signals and signal_15m == "BEARISH":
                 print(f"[15M-CONF] {symbol}: блокируем BUY — 15M медвежий")
                 return "HOLD", ml_confidence
