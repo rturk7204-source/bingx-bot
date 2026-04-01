@@ -50,9 +50,7 @@ class TradingBot:
         self.week_start = datetime.now()
         self.symbols = [
             'ETH-USDT', 'SUI-USDT', 'DOGE-USDT', 'ADA-USDT',
-            'XRP-USDT', 'OP-USDT', 'LINK-USDT', 'FET-USDT',
-            'WLD-USDT', 'SOL-USDT', 'TAO-USDT', 'DOT-USDT',
-            'ARB-USDT', 'PENDLE-USDT', 'FIL-USDT'
+            'XRP-USDT'
         ]
         self.position_size = 40
         self.consecutive_stops = 0
@@ -63,11 +61,12 @@ class TradingBot:
         self.week_start = datetime.now()
         self.symbols = [
             'ETH-USDT', 'SUI-USDT', 'DOGE-USDT', 'ADA-USDT',
-            'XRP-USDT', 'OP-USDT', 'LINK-USDT', 'FET-USDT',
-            'WLD-USDT', 'SOL-USDT', 'TAO-USDT', 'DOT-USDT',
-            'ARB-USDT', 'PENDLE-USDT', 'FIL-USDT'
+            'XRP-USDT'
         ]
         self.position_size = 40
+        # Кулдаун по паре: {symbol: datetime_until}
+        self._pair_cooldown = {}
+        self._pair_losses = {}
 
     def check_symbol(self, symbol):
         try:
@@ -110,6 +109,29 @@ class TradingBot:
             print(f"[SMC] {symbol}: signal={sig} side={side} prob={prob:.3f}")
             if side == "HOLD":
                 return
+            # FNG-фильтр: при экстремальном страхе (<20) блокируем шорты
+            # кроме случаев с очень высокой уверенностью (prob >= 0.85)
+            try:
+                from fear_greed import get_fear_greed
+                fng_val = get_fear_greed()
+                if fng_val is not None and fng_val < 20 and side == "SHORT":
+                    if prob < 0.85:
+                        print(f"[FNG] {symbol}: FNG={fng_val} < 20, blocking SHORT (prob={prob:.3f} < 0.85)")
+                        return
+                    else:
+                        print(f"[FNG] {symbol}: FNG={fng_val} < 20, but prob={prob:.3f} >= 0.85 — allowing SHORT")
+            except Exception as fng_err:
+                print(f"[FNG] {symbol}: error getting FNG: {fng_err}")
+            # Кулдаун по паре: после 2 убытков подряд — пауза 2 часа
+            if hasattr(self, '_pair_cooldown') and symbol in self._pair_cooldown:
+                if datetime.now() < self._pair_cooldown[symbol]:
+                    remaining = (self._pair_cooldown[symbol] - datetime.now()).seconds // 60
+                    print(f"[COOLDOWN] {symbol}: pair cooldown, {remaining}min left")
+                    return
+                else:
+                    del self._pair_cooldown[symbol]
+                    if symbol in self._pair_losses:
+                        del self._pair_losses[symbol]
             if self.weekly_pnl <= -5.0:
                 print(f"[DRAWDOWN] weekly PnL={self.weekly_pnl:.2f}%, block")
                 return
@@ -204,11 +226,22 @@ class TradingBot:
                     close_side = "SELL"
                 qty = abs(amt)
                 # Stop Loss -3%
-                if pnl_pct <= -3.0:
+                if pnl_pct <= -1.5:
                     print(f"[SL] {symbol}: pnl={pnl_pct:.2f}% -> STOP LOSS")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
                     self.notifier.send_message(f"🛑 SL {symbol} pnl={pnl_pct:.2f}%")
                     self.consecutive_stops += 1
+                    # Кулдаун по паре: считаем убытки подряд
+                    if not hasattr(self, '_pair_losses'):
+                        self._pair_losses = {}
+                    if not hasattr(self, '_pair_cooldown'):
+                        self._pair_cooldown = {}
+                    self._pair_losses[symbol] = self._pair_losses.get(symbol, 0) + 1
+                    if self._pair_losses[symbol] >= 2:
+                        from datetime import timedelta
+                        self._pair_cooldown[symbol] = datetime.now() + timedelta(hours=2)
+                        print(f"[COOLDOWN] {symbol}: 2 losses in a row -> 2h cooldown")
+                        self.notifier.send_message(f"⏸ {symbol}: 2 losses -> cooldown 2h")
                     if self.consecutive_stops >= self.max_consecutive_stops:
                         self.cooldown_until = datetime.now()
                         from datetime import timedelta
@@ -216,17 +249,41 @@ class TradingBot:
                         print(f"[COOLDOWN] {self.consecutive_stops} stops -> cooldown {self.cooldown_hours}h")
                     continue
                 # Take Profit +4%
-                if pnl_pct >= 4.0:
+                if pnl_pct >= 2.5:
                     print(f"[TP] {symbol}: pnl={pnl_pct:.2f}% -> TAKE PROFIT")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
                     self.notifier.send_message(f"🎯 TP {symbol} pnl={pnl_pct:.2f}%")
                     self.consecutive_stops = 0
+                    # Сбрасываем счётчик убытков по паре при успехе
+                    if hasattr(self, '_pair_losses') and symbol in self._pair_losses:
+                        del self._pair_losses[symbol]
                     continue
-                # Безубыток 0.5% -> перемещаем SL в ноль (лог)
-                if pnl_pct >= 0.5:
-                    print(f"[BE] {symbol}: pnl={pnl_pct:.2f}% -> breakeven zone")
+                # Реальный breakeven: при +1% ставим SL на вход +0.15% (однократно)
+                if pnl_pct >= 1.0:
+                    if not hasattr(self, '_be_done'):
+                        self._be_done = {}
+                    if symbol not in self._be_done:
+                        try:
+                            offset = 0.0015  # 0.15% от входа
+                            if ps == "LONG":
+                                be_price = round(entry * (1 + offset), 6)
+                            else:
+                                be_price = round(entry * (1 - offset), 6)
+                            # Отменяем старые ордера и ставим новый SL
+                            self.api.cancel_open_orders(symbol)
+                            result = self.api.set_stop_loss(symbol, ps, be_price)
+                            if result and result.get('code') == 0:
+                                self._be_done[symbol] = be_price
+                                print(f"[BE] {symbol}: pnl={pnl_pct:.2f}% -> REAL SL at {be_price} (entry={entry})")
+                                self.notifier.send_message(f"🔒 BE {symbol}: SL -> {be_price}")
+                            else:
+                                print(f"[BE] {symbol}: failed to set SL: {result}")
+                        except Exception as e:
+                            print(f"[BE] {symbol}: error setting SL: {e}")
+                    else:
+                        print(f"[BE] {symbol}: pnl={pnl_pct:.2f}% (SL already at {self._be_done[symbol]})")
                 # Трейлинг: при +2% закрываем 50% (однократно)
-                if pnl_pct >= 2.0:
+                if pnl_pct >= 1.5:
                     if not hasattr(self, '_partial_done'):
                         self._partial_done = {}
                     if symbol not in self._partial_done:

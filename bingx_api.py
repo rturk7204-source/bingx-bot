@@ -155,3 +155,37 @@ class BingXAPI:
         params = {'symbol': symbol, 'side': side, 'positionSide': 'LONG' if side == 'SELL' else 'SHORT', 'type': 'MARKET', 'quantity': quantity}
         print(f'[API] close_position {symbol} side={side} positionSide={params["positionSide"]} qty={quantity}')
         return self._request('POST', endpoint, params)
+
+    def set_stop_loss(self, symbol, position_side, stop_price, quantity=None):
+        """Выставляет стоп-лосс ордер на бирже для существующей позиции"""
+        side = 'SELL' if position_side == 'LONG' else 'BUY'
+        # Если quantity не передан, берём из текущей позиции
+        if quantity is None:
+            positions = self.get_positions()
+            for pos in (positions or []):
+                if pos.get('symbol') == symbol and pos.get('positionSide') == position_side:
+                    quantity = abs(float(pos.get('positionAmt', 0) or 0))
+                    break
+        if not quantity or quantity <= 0:
+            print(f'[API] set_stop_loss {symbol}: no position found')
+            return None
+        quantity = self.round_quantity(symbol, quantity)
+        endpoint = '/openApi/swap/v2/trade/order'
+        params = {
+            'symbol': symbol,
+            'side': side,
+            'positionSide': position_side,
+            'type': 'STOP_MARKET',
+            'stopPrice': str(stop_price),
+            'quantity': quantity,
+            'workingType': 'MARK_PRICE'
+        }
+        print(f'[API] set_stop_loss {symbol} {position_side} stopPrice={stop_price} qty={quantity}')
+        return self._request('POST', endpoint, params)
+
+    def cancel_open_orders(self, symbol):
+        """Отменяет все открытые ордера по символу"""
+        endpoint = '/openApi/swap/v2/trade/allOpenOrders'
+        params = {'symbol': symbol}
+        return self._request('DELETE', endpoint, params)
+
