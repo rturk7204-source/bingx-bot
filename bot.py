@@ -100,8 +100,8 @@ class TradingBot:
             # FNG-фильтр: при экстремальном страхе (<20) блокируем шорты
             # кроме случаев с очень высокой уверенностью (prob >= 0.85)
             try:
-                from fear_greed import get_fear_greed
-                fng_val = get_fear_greed()
+                from fear_greed import FearGreedIndex
+                fng_val = FearGreedIndex().get()["value"]
                 if fng_val is not None and fng_val < 20 and side == "SHORT":
                     if prob < 0.85:
                         print(f"[FNG] {symbol}: FNG={fng_val} < 20, blocking SHORT (prob={prob:.3f} < 0.85)")
@@ -218,15 +218,16 @@ class TradingBot:
                     print(f"[SL] {symbol}: pnl={pnl_pct:.2f}% -> STOP LOSS")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
                     self.notifier.send_message(f"🛑 SL {symbol} pnl={pnl_pct:.2f}%")
-                for _d in ('_be_done', '_partial_done', '_avg_done', '_tp1_done'):
-                    _dd = getattr(self, _d, {})
-                    _dd.pop(symbol, None)
-                    _dd.pop(f'avg_{symbol}', None)
+                    # Очищаем флаги
+                    for _d in ("_be_done", "_partial_done", "_avg_done", "_tp1_done"):
+                        _dd = getattr(self, _d, {})
+                        _dd.pop(symbol, None)
+                        _dd.pop(f"avg_{symbol}", None)
                     self.consecutive_stops += 1
-                    # Кулдаун по паре: считаем убытки подряд
-                    if not hasattr(self, '_pair_losses'):
+                    # Кулдаун по паре
+                    if not hasattr(self, "_pair_losses"):
                         self._pair_losses = {}
-                    if not hasattr(self, '_pair_cooldown'):
+                    if not hasattr(self, "_pair_cooldown"):
                         self._pair_cooldown = {}
                     self._pair_losses[symbol] = self._pair_losses.get(symbol, 0) + 1
                     if self._pair_losses[symbol] >= 2:
@@ -235,9 +236,8 @@ class TradingBot:
                         print(f"[COOLDOWN] {symbol}: 2 losses in a row -> 2h cooldown")
                         self.notifier.send_message(f"⏸ {symbol}: 2 losses -> cooldown 2h")
                     if self.consecutive_stops >= self.max_consecutive_stops:
-                        self.cooldown_until = datetime.now()
                         from datetime import timedelta
-                        self.cooldown_until += timedelta(hours=self.cooldown_hours)
+                        self.cooldown_until = datetime.now() + timedelta(hours=self.cooldown_hours)
                         print(f"[COOLDOWN] {self.consecutive_stops} stops -> cooldown {self.cooldown_hours}h")
                     continue
                 # TP1 при +1.5% — закрываем 50% (1:1 RR)
