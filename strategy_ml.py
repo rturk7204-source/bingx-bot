@@ -721,6 +721,7 @@ class MLStrategy:
             # Funding дубль убран (один вызов выше)
                 # smc_score_val — нужен для фильтров ниже
             smc_score_val = smc.get("score", 0) if isinstance(smc, dict) else 0
+            self._last_smc_score = smc_score_val  # Save for dynamic sizing
 
             # === ФИЛЬТР: Не торговать против 4H тренда (кроме сильного SMC) ===
             smc_details = smc.get("details", {}) if isinstance(smc, dict) else {}

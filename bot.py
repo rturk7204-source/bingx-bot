@@ -49,10 +49,11 @@ class TradingBot:
         self.weekly_pnl = 0.0
         self.week_start = datetime.now()
         self.symbols = [
-            'ETH-USDT', 'SUI-USDT', 'DOGE-USDT', 'ADA-USDT',
+            'BTC-USDT', 'ETH-USDT', 'SOL-USDT',
+            'SUI-USDT', 'DOGE-USDT', 'ADA-USDT',
             'XRP-USDT'
         ]
-        self.position_size = 40
+        self.position_size = 60  # Fallback base size USD
         self._pair_cooldown = {}
         self._pair_losses = {}
 
@@ -156,10 +157,24 @@ class TradingBot:
                     inner = bal_data.get('balance', {})
                     bal = float(inner.get('balance', 0)) if isinstance(inner, dict) else float(inner)
                 entry_qty = self.kelly.get_size(self.analytics, bal, prob)
+                # Dynamic sizing by confluence score
+                smc_score = getattr(self.strategy, '_last_smc_score', 2)
+                if smc_score >= 6:
+                    score_mult = 2.0  # High confluence = 2x size
+                elif smc_score >= 4:
+                    score_mult = 1.5  # Medium confluence = 1.5x
+                else:
+                    score_mult = 1.0  # Base size
+                entry_qty = entry_qty * score_mult
+                # Limits: min $5, max 15% of balance
+                max_pos = bal * 0.15
                 if entry_qty < 5:
                     entry_qty = 5.0
-                if entry_qty > 70:
-                    entry_qty = 70.0
+                if entry_qty > max_pos:
+                    entry_qty = max_pos
+                if entry_qty > 200:
+                    entry_qty = 200.0  # Hard cap safety
+                print(f"[SIZING] score={smc_score} mult={score_mult}x qty={entry_qty:.1f} max={max_pos:.1f}")
                 print(f"[KELLY] {symbol}: bal={bal:.1f} prob={prob:.3f} qty={entry_qty:.1f}")
             except Exception as ke:
                 entry_qty = self.position_size
