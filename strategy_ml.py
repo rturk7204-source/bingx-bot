@@ -250,7 +250,7 @@ class MLStrategy:
             return True
 
         # NY killzone: 13:00-16:00 UTC
-        if 13 <= hour <= 15:
+        if 13 <= hour <= 17:
             if not getattr(self, '_kz_logged', False):
                 print(f"[KILLZONE] NY сессия (UTC {hour}:00) — торговля разрешена")
                 self._kz_logged = True
@@ -693,7 +693,7 @@ class MLStrategy:
             try:
                 from datetime import datetime, timezone
                 current_hour_utc = datetime.now(timezone.utc).hour
-                weak_hours = [8, 12]  # UTC часы с WR < 50%
+                weak_hours = [12]  # UTC часы с WR < 50% (8 убран — London killzone)
                 if current_hour_utc in weak_hours:
                     print(f"[SESSION] {symbol}: блокируем вход — слабый час {current_hour_utc:02d} UTC (WR<50%)")
                     return "HOLD", ml_confidence
@@ -757,7 +757,7 @@ class MLStrategy:
             if buy_signals >= 3 and buy_signals > sell_signals and signal_15m == "BEARISH":
                 print(f"[15M-CONF] {symbol}: блокируем BUY — 15M медвежий")
                 return "HOLD", ml_confidence
-            if sell_signals >= 3 and sell_signals > buy_signals and signal_15m == "BULLISH":
+            if sell_signals >= 4 and sell_signals > buy_signals and signal_15m == "BULLISH":
                 print(f"[15M-CONF] {symbol}: блокируем SELL — 15M бычий")
                 return "HOLD", ml_confidence
 
@@ -785,7 +785,7 @@ class MLStrategy:
                     }, "BUY")
                 except: pass
                 return "BUY", ml_confidence
-            elif sell_signals >= 3 and sell_signals > buy_signals:
+            elif sell_signals >= 4 and sell_signals > buy_signals:
                 if trend_1d == "BULLISH":
                     if smc_score_val >= 4:
                         print(f"[1D-BIAS] {symbol}: SELL против 1D тренда — SMC score={smc_score_val} достаточен")
