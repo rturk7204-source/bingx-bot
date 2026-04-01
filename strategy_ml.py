@@ -520,16 +520,23 @@ class MLStrategy:
 
             # Funding Rate
             fund_signal, fund_rate = self.check_funding_rate(symbol, api)
-            if fund_signal == "BEARISH" and buy_signals > sell_signals:
+            if fund_signal == "BEARISH":
                 sell_signals += 1
-            elif fund_signal == "BULLISH" and sell_signals > buy_signals:
+                if abs(fund_rate) > 0.05:
+                    sell_signals += 1
+                    print(f"[FUND] {symbol}: extreme funding {fund_rate:.4f}% -> +2 SELL")
+            elif fund_signal == "BULLISH":
                 buy_signals += 1
+                if abs(fund_rate) > 0.05:
+                    buy_signals += 1
+                    print(f"[FUND] {symbol}: extreme funding {fund_rate:.4f}% -> +2 BUY")
+
+
+
+
 
             # Fear & Greed Index
             fng_signal, fng_value = self.fng.get_signal()
-            if fng_signal == "BEARISH" and signal == "BUY":
-                print(f"[FNG] Блокируем BUY — жадность {fng_value}")
-                return "HOLD", ml_confidence
             if fng_signal == "BULLISH":
                 buy_signals += 1
             elif fng_signal == "SLIGHT_BEARISH":
@@ -712,26 +719,8 @@ class MLStrategy:
             except Exception as e:
                 print(f"[OI] {symbol} error: {e}")
 
-            # === Funding Rate как контртрендовый сигнал ===
-            try:
-                fund_signal, fund_rate = self.check_funding_rate(symbol, api)
-                if fund_rate is not None:
-                    if fund_rate > 0.05:  # Экстремальный положительный = лонги перегреты
-                        sell_signals += 2
-                        print(f"[FUND-SIG] {symbol}: +2 к SELL — экстремальный funding {fund_rate:.4f}% (лонги перегреты)")
-                    elif fund_rate > 0.03:
-                        sell_signals += 1
-                        print(f"[FUND-SIG] {symbol}: +1 к SELL — высокий funding {fund_rate:.4f}%")
-                    elif fund_rate < -0.05:  # Экстремальный отрицательный = шорты перегреты
-                        buy_signals += 2
-                        print(f"[FUND-SIG] {symbol}: +2 к BUY — экстремальный funding {fund_rate:.4f}% (шорты перегреты)")
-                    elif fund_rate < -0.03:
-                        buy_signals += 1
-                        print(f"[FUND-SIG] {symbol}: +1 к BUY — низкий funding {fund_rate:.4f}%")
-            except Exception as e:
-                pass
-
-            # smc_score_val — нужен для фильтров ниже
+            # Funding дубль убран (один вызов выше)
+                # smc_score_val — нужен для фильтров ниже
             smc_score_val = smc.get("score", 0) if isinstance(smc, dict) else 0
 
             # === ФИЛЬТР: Не торговать против 4H тренда (кроме сильного SMC) ===

@@ -53,18 +53,6 @@ class TradingBot:
             'XRP-USDT'
         ]
         self.position_size = 40
-        self.consecutive_stops = 0
-        self.cooldown_until = None
-        self.cooldown_hours = 3
-        self.max_consecutive_stops = 3
-        self.weekly_pnl = 0.0
-        self.week_start = datetime.now()
-        self.symbols = [
-            'ETH-USDT', 'SUI-USDT', 'DOGE-USDT', 'ADA-USDT',
-            'XRP-USDT'
-        ]
-        self.position_size = 40
-        # Кулдаун по паре: {symbol: datetime_until}
         self._pair_cooldown = {}
         self._pair_losses = {}
 
@@ -202,7 +190,7 @@ class TradingBot:
         try:
             positions = self.api.get_positions() or []
             for pos in positions:
-                symbol = pos.get("symbol", "")
+                symbol = str(pos.get("symbol", "")).replace("_", "-")
                 amt = float(pos.get("positionAmt", 0) or 0)
                 if amt == 0:
                     continue
@@ -230,6 +218,10 @@ class TradingBot:
                     print(f"[SL] {symbol}: pnl={pnl_pct:.2f}% -> STOP LOSS")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
                     self.notifier.send_message(f"🛑 SL {symbol} pnl={pnl_pct:.2f}%")
+                for _d in ('_be_done', '_partial_done', '_avg_done'):
+                    _dd = getattr(self, _d, {})
+                    _dd.pop(symbol, None)
+                    _dd.pop(f'avg_{symbol}', None)
                     self.consecutive_stops += 1
                     # Кулдаун по паре: считаем убытки подряд
                     if not hasattr(self, '_pair_losses'):
@@ -253,6 +245,10 @@ class TradingBot:
                     print(f"[TP] {symbol}: pnl={pnl_pct:.2f}% -> TAKE PROFIT")
                     self.api.close_position(symbol=symbol, side=close_side, quantity=qty, price=price)
                     self.notifier.send_message(f"🎯 TP {symbol} pnl={pnl_pct:.2f}%")
+                for _d in ('_be_done', '_partial_done', '_avg_done'):
+                    _dd = getattr(self, _d, {})
+                    _dd.pop(symbol, None)
+                    _dd.pop(f'avg_{symbol}', None)
                     self.consecutive_stops = 0
                     # Сбрасываем счётчик убытков по паре при успехе
                     if hasattr(self, '_pair_losses') and symbol in self._pair_losses:
