@@ -36,3 +36,8 @@ etTimeout*
 s=\"grid\">'''
 .getenv*
 ystemctl*
+
+# Block 1 — auto_balance state and logs (do NOT commit)
+state/auto_balance_state.json
+state/auto_balance.lock
+logs/auto_balance.log
