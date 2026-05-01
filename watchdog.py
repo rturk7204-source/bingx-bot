@@ -36,12 +36,21 @@ ALERT_THROTTLE_SEC = 1800  # один и тот же алерт не чаще р
 
 # Heartbeat-окна: имя_задачи → (log_path, max_age_sec, описание)
 # Если log_path не обновлялся дольше max_age_sec — алерт.
+# Большинство старых cron'ов пишут в /root/bingx-bot/ (НЕ в logs/),
+# новые модули (Block 1/2/6) — в logs/.
 HEARTBEATS = {
-    "hedge_health": (f"{LOG_DIR}/hedge_health.log", 900, "Block 2 monitoring"),
-    "auto_enter":   (f"{LOG_DIR}/auto_enter.log", 1800, "auto entry every 15min"),
-    "rotate_smart": (f"{LOG_DIR}/rotation.log", 4 * 3600 + 1200, "rotation 4h"),
-    "topup":        (f"{LOG_DIR}/arb_topup.log", 4200, "topup hourly"),
-    "compound":     (f"{LOG_DIR}/arb_compound.log", 26 * 3600, "daily compound"),
+    # === New (logs/) ===
+    "hedge_health":  (f"{LOG_DIR}/hedge_health.log", 900, "Block 2 monitoring */5min"),
+    # === Legacy (BOT_DIR root) ===
+    "auto_enter":    ("/var/log/bingx-auto-enter.log", 1800, "auto_enter.sh every 15min"),
+    "arb_monitor":   (f"{BOT_DIR}/arb_monitor.log", 2400, "bot1 monitor every 30min"),
+    "rotate_smart":  (f"{BOT_DIR}/rotation.log", 4 * 3600 + 1800, "rotate-smart every 4h"),
+    "topup":         (f"{BOT_DIR}/arb_topup.log", 4500, "topup hourly"),
+    "sync":          (f"{BOT_DIR}/arb_compound.log", 2400, "sync 15,45 min"),
+    "rebalance":     (f"{BOT_DIR}/arb_rebalance.log", 2 * 3600 + 1200, "rebalance every 2h"),
+    "liq_monitor":   (f"{BOT_DIR}/liq_monitor.log", 1200, "liq_monitor every 10min"),
+    "dead_man":      (f"{BOT_DIR}/dead_man.out", 1800, "dead_man every 20min"),
+    "funding_log":   (f"{BOT_DIR}/funding_log.out", 2400, "funding_log every 30min"),
 }
 
 # State-файлы для integrity check
@@ -134,13 +143,16 @@ def alert(key: str, msg: str, force: bool = False):
 # ────────────────────── checks ──────────────────────
 
 def check_heartbeats():
-    """W1: каждый critical cron-job писал в свой лог недавно."""
+    """W1: каждый critical cron-job писал в свой лог недавно.
+
+    Стратегия:
+      - файл отсутствует → только log WARN (НЕ TG): это нормально в первые минуты после деплоя
+      - файл старше max_age → TG alert (реальный инцидент)
+      - файл свежий → OK
+    """
     for name, (path, max_age, desc) in HEARTBEATS.items():
         if not os.path.exists(path):
-            alert(f"hb_missing_{name}",
-                  f"⚠️ <b>Watchdog W1</b>\n"
-                  f"Лог {name} не существует: {path}\n"
-                  f"({desc})")
+            log(f"W1 {name}: log not found ({path}) — first deploy?", "WARN")
             continue
         age = time.time() - os.path.getmtime(path)
         if age > max_age:
