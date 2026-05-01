@@ -1,74 +1,328 @@
 #!/usr/bin/env python3
-import subprocess
-import time
-import requests
+"""
+watchdog.py — Block 6: инфраструктурный мониторинг.
+
+Запускается каждые 10 минут через cron. Проверяет:
+  W1. Heartbeat: критические cron-jobs запускались в ожидаемом окне
+  W2. Stale locks: arb_botN.lock старше 30 минут → kill PID + unlock
+  W3. State integrity: все state-файлы парсятся как валидный JSON
+  W4. Disk space: <1GB warn, <500MB critical
+  W5. Zombie processes: pgrep arb_bot > 12 → alert (нормально 0-6)
+  W6. hedge_health работает: lag последнего checkpoint <15 минут
+
+Все алерты — в Telegram. Auto-actions:
+  - W2 stale lock → kill -9 PID + unlink (всегда)
+  - W3 corrupted state → safe_io уже восстановит из .bak; watchdog только алертит
+  - W4 disk critical → принудительная ротация старых backups + alert
+"""
+import json
 import os
-from dotenv import load_dotenv
-load_dotenv()
+import re
+import signal
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
 
-BOT_SERVICE = "bingx-bot"
-CHECK_INTERVAL = 300  # 5 минут
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+import requests
 
-def send_alert(msg):
+BOT_DIR = "/root/bingx-bot"
+STATE_DIR = f"{BOT_DIR}/state"
+LOG_DIR = f"{BOT_DIR}/logs"
+LOG_FILE = f"{LOG_DIR}/watchdog.log"
+ALERT_THROTTLE_FILE = f"{STATE_DIR}/watchdog_alerts.json"
+ALERT_THROTTLE_SEC = 1800  # один и тот же алерт не чаще раза в 30 мин
+
+# Heartbeat-окна: имя_задачи → (log_path, max_age_sec, описание)
+# Если log_path не обновлялся дольше max_age_sec — алерт.
+HEARTBEATS = {
+    "hedge_health": (f"{LOG_DIR}/hedge_health.log", 900, "Block 2 monitoring"),
+    "auto_enter":   (f"{LOG_DIR}/auto_enter.log", 1800, "auto entry every 15min"),
+    "rotate_smart": (f"{LOG_DIR}/rotation.log", 4 * 3600 + 1200, "rotation 4h"),
+    "topup":        (f"{LOG_DIR}/arb_topup.log", 4200, "topup hourly"),
+    "compound":     (f"{LOG_DIR}/arb_compound.log", 26 * 3600, "daily compound"),
+}
+
+# State-файлы для integrity check
+STATE_FILES = [
+    f"{STATE_DIR}/hedge_health.json",
+    f"{STATE_DIR}/pause.json",
+    f"{STATE_DIR}/protection.json",
+    f"{BOT_DIR}/trades.json",
+    f"{BOT_DIR}/balance_history.json",
+]
+# arb_bot{N}_state.json добавятся динамически
+
+LOCK_GLOB = f"{BOT_DIR}/*.lock"
+STALE_LOCK_SEC = 1800  # 30 минут
+DISK_WARN_MB = 1024
+DISK_CRIT_MB = 512
+ZOMBIE_THRESHOLD = 12  # pgrep arb_bot не должно быть больше
+
+
+# ────────────────────── infra helpers ──────────────────────
+
+def log(msg: str, level: str = "INFO"):
+    os.makedirs(LOG_DIR, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    line = f"{ts} [WD] {level} {msg}"
+    print(line)
     try:
-        requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage",
-            data={"chat_id": CHAT_ID, "text": msg, "parse_mode": "HTML"}, timeout=10)
-    except:
+        with open(LOG_FILE, "a") as f:
+            f.write(line + "\n")
+    except Exception:
         pass
 
-def is_bot_running():
-    result = subprocess.run(["systemctl", "is-active", BOT_SERVICE],
-        capture_output=True, text=True)
-    return result.stdout.strip() == "active"
 
-def restart_bot():
-    subprocess.run(["systemctl", "restart", BOT_SERVICE])
+def get_telegram_creds():
+    env_file = f"{BOT_DIR}/.env"
+    creds = {}
+    if os.path.exists(env_file):
+        for line in open(env_file):
+            line = line.strip()
+            if "=" in line and not line.startswith("#"):
+                k, v = line.split("=", 1)
+                creds[k.strip()] = v.strip()
+    token = creds.get("TELEGRAM_BOT_TOKEN") or creds.get("TELEGRAM_TOKEN")
+    chat_id = creds.get("TELEGRAM_CHAT_ID")
+    return token, chat_id
 
-def check_bot_activity():
-    """Проверяем что бот реально работает (есть свежие логи)"""
-    result = subprocess.run(
-        ["journalctl", "-u", BOT_SERVICE, "-n", "5", "--no-pager", "-o", "short"],
-        capture_output=True, text=True)
-    lines = result.stdout.strip().split("\n")
-    if not lines:
-        return False
-    last_line = lines[-1]
-    # Проверяем что последняя запись была не более 5 минут назад
-    import re
-    from datetime import datetime
+
+def _load_throttle():
     try:
-        match = re.search(r"(\w{3}\s+\d+\s+\d+:\d+:\d+)", last_line)
-        if match:
-            log_time = datetime.strptime(f"2026 {match.group(1)}", "%Y %b %d %H:%M:%S")
-            diff = (datetime.now() - log_time).total_seconds()
-            return diff < 600  # не более 10 минут
-    except:
-        pass
-    return True
+        with open(ALERT_THROTTLE_FILE) as f:
+            return json.load(f)
+    except Exception:
+        return {}
 
-print("[WATCHDOG] Запущен — проверяю бота каждые 5 минут")
-send_alert("🔍 <b>Watchdog запущен</b>\nМониторинг бота каждые 5 минут")
 
-restart_count = 0
-while True:
+def _save_throttle(d):
     try:
-        if not is_bot_running():
-            print("[WATCHDOG] Бот не запущен — перезапускаю...")
-            restart_bot()
-            time.sleep(10)
-            if is_bot_running():
-                restart_count += 1
-                send_alert(f"🔄 <b>Watchdog перезапустил бота</b>\nПерезапуск #{restart_count}")
-                print(f"[WATCHDOG] Бот перезапущен (#{restart_count})")
-            else:
-                send_alert("🚨 <b>Watchdog: не удалось перезапустить бота!</b>")
-                print("[WATCHDOG] ОШИБКА: не удалось перезапустить!")
-        else:
-            print(f"[WATCHDOG] Бот работает нормально ({time.strftime('%H:%M:%S')})")
-
+        os.makedirs(STATE_DIR, exist_ok=True)
+        with open(ALERT_THROTTLE_FILE, "w") as f:
+            json.dump(d, f)
     except Exception as e:
-        print(f"[WATCHDOG] Ошибка: {e}")
+        log(f"throttle save err: {e}", "WARN")
 
-    time.sleep(CHECK_INTERVAL)
+
+def alert(key: str, msg: str, force: bool = False):
+    """Шлёт TG-алерт с throttle по key."""
+    throttle = _load_throttle()
+    now = time.time()
+    if not force and key in throttle and now - throttle[key] < ALERT_THROTTLE_SEC:
+        log(f"alert {key} throttled", "DEBUG")
+        return
+    throttle[key] = now
+    _save_throttle(throttle)
+
+    log(f"ALERT [{key}] {msg}", "ALERT")
+    token, chat_id = get_telegram_creds()
+    if not token or not chat_id:
+        log("no telegram creds, alert local only", "WARN")
+        return
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat_id, "text": msg, "parse_mode": "HTML"},
+            timeout=10,
+        )
+    except Exception as e:
+        log(f"tg send err: {e}", "WARN")
+
+
+# ────────────────────── checks ──────────────────────
+
+def check_heartbeats():
+    """W1: каждый critical cron-job писал в свой лог недавно."""
+    for name, (path, max_age, desc) in HEARTBEATS.items():
+        if not os.path.exists(path):
+            alert(f"hb_missing_{name}",
+                  f"⚠️ <b>Watchdog W1</b>\n"
+                  f"Лог {name} не существует: {path}\n"
+                  f"({desc})")
+            continue
+        age = time.time() - os.path.getmtime(path)
+        if age > max_age:
+            alert(f"hb_stale_{name}",
+                  f"🚨 <b>Watchdog W1: {name} silent</b>\n"
+                  f"Последняя запись: {age/60:.0f} мин назад\n"
+                  f"Порог: {max_age/60:.0f} мин\n"
+                  f"({desc})")
+            log(f"W1 {name}: age={age/60:.1f}m > {max_age/60:.0f}m STALE", "WARN")
+        else:
+            log(f"W1 {name}: age={age/60:.1f}m OK")
+
+
+def check_stale_locks():
+    """W2: lock-файлы старше STALE_LOCK_SEC → kill PID + unlink."""
+    locks = list(Path(BOT_DIR).glob("*.lock"))
+    for lock_path in locks:
+        try:
+            age = time.time() - lock_path.stat().st_mtime
+            if age < STALE_LOCK_SEC:
+                continue
+
+            # Читаем PID
+            pid = None
+            try:
+                content = lock_path.read_text().strip()
+                # ищем первое число
+                m = re.search(r"\d+", content)
+                if m:
+                    pid = int(m.group())
+            except Exception:
+                pass
+
+            killed = False
+            if pid:
+                # проверяем что процесс существует
+                try:
+                    os.kill(pid, 0)  # signal 0 = ping
+                    # жив — убиваем
+                    os.kill(pid, signal.SIGKILL)
+                    killed = True
+                    log(f"W2 killed PID {pid} for stale lock {lock_path.name}", "WARN")
+                except ProcessLookupError:
+                    log(f"W2 lock {lock_path.name} PID {pid} already dead", "INFO")
+                except Exception as e:
+                    log(f"W2 kill error PID {pid}: {e}", "WARN")
+
+            try:
+                lock_path.unlink()
+            except Exception as e:
+                log(f"W2 unlink err {lock_path}: {e}", "WARN")
+                continue
+
+            alert(
+                f"stale_lock_{lock_path.name}",
+                f"🔓 <b>Watchdog W2: stale lock cleaned</b>\n"
+                f"File: {lock_path.name}\n"
+                f"Age: {age/60:.0f} мин\n"
+                f"PID: {pid} ({'killed' if killed else 'not found'})\n"
+                f"Lock removed.",
+                force=True,
+            )
+        except Exception as e:
+            log(f"W2 outer err on {lock_path}: {e}", "WARN")
+
+
+def check_state_integrity():
+    """W3: все JSON state-файлы парсятся."""
+    files = list(STATE_FILES)
+    # arb_botN_state.json динамически
+    for n in range(1, 7):
+        files.append(f"{BOT_DIR}/arb_bot{n}_state.json")
+
+    bad = []
+    for p in files:
+        if not os.path.exists(p):
+            continue
+        try:
+            with open(p) as f:
+                json.load(f)
+        except Exception as e:
+            bad.append((p, str(e)[:80]))
+
+    if bad:
+        lines = "\n".join(f"  • {os.path.basename(p)}: {e}" for p, e in bad)
+        alert(
+            "state_corrupt",
+            f"💾 <b>Watchdog W3: corrupted state</b>\n"
+            f"Files:\n{lines}\n\n"
+            f"safe_io должен был восстановить из .bak — проверь логи.",
+        )
+        log(f"W3 corrupted: {[p for p, _ in bad]}", "ERROR")
+    else:
+        log(f"W3 integrity OK ({len(files)} files checked)")
+
+
+def check_disk_space():
+    """W4: free disk < threshold."""
+    try:
+        st = os.statvfs(BOT_DIR)
+        free_mb = (st.f_bavail * st.f_frsize) / (1024 * 1024)
+    except Exception as e:
+        log(f"W4 statvfs err: {e}", "WARN")
+        return
+
+    if free_mb < DISK_CRIT_MB:
+        alert(
+            "disk_crit",
+            f"💀 <b>Watchdog W4: disk CRITICAL</b>\n"
+            f"Free: {free_mb:.0f} MB (порог {DISK_CRIT_MB})\n"
+            f"Запускаю агрессивную очистку backups.",
+        )
+        log(f"W4 disk CRITICAL {free_mb:.0f}MB", "ERROR")
+        # агрессивная ротация — оставляем 1 день бэкапов
+        try:
+            subprocess.run(
+                ["find", "/root/bingx-state-backups", "-mtime", "+1", "-delete"],
+                check=False, timeout=30,
+            )
+        except Exception:
+            pass
+    elif free_mb < DISK_WARN_MB:
+        alert(
+            "disk_warn",
+            f"📉 <b>Watchdog W4: disk low</b>\n"
+            f"Free: {free_mb:.0f} MB (порог {DISK_WARN_MB})",
+        )
+        log(f"W4 disk warn {free_mb:.0f}MB", "WARN")
+    else:
+        log(f"W4 disk OK {free_mb:.0f}MB")
+
+
+def check_zombies():
+    """W5: pgrep arb_bot > ZOMBIE_THRESHOLD."""
+    try:
+        out = subprocess.run(
+            ["pgrep", "-fa", "arb_bot"],
+            capture_output=True, text=True, timeout=10,
+        )
+        lines = [l for l in out.stdout.splitlines() if l.strip()]
+        n = len(lines)
+        if n > ZOMBIE_THRESHOLD:
+            preview = "\n".join(lines[:10])
+            alert(
+                "zombies",
+                f"🧟 <b>Watchdog W5: too many arb_bot procs</b>\n"
+                f"Count: {n} (порог {ZOMBIE_THRESHOLD})\n"
+                f"<pre>{preview[:500]}</pre>",
+            )
+            log(f"W5 zombies: {n} processes", "WARN")
+        else:
+            log(f"W5 procs={n} OK")
+    except Exception as e:
+        log(f"W5 err: {e}", "WARN")
+
+
+# ────────────────────── main ──────────────────────
+
+def run():
+    log("watchdog start")
+    try:
+        check_heartbeats()
+    except Exception as e:
+        log(f"check_heartbeats crashed: {e}", "ERROR")
+    try:
+        check_stale_locks()
+    except Exception as e:
+        log(f"check_stale_locks crashed: {e}", "ERROR")
+    try:
+        check_state_integrity()
+    except Exception as e:
+        log(f"check_state_integrity crashed: {e}", "ERROR")
+    try:
+        check_disk_space()
+    except Exception as e:
+        log(f"check_disk_space crashed: {e}", "ERROR")
+    try:
+        check_zombies()
+    except Exception as e:
+        log(f"check_zombies crashed: {e}", "ERROR")
+    log("watchdog done")
+
+
+if __name__ == "__main__":
+    run()
