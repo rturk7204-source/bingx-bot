@@ -18,7 +18,7 @@ from datetime import datetime, timezone, timedelta
 # Block 3: v2 scoring helpers
 try:
     from rotation_v2_score import (
-        composite_score, adaptive_kelly_size, position_age_hours,
+        composite_score, adaptive_kelly_size,
         can_rotate_by_age, should_rotate_by_score,
         MIN_HOLD_HOURS as V2_MIN_HOLD_HOURS,
         ROTATION_SCORE_IMPROVEMENT as V2_SCORE_IMPROVEMENT,
@@ -555,37 +555,27 @@ def execute_rotation(decision, dry_run=True):
     # войти в GUA на том же боте → SYMBOL попатчился на GUA но вход заблокирован.
     bot_id = int(decision["eject_bot"].replace("arb_bot", "")) if decision["eject_bot"].startswith("arb_bot") else None
 
-    # 1. PAUSE check (файли PAUSE_BOT_FMT/PAUSE_GLOBAL/SAFE_MODE_FILE пишет hedge_health)
+    # 1. PAUSE check via pause_check.py (Block 4: single source of truth).
+    # Раньше rotation дублировала логику (_is_pause_active + import из hedge_health).
     try:
         sys.path.insert(0, BOT_DIR)
-        from hedge_health import is_safe_mode, PAUSE_GLOBAL, PAUSE_BOT_FMT
-        from datetime import datetime as _dt, timezone as _tz
-        def _is_pause_active(path):
-            """True если pause-файл существует и 'until' в будущем."""
-            if not os.path.exists(path):
-                return False
-            try:
-                with open(path) as f:
-                    obj = json.load(f)
-                until = obj.get("until")
-                if not until:
-                    return True  # файл без until = считаем паузу активной консервативно
-                if until.endswith("Z"): until = until[:-1] + "+00:00"
-                return _dt.fromisoformat(until) > _dt.now(_tz.utc)
-            except Exception:
-                return True  # не смогли разобрать — считаем паузу активной
-        if is_safe_mode():
-            lines.append("  🚫 PRE-FLIGHT: бот в SAFE-MODE → ротация отменена. Выполни --resume вручную.")
+        import pause_check
+        safe, reason = pause_check.is_safe_mode()
+        if safe:
+            lines.append(f"  🚫 PRE-FLIGHT: SAFE-MODE → ротация отменена ({reason}). --resume вручную.")
             return False, lines
-        if _is_pause_active(PAUSE_GLOBAL):
-            lines.append("  🚫 PRE-FLIGHT: GLOBAL PAUSE активен → ротация отменена.")
+        paused, reason = pause_check.is_paused_global()
+        if paused:
+            lines.append(f"  🚫 PRE-FLIGHT: GLOBAL PAUSE активен ({reason}) → ротация отменена.")
             return False, lines
-        if bot_id is not None and _is_pause_active(PAUSE_BOT_FMT.format(bot_id)):
-            lines.append(f"  🚫 PRE-FLIGHT: {decision['eject_bot']} НА ПАУЗЕ (Block 2). Ротация отменена.")
-            lines.append(f"     Для разблокировки: python3 arb_tools.py --resume (после разбора)")
-            return False, lines
+        if bot_id is not None:
+            paused, reason = pause_check.is_paused_bot(bot_id)
+            if paused:
+                lines.append(f"  🚫 PRE-FLIGHT: {decision['eject_bot']} НА ПАУЗЕ ({reason}). Ротация отменена.")
+                lines.append(f"     Для разблокировки: python3 arb_tools.py --resume (после разбора)")
+                return False, lines
     except ImportError:
-        lines.append("  [PRE-FLIGHT WARN] hedge_health недоступен — pause guard пропущен")
+        lines.append("  [PRE-FLIGHT WARN] pause_check недоступен — pause guard пропущен")
     except Exception as e:
         lines.append(f"  [PRE-FLIGHT WARN] pause check failed: {e}")
 
