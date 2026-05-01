@@ -566,6 +566,94 @@ def cmd_topup():
     else:
         log.info("[TOPUP] Никому не нужно")
 
+# === Block 2: pause / resume / status ===========================
+STATE_DIR = f"{BOT_DIR}/state"
+SAFE_MODE_FILE = f"{STATE_DIR}/safe_mode"
+PAUSE_GLOBAL = f"{STATE_DIR}/pause_global"
+
+def cmd_pause(scope="global", hours=4, reason="manual"):
+    """Пауза на вход новых позиций на N часов."""
+    os.makedirs(STATE_DIR, exist_ok=True)
+    from datetime import timedelta
+    until = datetime.now(timezone.utc) + timedelta(hours=hours)
+    payload = {"until": until.isoformat(), "reason": reason, "scope": "new_entries"}
+    if scope == "global":
+        with open(PAUSE_GLOBAL, "w") as f:
+            json.dump(payload, f, indent=2)
+        log.warning(f"[PAUSE] global new_entries until {until.strftime('%Y-%m-%d %H:%M UTC')}: {reason}")
+        tg_send(f"⏸ PAUSE {hours}h: {reason}")
+    else:
+        # bot-specific
+        try:
+            n = int(scope)
+            with open(f"{STATE_DIR}/pause_bot{n}", "w") as f:
+                json.dump(payload, f, indent=2)
+            log.warning(f"[PAUSE] bot{n} until {until.strftime('%Y-%m-%d %H:%M UTC')}")
+            tg_send(f"⏸ bot{n} paused {hours}h: {reason}")
+        except ValueError:
+            log.error(f"[PAUSE] unknown scope: {scope}")
+
+def cmd_resume():
+    """Снимает safe-mode и все pause-файлы."""
+    os.makedirs(STATE_DIR, exist_ok=True)
+    removed = []
+    if os.path.exists(SAFE_MODE_FILE):
+        try:
+            with open(SAFE_MODE_FILE) as f:
+                info = json.load(f)
+            log.warning(f"[RESUME] clearing safe-mode (entered {info.get('entered_at')}, reason: {info.get('reason')})")
+        except Exception:
+            pass
+        os.remove(SAFE_MODE_FILE)
+        removed.append("safe_mode")
+    if os.path.exists(PAUSE_GLOBAL):
+        os.remove(PAUSE_GLOBAL)
+        removed.append("pause_global")
+    for n in range(1, 7):
+        p = f"{STATE_DIR}/pause_bot{n}"
+        if os.path.exists(p):
+            os.remove(p)
+            removed.append(f"pause_bot{n}")
+    if removed:
+        msg = f"✅ RESUME: cleared {', '.join(removed)}"
+        log.info(msg)
+        tg_send(msg)
+    else:
+        log.info("[RESUME] nothing to clear (no active pause/safe-mode)")
+        print("Ничего не очищено — пауз и safe-mode нет")
+
+def cmd_status_protection():
+    """Показать текущее состояние Block 2 защит (safe-mode, pauses)."""
+    print("=== Block 2 Protection Status ===")
+    if os.path.exists(SAFE_MODE_FILE):
+        try:
+            with open(SAFE_MODE_FILE) as f:
+                info = json.load(f)
+            print(f"🛑 SAFE-MODE active since {info.get('entered_at')}")
+            print(f"   Reason: {info.get('reason')}")
+        except Exception:
+            print("🛑 SAFE-MODE file present (corrupted)")
+    else:
+        print("✅ safe-mode: clear")
+    if os.path.exists(PAUSE_GLOBAL):
+        try:
+            with open(PAUSE_GLOBAL) as f:
+                p = json.load(f)
+            print(f"⏸ GLOBAL PAUSE until {p.get('until')} ({p.get('reason')})")
+        except Exception:
+            print("⏸ GLOBAL PAUSE (corrupted)")
+    else:
+        print("✅ global pause: clear")
+    for n in range(1, 7):
+        p = f"{STATE_DIR}/pause_bot{n}"
+        if os.path.exists(p):
+            try:
+                with open(p) as f:
+                    info = json.load(f)
+                print(f"⏸ bot{n} paused until {info.get('until')} ({info.get('reason')})")
+            except Exception:
+                pass
+
 if __name__ == "__main__":
     import argparse
     pa = argparse.ArgumentParser()
@@ -577,6 +665,11 @@ if __name__ == "__main__":
     pa.add_argument("--topup", action="store_true", help="P1-D: Auto-top-up margin")
     pa.add_argument("--rotate-smart", action="store_true", help="P2-G/H + P3-I: Smart rotation (dry-run)")
     pa.add_argument("--apply", action="store_true", help="Apply rotation decision (use with --rotate-smart)")
+    pa.add_argument("--pause", nargs="?", const="global", help="Block 2: pause new entries (--pause [global|1-6])")
+    pa.add_argument("--pause-hours", type=int, default=4, help="Pause duration (default 4h)")
+    pa.add_argument("--pause-reason", type=str, default="manual", help="Pause reason")
+    pa.add_argument("--resume", action="store_true", help="Block 2: снять safe-mode и все паузы")
+    pa.add_argument("--protection-status", action="store_true", help="Block 2: показать состояние защит")
     a = pa.parse_args()
     if a.compound: cmd_compound()
     elif a.sync: cmd_sync()
@@ -586,5 +679,8 @@ if __name__ == "__main__":
     elif a.rotate_smart:
         from rotation import cmd_rotate_smart
         cmd_rotate_smart(apply_changes=a.apply)
+    elif a.resume: cmd_resume()
+    elif a.protection_status: cmd_status_protection()
+    elif a.pause: cmd_pause(scope=a.pause, hours=a.pause_hours, reason=a.pause_reason)
     elif a.report: cmd_report()
     else: cmd_report()
