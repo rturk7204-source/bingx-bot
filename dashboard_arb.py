@@ -368,6 +368,22 @@ def api_liq_distance():
     return jsonify(get_liq_distance())
 
 
+# ─── Block 5: Fleet State (file-based, API-independent) ────────────────────
+# Survives BingX outage / internet jamming — reads only state files on disk.
+
+@arb_bp.route("/api/fleet_state")
+@login_required
+def api_fleet_state():
+    """Return file-based fleet snapshot. Fast (~1ms) and works offline."""
+    try:
+        from fleet_state import fleet_snapshot, health_snapshot
+        snap = fleet_snapshot()
+        snap["health"] = health_snapshot()
+        return jsonify(snap)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 ARB_HTML = """
 <!DOCTYPE html>
 <html lang="ru">
@@ -821,6 +837,161 @@ setInterval(loadRotationStatus, 30000);
 </body>
 </html>
 """
+
+
+# ─── Block 5: Fleet Dashboard (mobile-friendly, file-based) ────────────────
+FLEET_HTML = """<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARB Fleet — BingX Bot</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0d1117; color:#e6edf3; font-family:-apple-system,'Segoe UI',sans-serif; padding:12px; }
+h1 { color:#58a6ff; font-size:20px; margin-bottom:6px; }
+.sub { color:#8b949e; font-size:12px; margin-bottom:16px; }
+.banner { padding:10px 12px; border-radius:8px; margin-bottom:14px; font-weight:500; font-size:14px; }
+.banner.safe { background:#3a1414; border:1px solid #f85149; color:#f85149; }
+.banner.pause { background:#3a2914; border:1px solid #e3b341; color:#e3b341; }
+.banner.ok { background:#0f2a14; border:1px solid #3fb950; color:#3fb950; }
+.totals { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.totals .box { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:10px; text-align:center; }
+.totals .label { color:#8b949e; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; }
+.totals .val { font-size:18px; font-weight:600; margin-top:4px; }
+.cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+.card { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:14px; position:relative; }
+.card.open { border-left:3px solid #3fb950; }
+.card.idle { border-left:3px solid #6e7681; opacity:0.7; }
+.card.paused { border-left:3px solid #e3b341; }
+.card.warn { border-left:3px solid #d29922; background:#1c1610; }
+.card.danger { border-left:3px solid #f85149; background:#1c1010; }
+.card-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.bot-name { font-size:14px; font-weight:600; color:#58a6ff; }
+.badge { font-size:11px; padding:2px 8px; border-radius:10px; }
+.b-active { background:#0f2a14; color:#3fb950; }
+.b-idle   { background:#21262d; color:#8b949e; }
+.b-paused { background:#3a2914; color:#e3b341; }
+.b-danger { background:#3a1414; color:#f85149; }
+.symbol { font-size:16px; font-weight:600; margin-bottom:8px; }
+.row { display:flex; justify-content:space-between; font-size:12px; margin:3px 0; }
+.row .k { color:#8b949e; }
+.row .v { color:#e6edf3; font-weight:500; }
+.green { color:#3fb950; }
+.red   { color:#f85149; }
+.yellow{ color:#e3b341; }
+.muted { color:#8b949e; font-size:11px; margin-top:6px; }
+.refresh { color:#58a6ff; font-size:11px; margin-top:14px; }
+.actions { margin-top:10px; display:flex; gap:6px; }
+.btn { padding:5px 10px; border-radius:5px; border:1px solid #30363d; background:#21262d; color:#e6edf3; font-size:11px; cursor:pointer; }
+.btn:hover { background:#30363d; }
+.btn.danger { border-color:#f85149; color:#f85149; }
+.back { color:#58a6ff; text-decoration:none; font-size:12px; }
+@media (max-width:600px) { body{padding:8px;} .totals{grid-template-columns:1fr 1fr;} .totals .box:last-child{grid-column:1/-1;} }
+</style>
+</head>
+<body>
+<a href="/" class="back">← Dashboard</a>
+<h1>🤖 ARB Fleet</h1>
+<div class="sub" id="updated">loading…</div>
+
+<div id="banner"></div>
+
+<div class="totals">
+  <div class="box"><div class="label">Active</div><div class="val" id="t-active">—</div></div>
+  <div class="box"><div class="label">Capital</div><div class="val" id="t-capital">—</div></div>
+  <div class="box"><div class="label">Earned</div><div class="val" id="t-earned">—</div></div>
+</div>
+
+<div class="cards" id="cards"></div>
+<div class="refresh">⭯ Auto-refresh каждые 30 сек</div>
+
+<script>
+function fmtMoney(v) {
+  const sign = v >= 0 ? '+' : '';
+  return sign + '$' + (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2));
+}
+function fmtAge(h) {
+  if (h < 1) return Math.round(h*60) + 'm';
+  if (h < 24) return h.toFixed(1) + 'h';
+  return (h/24).toFixed(1) + 'd';
+}
+async function load() {
+  try {
+    const r = await fetch('/arb/api/fleet_state', {credentials:'same-origin'});
+    const data = await r.json();
+    if (data.error) { document.getElementById('cards').innerHTML = '<div style="color:#f85149">Error: '+data.error+'</div>'; return; }
+
+    document.getElementById('updated').textContent = 'updated ' + new Date(data.timestamp).toLocaleString();
+
+    const banner = document.getElementById('banner');
+    if (data.safe_mode) {
+      banner.className = 'banner safe';
+      banner.innerHTML = '🔴 SAFE MODE — все входы блокированы';
+    } else if (data.pause_global) {
+      banner.className = 'banner pause';
+      banner.innerHTML = '⏸ Global pause до ' + data.pause_global.until_human + ' — ' + (data.pause_global.reason || '');
+    } else {
+      banner.className = 'banner ok';
+      banner.innerHTML = '🟢 Fleet operational';
+    }
+
+    document.getElementById('t-active').textContent = data.totals.active + '/' + data.totals.n_bots;
+    document.getElementById('t-capital').textContent = '$' + data.totals.capital.toFixed(0);
+    const earnedEl = document.getElementById('t-earned');
+    earnedEl.textContent = fmtMoney(data.totals.earned);
+    earnedEl.className = 'val ' + (data.totals.earned >= 0 ? 'green' : 'red');
+
+    const cards = document.getElementById('cards');
+    cards.innerHTML = '';
+    for (const b of data.bots) {
+      const div = document.createElement('div');
+      let cls = 'card ';
+      let badge = '';
+      if (b.liquidated) { cls += 'danger'; badge = '<span class="badge b-danger">LIQ</span>'; }
+      else if (!b.open && b.pause) { cls += 'paused'; badge = '<span class="badge b-paused">PAUSED</span>'; }
+      else if (!b.open) { cls += 'idle'; badge = '<span class="badge b-idle">idle</span>'; }
+      else if (b.pause) { cls += 'paused'; badge = '<span class="badge b-paused">PAUSED</span>'; }
+      else if (b.bad_periods > 0) { cls += 'warn'; badge = '<span class="badge b-paused">⚠ ' + b.bad_periods + '</span>'; }
+      else { cls += 'open'; badge = '<span class="badge b-active">active</span>'; }
+      div.className = cls;
+
+      let body = '<div class="card-head"><span class="bot-name">bot' + b.n + '</span>' + badge + '</div>';
+      if (b.open) {
+        body += '<div class="symbol">' + (b.symbol || '—') + '</div>';
+        body += '<div class="row"><span class="k">Capital</span><span class="v">$' + (b.spot_budget + b.perp_margin).toFixed(0) + '</span></div>';
+        body += '<div class="row"><span class="k">Funding APY</span><span class="v ' + (b.funding_apy_pct >= 0 ? 'green' : 'red') + '">' + b.funding_apy_pct.toFixed(1) + '%</span></div>';
+        body += '<div class="row"><span class="k">Age</span><span class="v">' + fmtAge(b.age_hours) + '</span></div>';
+        body += '<div class="row"><span class="k">Earned</span><span class="v ' + (b.total_earned_usdt >= 0 ? 'green' : 'red') + '">' + fmtMoney(b.total_earned_usdt) + '</span></div>';
+        body += '<div class="row"><span class="k">Leverage</span><span class="v">' + b.leverage + 'x</span></div>';
+        if (b.bad_periods > 0) body += '<div class="muted yellow">⚠ bad_periods: ' + b.bad_periods + '</div>';
+      } else {
+        body += '<div class="muted">no open position</div>';
+      }
+      if (b.pause) {
+        body += '<div class="muted yellow">⏸ до ' + b.pause.until_human + ' (' + (b.pause.reason || '') + ')</div>';
+      }
+      if (b.last_check) body += '<div class="muted">last check: ' + new Date(b.last_check).toLocaleTimeString() + '</div>';
+      div.innerHTML = body;
+      cards.appendChild(div);
+    }
+  } catch (e) {
+    document.getElementById('cards').innerHTML = '<div style="color:#f85149">Fetch error: '+e.message+'</div>';
+  }
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
+"""
+
+
+@arb_bp.route("/fleet")
+@login_required
+def arb_fleet_page():
+    """Block 5: mobile-friendly fleet dashboard. Reads file state — works offline."""
+    return render_template_string(FLEET_HTML)
 
 
 @arb_bp.route("/")
