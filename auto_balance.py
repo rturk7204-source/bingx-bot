@@ -94,7 +94,12 @@ def _load_state() -> dict:
 
 
 def _save_state(state: dict):
-    STATE_FILE.write_text(json.dumps(state, indent=2))
+    # Block 6: atomic write с .bak ротацией
+    try:
+        from safe_io import safe_write_json
+        safe_write_json(str(STATE_FILE), state, indent=2)
+    except ImportError:
+        STATE_FILE.write_text(json.dumps(state, indent=2))
 
 
 def _prune_old_transfers(state: dict):

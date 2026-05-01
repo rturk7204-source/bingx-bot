@@ -30,6 +30,16 @@ import os, sys, time, json, hmac, hashlib, subprocess, requests, logging
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlencode
 
+# Block 6: atomic state writes (with .bak rotation)
+try:
+    from safe_io import safe_write_json
+except ImportError:
+    # фолбэк если safe_io не развёрнут (старый VPS)
+    def safe_write_json(path, data, indent=2):
+        with open(path, "w") as f:
+            json.dump(data, f, indent=indent, default=str)
+        return True
+
 BOT_DIR = "/root/bingx-bot"
 STATE_DIR = f"{BOT_DIR}/state"
 LOGS_DIR = f"{BOT_DIR}/logs"
@@ -156,18 +166,16 @@ def load_hh_state():
                 "peak_equity": 0.0, "api_failures": [], "last_check": 0}
 
 def save_hh_state(s):
-    with open(HH_STATE, "w") as f:
-        json.dump(s, f, indent=2, default=str)
+    safe_write_json(HH_STATE, s, indent=2)
 
 def is_safe_mode():
     return os.path.exists(SAFE_MODE_FILE)
 
 def enter_safe_mode(reason):
-    with open(SAFE_MODE_FILE, "w") as f:
-        json.dump({
-            "entered_at": datetime.now(timezone.utc).isoformat(),
-            "reason": reason,
-        }, f)
+    safe_write_json(SAFE_MODE_FILE, {
+        "entered_at": datetime.now(timezone.utc).isoformat(),
+        "reason": reason,
+    })
     log.error(f"SAFE-MODE entered: {reason}")
     tg_send(
         f"<b>SAFE-MODE ACTIVATED</b>\n"
@@ -449,11 +457,10 @@ def action_exit_bot(n, state, trigger, reason):
         ok = r.returncode == 0
         record_action(state, trigger, n, "exit", reason, ok)
         # Pause бот на 24ч
-        with open(PAUSE_BOT_FMT.format(n), "w") as f:
-            json.dump({
-                "until": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
-                "reason": f"{trigger}: {reason}",
-            }, f)
+        safe_write_json(PAUSE_BOT_FMT.format(n), {
+            "until": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
+            "reason": f"{trigger}: {reason}",
+        })
         tg_send(
             f"AUTO-EXIT bot{n} выполнен\n"
             f"Trigger: {trigger}\nReason: {reason}\n"
@@ -468,12 +475,11 @@ def action_exit_bot(n, state, trigger, reason):
         return False
 
 def action_global_pause_entries(state, trigger, reason, hours=4):
-    with open(PAUSE_GLOBAL, "w") as f:
-        json.dump({
-            "until": (datetime.now(timezone.utc) + timedelta(hours=hours)).isoformat(),
-            "reason": f"{trigger}: {reason}",
-            "scope": "new_entries",
-        }, f)
+    safe_write_json(PAUSE_GLOBAL, {
+        "until": (datetime.now(timezone.utc) + timedelta(hours=hours)).isoformat(),
+        "reason": f"{trigger}: {reason}",
+        "scope": "new_entries",
+    })
     record_action(state, trigger, "global", "pause_entries", reason, True)
     tg_send(
         f"GLOBAL PAUSE NEW ENTRIES ({hours}h)\n"
