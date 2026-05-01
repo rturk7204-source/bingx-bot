@@ -71,6 +71,7 @@ arb_rotation_history.json
 arb_rp_snapshot.json
 rotation_graveyard.json
 rotation_history.json
+lifetime_pnl.json
 funding_history.csv
 pnl_history.csv
 .funding_tracker.json
