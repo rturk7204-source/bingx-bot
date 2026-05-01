@@ -553,7 +553,14 @@ def execute_rotation(decision, dry_run=True):
     #      между candidate-scan и enter)
     # Оба случая наблюдались в live: TRADOOR basis 2.09% → пауза → была попытка
     # войти в GUA на том же боте → SYMBOL попатчился на GUA но вход заблокирован.
-    bot_id = int(decision["eject_bot"].replace("arb_bot", "")) if decision["eject_bot"].startswith("arb_bot") else None
+    # bot1 именуется как 'arb_bot' (без цифры!), bot2-6 — 'arb_bot2'..'arb_bot6'.
+    # Пустая строка после .replace() = bot1.
+    _eject = decision["eject_bot"]
+    if _eject.startswith("arb_bot"):
+        _suffix = _eject.replace("arb_bot", "")
+        bot_id = int(_suffix) if _suffix else 1
+    else:
+        bot_id = None
 
     # 1. PAUSE check via pause_check.py (Block 4: single source of truth).
     # Раньше rotation дублировала логику (_is_pause_active + import из hedge_health).
