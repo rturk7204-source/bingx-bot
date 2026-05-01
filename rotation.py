@@ -484,9 +484,10 @@ def execute_rotation(decision, dry_run=True):
 
     is_fill_empty = decision.get("action") == "fill_empty"
 
-    # FIX #2: PRE-CHECK SPOT BALANCE — без этого бот делает exit, а потом enter падает
-    # (spot < $80 → бот висит без позиции). Теперь проверяем заранее и отменяем ротацию,
-    # отправляя алерт в Telegram чтобы пользователь пополнил spot вручную через UI BingX.
+    # FIX #2 v2 (Block 1): PRE-CHECK SPOT BALANCE с auto_balance integration
+    # Если spot < нужно — пробуем автоматически перевести perp→spot через ensure_spot_balance().
+    # Только если auto-transfer не сработал (нет средств на perp, circuit breaker, ошибка API)
+    # — отменяем ротацию и шлём TG алерт. Раньше любой shortfall = stop + ручное вмешательство.
     try:
         sys.path.insert(0, BOT_DIR)
         from arb_tools import get_spot_balance, tg_send
@@ -495,19 +496,35 @@ def execute_rotation(decision, dry_run=True):
         spot_usdt = get_spot_balance("USDT")
         needed = SPOT_BUDGET_REQUIRED * SPOT_BUFFER
         if spot_usdt < needed:
-            msg = (
-                f"🛑 РОТАЦИЯ ОТМЕНЕНА: {decision['eject_bot']} "
-                f"{decision.get('eject_symbol', '?')} → {decision['new_symbol']}\n"
-                f"Spot USDT ${spot_usdt:.2f} < нужно ${needed:.2f}\n"
-                f"Перевод perp→spot через API не работает. Пополни вручную:\n"
-                f"BingX UI → Assets → Transfer → Perp→Fund ${needed-spot_usdt+5:.0f} USDT"
-            )
-            lines.append(f"  🛑 PRE-CHECK FAIL: spot=${spot_usdt:.2f} < ${needed:.2f}")
-            lines.append(f"  Telegram alert отправлен. Старая позиция НЕ тронута.")
-            try: tg_send(msg)
-            except Exception: pass
-            return False, lines
-        lines.append(f"  [PRE-CHECK] spot=${spot_usdt:.2f} ≥ ${needed:.2f} ✓")
+            lines.append(f"  [PRE-CHECK] spot=${spot_usdt:.2f} < ${needed:.2f} → пробую auto-transfer")
+            ok_auto = False
+            err_auto = None
+            try:
+                from auto_balance import ensure_spot_balance
+                # ensure_spot_balance(needed, buffer=2.0) -> bool; сам логирует и шлёт TG при провале
+                ok_auto = ensure_spot_balance(needed, buffer=2.0)
+                spot_usdt = get_spot_balance("USDT")  # перечитываем после попытки
+                if ok_auto:
+                    lines.append(f"  [AUTO-BAL] ✅ перевод выполнен → spot теперь ${spot_usdt:.2f}")
+                else:
+                    lines.append(f"  [AUTO-BAL] ❌ не удалось добрать до ${needed:.2f} (spot=${spot_usdt:.2f})")
+            except Exception as e:
+                err_auto = f"auto_balance error: {e}"
+                lines.append(f"  [AUTO-BAL WARN] {err_auto}")
+            if not ok_auto or spot_usdt < needed:
+                msg = (
+                    f"🛑 РОТАЦИЯ ОТМЕНЕНА: {decision['eject_bot']} "
+                    f"{decision.get('eject_symbol', '?')} → {decision['new_symbol']}\n"
+                    f"Spot USDT ${spot_usdt:.2f} < нужно ${needed:.2f}\n"
+                    f"Auto-transfer fail: {err_auto or 'spot всё ещё ниже порога'}\n"
+                    f"Проверь auto_balance.log. BingX UI → Assets → Transfer → Perp→Fund ${needed-spot_usdt+5:.0f} USDT"
+                )
+                lines.append(f"  🛑 PRE-CHECK FAIL после auto-transfer. Старая позиция НЕ тронута.")
+                try: tg_send(msg)
+                except Exception: pass
+                return False, lines
+        else:
+            lines.append(f"  [PRE-CHECK] spot=${spot_usdt:.2f} ≥ ${needed:.2f} ✓")
     except Exception as e:
         lines.append(f"  [PRE-CHECK WARN] не смог проверить spot: {e}")
 
