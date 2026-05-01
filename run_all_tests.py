@@ -32,6 +32,7 @@ TEST_MODULES = [
     "tests.test_rotation_parsing",
     "tests.test_lifetime_pnl",
     "tests.test_rotation_logging",
+    "tests.test_graveyard",
 ]
 
 
