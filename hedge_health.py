@@ -205,19 +205,40 @@ def get_perp_position(symbol):
     return None
 
 def get_mark_price(symbol):
+    """Defensive: data может быть dict или list[dict]."""
     d = _get("/openApi/swap/v2/quote/premiumIndex", {"symbol": symbol})
-    if d.get("code") == 0:
-        return float(d.get("data", {}).get("markPrice", 0))
+    if d.get("code") != 0:
+        return 0.0
+    data = d.get("data", {})
+    items = data if isinstance(data, list) else [data]
+    for item in items:
+        if isinstance(item, dict):
+            try:
+                v = float(item.get("markPrice", 0) or 0)
+                if v > 0:
+                    return v
+            except (TypeError, ValueError):
+                continue
     return 0.0
 
 def get_spot_price(symbol):
+    """Defensive: BingX spot ticker возвращает разные формы. Ищем первый числовой 'price'."""
     d = _get("/openApi/spot/v1/ticker/price", {"symbol": symbol})
-    if d.get("code") == 0:
-        data = d.get("data", {})
-        if isinstance(data, list) and data:
-            return float(data[0].get("trades", [{}])[0].get("price", 0)) or float(data[0].get("price", 0))
-        if isinstance(data, dict):
-            return float(data.get("trades", [{}])[0].get("price", 0)) or float(data.get("price", 0))
+    if d.get("code") != 0:
+        return 0.0
+    data = d.get("data", {})
+    candidates = data if isinstance(data, list) else [data]
+    for item in candidates:
+        if not isinstance(item, dict):
+            continue
+        # вариант 1: прямой price
+        p = item.get("price") or item.get("trades", [{}])[0].get("price", 0) if isinstance(item.get("trades"), list) else item.get("price")
+        try:
+            v = float(p or 0)
+            if v > 0:
+                return v
+        except (TypeError, ValueError):
+            continue
     return 0.0
 
 def get_spot_balance(asset):
@@ -230,24 +251,39 @@ def get_spot_balance(asset):
     return 0.0
 
 def get_perp_balance():
+    """BingX swap balance: data.balance может быть dict (один USDT) или list — поддерживаем оба."""
     d = _get("/openApi/swap/v2/user/balance")
-    if d.get("code") == 0:
-        for b in d.get("data", {}).get("balance", []):
-            if b.get("asset") == "USDT":
-                return {
-                    "balance": float(b.get("balance", 0)),
-                    "available": float(b.get("availableMargin", 0)),
-                    "unrealized": float(b.get("unrealizedProfit", 0)),
-                }
+    if d.get("code") != 0:
+        return {"balance": 0, "available": 0, "unrealized": 0}
+    bal_data = d.get("data", {}).get("balance", {})
+    items = bal_data if isinstance(bal_data, list) else [bal_data]
+    for b in items:
+        if not isinstance(b, dict):
+            continue
+        if b.get("asset") == "USDT" or len(items) == 1:
+            return {
+                "balance": float(b.get("balance", 0) or 0),
+                "available": float(b.get("availableMargin", 0) or 0),
+                "unrealized": float(b.get("unrealizedProfit", 0) or 0),
+            }
     return {"balance": 0, "available": 0, "unrealized": 0}
 
 def get_funding_history(symbol, limit=5):
-    """Возвращает список последних funding rates: positive = LONG платит SHORT."""
+    """Возвращает список последних funding rates (newest first)."""
     d = _get("/openApi/swap/v2/quote/fundingRate", {"symbol": symbol, "limit": limit})
-    if d.get("code") == 0:
-        rates = d.get("data", [])
-        return [float(r.get("fundingRate", 0)) for r in rates]
-    return []
+    if d.get("code") != 0:
+        return []
+    data = d.get("data", [])
+    if not isinstance(data, list):
+        data = [data] if isinstance(data, dict) else []
+    out = []
+    for r in data:
+        if isinstance(r, dict):
+            try:
+                out.append(float(r.get("fundingRate", 0) or 0))
+            except (TypeError, ValueError):
+                continue
+    return out
 
 # ── Trigger checks ───────────────────────────────────────────────────
 def check_T1_liq_distance(n, state, perp_pos, mark_price):
