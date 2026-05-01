@@ -27,7 +27,7 @@ Safety guards:
 
 import env_loader  # noqa: F401  (auto-loads .env)
 import os, sys, time, json, hmac, hashlib, subprocess, requests, logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from urllib.parse import urlencode
 
 # Block 6: atomic state writes (with .bak rotation)
@@ -40,11 +40,15 @@ except ImportError:
             json.dump(data, f, indent=indent, default=str)
         return True
 
-BOT_DIR = "/root/bingx-bot"
+BOT_DIR = os.getenv("BOT_DIR", "/root/bingx-bot")
 STATE_DIR = f"{BOT_DIR}/state"
 LOGS_DIR = f"{BOT_DIR}/logs"
-os.makedirs(STATE_DIR, exist_ok=True)
-os.makedirs(LOGS_DIR, exist_ok=True)
+try:
+    os.makedirs(STATE_DIR, exist_ok=True)
+    os.makedirs(LOGS_DIR, exist_ok=True)
+except OSError:
+    # В тестах / read-only файловых системах не падаем на импорте
+    pass
 
 BASE_URL = "https://open-api.bingx.com"
 AK = os.getenv("BINGX_API_KEY", "")
@@ -168,14 +172,17 @@ def load_hh_state():
 def save_hh_state(s):
     safe_write_json(HH_STATE, s, indent=2)
 
+# Block 4: стандартная pause/safe-mode логика живёт в pause_check.py.
+# hedge_health сохраняет локальные обёртки для бесшовной обратной совместимости:
+# delegate к pause_check, плюс добавляем log+tg side-effects.
+import pause_check as _pc
+
 def is_safe_mode():
-    return os.path.exists(SAFE_MODE_FILE)
+    safe, _ = _pc.is_safe_mode()
+    return safe
 
 def enter_safe_mode(reason):
-    safe_write_json(SAFE_MODE_FILE, {
-        "entered_at": datetime.now(timezone.utc).isoformat(),
-        "reason": reason,
-    })
+    _pc.enter_safe_mode(reason)
     log.error(f"SAFE-MODE entered: {reason}")
     tg_send(
         f"<b>SAFE-MODE ACTIVATED</b>\n"
@@ -456,11 +463,8 @@ def action_exit_bot(n, state, trigger, reason):
         )
         ok = r.returncode == 0
         record_action(state, trigger, n, "exit", reason, ok)
-        # Pause бот на 24ч
-        safe_write_json(PAUSE_BOT_FMT.format(n), {
-            "until": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
-            "reason": f"{trigger}: {reason}",
-        })
+        # Pause бот на 24ч (Block 4: через pause_check API)
+        _pc.pause_bot(n, hours=24, reason=f"{trigger}: {reason}")
         tg_send(
             f"AUTO-EXIT bot{n} выполнен\n"
             f"Trigger: {trigger}\nReason: {reason}\n"
@@ -475,11 +479,8 @@ def action_exit_bot(n, state, trigger, reason):
         return False
 
 def action_global_pause_entries(state, trigger, reason, hours=4):
-    safe_write_json(PAUSE_GLOBAL, {
-        "until": (datetime.now(timezone.utc) + timedelta(hours=hours)).isoformat(),
-        "reason": f"{trigger}: {reason}",
-        "scope": "new_entries",
-    })
+    # Block 4: через pause_check API
+    _pc.pause_global(hours=hours, reason=f"{trigger}: {reason}")
     record_action(state, trigger, "global", "pause_entries", reason, True)
     tg_send(
         f"GLOBAL PAUSE NEW ENTRIES ({hours}h)\n"

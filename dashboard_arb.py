@@ -16,10 +16,9 @@ Routes:
 """
 import csv
 import json
-import os
 from pathlib import Path
 from functools import wraps
-from datetime import datetime, timezone
+# datetime/timezone импортируются локально в функциях где нужны (Block 4 cleanup)
 
 from flask import Blueprint, jsonify, render_template_string, session, redirect
 
@@ -224,7 +223,7 @@ def get_liq_distance() -> list[dict]:
 
 def get_summary() -> dict:
     """Сводка по ARB портфелю: баланс, equity, PnL, funding, APR."""
-    import subprocess, json as _json, csv as _csv, os as _os, sys as _sys
+    import subprocess, csv as _csv, sys as _sys
     import re as _re, traceback
     from datetime import datetime, timezone
 
@@ -1005,7 +1004,6 @@ def arb_page():
 # ═══════════════════════════════════════════════════════════════════
 import subprocess as _ap_sub
 import json as _ap_json
-import os as _ap_os
 from pathlib import Path as _ap_Path
 from datetime import datetime as _ap_dt, timezone as _ap_tz
 from flask import request as _ap_req, jsonify as _ap_jsonify

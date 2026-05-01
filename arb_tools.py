@@ -170,7 +170,7 @@ def cmd_report():
             continue
         sym = s["symbol"]
         rate = get_rate(sym)
-        price = get_price(sym)
+        # price = get_price(sym)  # не используется в этой ветке (Block 4 cleanup)
         earned = s.get("total_earned_usdt", 0)
         budget = s.get("spot_budget", 0) + s.get("perp_margin", 0)
         total_earned += earned
@@ -247,13 +247,12 @@ def cmd_compound():
 
     # Проверяем маржу всех активных позиций — если где-то рискует, доливаем только в якорь
     MARGIN_LIMIT = 45.0
-    risky = False
+    # Проверяем risky по всем ботам (для лога; флаг больше не используется, Block 4 cleanup)
     for n in range(2, 7):
         sx = load_state(n)
         if sx.get("position_open"):
             mx = sx.get("margin_ratio", 0)
             if mx > MARGIN_LIMIT:
-                risky = True
                 log.info(f"Маржа {sx.get('symbol','?')} = {mx:.1f}% > {MARGIN_LIMIT}% — доливаем только в якорь")
 
     # Делим: 2/3 на спот, 1/3 на маржу
@@ -567,53 +566,34 @@ def cmd_topup():
         log.info("[TOPUP] Никому не нужно")
 
 # === Block 2: pause / resume / status ===========================
-STATE_DIR = f"{BOT_DIR}/state"
-SAFE_MODE_FILE = f"{STATE_DIR}/safe_mode"
-PAUSE_GLOBAL = f"{STATE_DIR}/pause_global"
+# Block 4: вся pause-логика живёт в pause_check.py (single source of truth).
+# arb_tools только вызывает API и добавляет log/tg-обёртку.
+import pause_check
+STATE_DIR = pause_check._state_dir()  # backward-compat для cmd_status_protection
+SAFE_MODE_FILE = pause_check.safe_mode_path()
+PAUSE_GLOBAL = pause_check.pause_global_path()
 
 def cmd_pause(scope="global", hours=4, reason="manual"):
     """Пауза на вход новых позиций на N часов."""
-    os.makedirs(STATE_DIR, exist_ok=True)
-    from datetime import timedelta
-    until = datetime.now(timezone.utc) + timedelta(hours=hours)
-    payload = {"until": until.isoformat(), "reason": reason, "scope": "new_entries"}
     if scope == "global":
-        with open(PAUSE_GLOBAL, "w") as f:
-            json.dump(payload, f, indent=2)
-        log.warning(f"[PAUSE] global new_entries until {until.strftime('%Y-%m-%d %H:%M UTC')}: {reason}")
+        payload = pause_check.pause_global(hours=hours, reason=reason)
+        until_str = payload["until"][:16].replace("T", " ")
+        log.warning(f"[PAUSE] global new_entries until {until_str} UTC: {reason}")
         tg_send(f"⏸ PAUSE {hours}h: {reason}")
     else:
-        # bot-specific
         try:
             n = int(scope)
-            with open(f"{STATE_DIR}/pause_bot{n}", "w") as f:
-                json.dump(payload, f, indent=2)
-            log.warning(f"[PAUSE] bot{n} until {until.strftime('%Y-%m-%d %H:%M UTC')}")
-            tg_send(f"⏸ bot{n} paused {hours}h: {reason}")
         except ValueError:
             log.error(f"[PAUSE] unknown scope: {scope}")
+            return
+        payload = pause_check.pause_bot(n, hours=hours, reason=reason)
+        until_str = payload["until"][:16].replace("T", " ")
+        log.warning(f"[PAUSE] bot{n} until {until_str} UTC")
+        tg_send(f"⏸ bot{n} paused {hours}h: {reason}")
 
 def cmd_resume():
     """Снимает safe-mode и все pause-файлы."""
-    os.makedirs(STATE_DIR, exist_ok=True)
-    removed = []
-    if os.path.exists(SAFE_MODE_FILE):
-        try:
-            with open(SAFE_MODE_FILE) as f:
-                info = json.load(f)
-            log.warning(f"[RESUME] clearing safe-mode (entered {info.get('entered_at')}, reason: {info.get('reason')})")
-        except Exception:
-            pass
-        os.remove(SAFE_MODE_FILE)
-        removed.append("safe_mode")
-    if os.path.exists(PAUSE_GLOBAL):
-        os.remove(PAUSE_GLOBAL)
-        removed.append("pause_global")
-    for n in range(1, 7):
-        p = f"{STATE_DIR}/pause_bot{n}"
-        if os.path.exists(p):
-            os.remove(p)
-            removed.append(f"pause_bot{n}")
+    removed = pause_check.resume_all()
     if removed:
         msg = f"✅ RESUME: cleared {', '.join(removed)}"
         log.info(msg)

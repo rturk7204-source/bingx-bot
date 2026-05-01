@@ -20,14 +20,8 @@ Public API:
 
 Pure functions — no side-effects, easy to unit test.
 """
-import math
-import os
 import statistics
-import time
-import urllib.parse
-import urllib.request
 from datetime import datetime, timezone
-from typing import Optional
 
 
 # ══ Tunable constants ═══════════════════════════════════════════════════════
