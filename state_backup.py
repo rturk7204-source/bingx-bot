@@ -50,6 +50,7 @@ INCLUDE_FILES = [
     "pairs_state.json",
     "oi_history.json",
     "feature_importance_history.json",
+    "lifetime_pnl.json",  # Block 5.x: накопленный PnL через ротации
 ]
 INCLUDE_GLOBS = [
     "state/*",          # все файлы state/: hedge_health.json, pause_*, safe_mode и т.п.

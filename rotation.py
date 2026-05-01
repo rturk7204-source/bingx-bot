@@ -659,6 +659,13 @@ def execute_rotation(decision, dry_run=True):
 
     # ===== STEP 1: EXIT OLD (only for rotation, not fill_empty) =====
     if not is_fill_empty:
+        # PRE-EXIT: запоминаем earned для записи в lifetime_pnl ПОСЛЕ успешного exit.
+        # Читаем именно сейчас, потому что после exit некоторые боты обнуляют
+        # total_earned_usdt в state.
+        st_pre_exit = load_json(os.path.join(BOT_DIR, state_file), default={})
+        pre_exit_earned = float(st_pre_exit.get("total_earned_usdt", 0) or 0)
+        pre_exit_cycles = int(st_pre_exit.get("funding_cycles_collected", 0) or 0)
+
         lines.append(f"  [1/4] Exit {decision['eject_symbol']}...")
         r1 = subprocess.run(["python3", os.path.join(BOT_DIR, bot_file), "--exit"],
                             capture_output=True, text=True, cwd=BOT_DIR, timeout=180)
@@ -674,6 +681,23 @@ def execute_rotation(decision, dry_run=True):
         if st_after_exit.get("position_open"):
             lines.append(f"    🛑 EXIT не закрыл position_open! Отменяем вход во избежание дубликата.")
             return False, lines
+
+        # LIFETIME PNL: фиксируем сколько эта пара заработала за всё время на этом боте.
+        # Делаем это ПОСЛЕ verify exit, но ПЕРЕД graveyard и enter — чтобы при ошибке
+        # дальше у нас уже остался правильный учёт.
+        try:
+            sys.path.insert(0, BOT_DIR)
+            import lifetime_pnl
+            lifetime_pnl.record_exit(
+                bot_name=decision["eject_bot"],
+                symbol=decision["eject_symbol"],
+                earned_usdt=pre_exit_earned,
+                cycles=pre_exit_cycles or None,
+                reason=decision.get("eject_reason", "")[:60],
+            )
+            lines.append(f"  [PnL] {decision['eject_symbol']} earned ${pre_exit_earned:.4f} → lifetime_pnl.json")
+        except Exception as e:
+            lines.append(f"  [PnL WARN] не смог записать lifetime_pnl: {e}")
 
         add_to_graveyard(decision["eject_symbol"], decision["eject_reason"])
         lines.append(f"  [1.5/4] {decision['eject_symbol']} добавлен в graveyard на {GRAVEYARD_COOLDOWN_H}ч")
@@ -861,6 +885,16 @@ def cmd_rotate_smart(apply_changes=False):
         print("=" * 60)
         ok, lines = execute_rotation(result["decision"], dry_run=False)
         for ln in lines: print(ln)
+        # добавляем lifetime PnL summary в TG-отчёт
+        try:
+            sys.path.insert(0, BOT_DIR)
+            import lifetime_pnl
+            s = lifetime_pnl.get_summary()
+            lines.append("")
+            lines.append(f"💰 Lifetime PnL: ${s['total_earned_usdt']:.2f} "
+                         f"за {s['total_rotations']} ротаций")
+        except Exception:
+            pass
         try:
             from arb_bot import tg_send
             tg_send("<pre>" + "\n".join(lines) + "</pre>")
