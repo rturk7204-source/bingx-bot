@@ -58,6 +58,9 @@ RATE_EXIT            = -0.00010  # ставка < −0.01% — плохая па
 RATE_UNDERPERFORM    = 0.00015   # ставка < 0.015% — слабая пара
 ROTATION_IMPROVEMENT = 1.7       # новая пара должна быть на 70% лучше по APR (защита от шума)
 MIN_HOLD_HOURS       = 6.0       # не ротировать пару, открытую менее N часов (защита от over-trading)
+FILL_EMPTY_ANTIFLAP_MIN = 30     # FIX (Block 5.x bug #4): не делать fill_empty на этом боте
+                                  # если он уже делал fill_empty <30мин назад.
+                                  # Защита от петли hedge_health→exit→fill_empty→hedge_health
 GRAVEYARD_COOLDOWN_H = 48        # не входим в ту же пару 48ч
 GRAVEYARD_FILE       = f"{BOT_DIR}/rotation_graveyard.json"
 
@@ -352,12 +355,40 @@ def analyze_rotation():
 
     skipped_legacy = []
     decision = None
+
+    # FIX (Block 5.x bug #4): anti-flap — не делать fill_empty на боте,
+    # который недавно уже входил. hedge_health может выбивать бота из-за basis/dd,
+    # и fill_empty раз в час будет ре-входить в ту же опасную пару → петля.
+    # Смотрим в history: если этот бот уже делал applied=True fill_empty
+    # < 30 мин назад — пропускаем, пусть оператор разберётся.
+    recent_fillempty_bots = set()
+    try:
+        hist = load_json(HISTORY_FILE, default=[])
+        cutoff = datetime.utcnow() - timedelta(minutes=FILL_EMPTY_ANTIFLAP_MIN)
+        for h in hist[-30:]:
+            d = h.get("decision") or {}
+            if d.get("action") != "fill_empty" or not h.get("applied"):
+                continue
+            try:
+                ts = datetime.fromisoformat(h["timestamp"].replace("Z", ""))
+            except (ValueError, KeyError):
+                continue
+            if ts > cutoff:
+                recent_fillempty_bots.add(d.get("eject_bot"))
+    except Exception:
+        # история недоступна — продолжаем без anti-flap (fail-open: лучше войти
+        # в возможный loop, чем вообще не работать — объём проблемы ограничен)
+        pass
+
     if candidates:
         # Priority 1: empty slots — fill them FIRST (no exit needed, just enter)
         empty_slots = [p for p in classified if p["verdict"] == "closed" and p["name"] not in ANCHOR_BOTS]
         for slot in empty_slots:
             if not _bot_supports_enter(slot["name"]):
                 skipped_legacy.append(slot["name"])
+                continue
+            if slot["name"] in recent_fillempty_bots:
+                # бот недавно входил и вывалился — скип, пусть оператор вручную
                 continue
             for cand in candidates:
                 if cand["apr_pct"] < MIN_APR_FLOOR_PCT:
@@ -857,20 +888,7 @@ def cmd_rotate_smart(apply_changes=False):
     report = format_report(result)
     print(report)
 
-    # Save history
-    hist = load_json(HISTORY_FILE, default=[])
-    hist.append({
-        "timestamp": result["timestamp"],
-        "decision":  result["decision"],
-        "applied":   apply_changes,
-    })
-    hist = hist[-100:]  # keep last 100
-    save_json(HISTORY_FILE, hist)
-
-    # FIX #5: всегда логируем
-    _log_decision(result, applied=(apply_changes and result.get("decision") is not None))
-
-    # TG notification
+    # TG notification (отчёт из analyze_rotation — до выполнения)
     try:
         sys.path.insert(0, BOT_DIR)
         from arb_bot import tg_send
@@ -878,12 +896,16 @@ def cmd_rotate_smart(apply_changes=False):
     except Exception as e:
         print(f"(TG send failed: {e})")
 
+    # FIX (Block 5.x bug #2): логируем РЕАЛЬНЫЙ результат applied=True/False
+    # Раньше в лог писали applied=True ДО выполнения — и при крэше/basis fail
+    # лог врал. Теперь _log_decision вызывается ПОСЛЕ execute_rotation.
+    rotation_ok = None
     if apply_changes and result["decision"]:
         print("")
         print("=" * 60)
         print("APPLYING ROTATION")
         print("=" * 60)
-        ok, lines = execute_rotation(result["decision"], dry_run=False)
+        rotation_ok, lines = execute_rotation(result["decision"], dry_run=False)
         for ln in lines: print(ln)
         # добавляем lifetime PnL summary в TG-отчёт
         try:
@@ -900,7 +922,23 @@ def cmd_rotate_smart(apply_changes=False):
             tg_send("<pre>" + "\n".join(lines) + "</pre>")
         except Exception:
             pass
-        return ok
+
+    # Лог и history ПОСЛЕ реального выполнения. applied=True только если execute_rotation успех.
+    # Для случая «dry-run без --apply» или «no-decision» applied = False.
+    really_applied = bool(rotation_ok) if rotation_ok is not None else False
+
+    hist = load_json(HISTORY_FILE, default=[])
+    hist.append({
+        "timestamp": result["timestamp"],
+        "decision":  result["decision"],
+        "applied":   really_applied,
+    })
+    hist = hist[-100:]
+    save_json(HISTORY_FILE, hist)
+    _log_decision(result, applied=really_applied)
+
+    if apply_changes and result["decision"]:
+        return rotation_ok
     return True
 
 

@@ -31,6 +31,7 @@ TEST_MODULES = [
     "tests.test_hedge_health",
     "tests.test_rotation_parsing",
     "tests.test_lifetime_pnl",
+    "tests.test_rotation_logging",
 ]
 
 

@@ -50,17 +50,29 @@ echo "[auto_rotate $TS2] === finished rc=$RC ===" | tee -a "$LOG"
 
 # 3. Если упало — TG-алерт. rotation.py уже шлёт TG в обычных сценариях
 # (включая safe-mode skip), но при крэше/ImportError TG не успеет — шлём здесь.
+#
+# FIX (Block 5.x bug #5): раньше передавали $TAIL через heredoc интерполяцию
+# ("<pre>$TAIL</pre>") — если в логе были кавычки / `\n` / `'` — Python
+# код сам ломался. Теперь передаём через env vars и читаем в Python через
+# os.environ — никакой shell-интерполяции.
 if [ "$RC" -ne 0 ]; then
-    TAIL=$(tail -n 30 "$LOG" | sed 's/[<>&]/?/g' | tail -c 1500)
-    "$PYTHON" - <<EOF || true
+    BX_LOG_TAIL=$(tail -n 30 "$LOG" | tail -c 1500)
+    BX_RC="$RC"
+    BX_BOT_DIR="$BOT_DIR"
+    export BX_LOG_TAIL BX_RC BX_BOT_DIR
+    "$PYTHON" - <<'PYEOF' || true
 import sys, os
-sys.path.insert(0, "$BOT_DIR")
+sys.path.insert(0, os.environ.get("BX_BOT_DIR", "/root/bingx-bot"))
+tail = os.environ.get("BX_LOG_TAIL", "")
+rc   = os.environ.get("BX_RC", "?")
+# экранируем HTML-специальные перед <pre> (без sed в баше)
+tail_safe = tail.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 try:
     from arb_tools import tg_send
-    tg_send("🚨 auto_rotate.sh упал rc=$RC\n<pre>$TAIL</pre>")
+    tg_send(f"🚨 auto_rotate.sh упал rc={rc}\n<pre>{tail_safe}</pre>")
 except Exception as e:
     print(f"[auto_rotate] TG send failed: {e}", file=sys.stderr)
-EOF
+PYEOF
 fi
 
 exit "$RC"
