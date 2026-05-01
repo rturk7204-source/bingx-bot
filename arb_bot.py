@@ -606,7 +606,9 @@ def cmd_exit():
 
     # P2-F slippage warning at exit (non-blocking)
     try:
-        _qty_for_check = float(spot_qty) if 'spot_qty' in dir() and spot_qty else get_spot_token()
+        # spot_qty берём из state (cmd_exit вызывается отдельно от cmd_enter, локальной spot_qty здесь нет).
+        # Fallback на live-replay через get_spot_token() если в state нулевое значение (миграция со старого state).
+        _qty_for_check = float(s.get("spot_qty", 0) or 0) or get_spot_token()
         slx = check_slippage("SELL", token_amount=_qty_for_check)
         if slx["ok"] and slx["slippage_pct"] > MAX_SLIPPAGE_EXIT:
             log.warning(f"Exit slippage {slx['slippage_pct']*100:.3f}% > {MAX_SLIPPAGE_EXIT*100:.2f}% — книга тонкая, но закрываем всё равно")
