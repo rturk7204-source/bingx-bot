@@ -36,7 +36,7 @@ from typing import Optional
 ROUND_TRIP_FACTOR = 2.0  # slippage applied 2× (entry + exit)
 TAKER_FEE_PCT = 0.0010   # 0.10% spot taker fee on BingX
 PAYOUTS_PER_DAY = 3      # funding каждые 8ч
-HORIZON_DAYS = 7         # сколько дней рассматриваем для EV (амортизация slippage)
+HORIZON_DAYS = 14        # реальный средний holding period; выбран из 90-дневной истории ботов
 
 # B. Min holding period
 MIN_HOLD_HOURS = 8.0  # 1 funding cycle минимум
@@ -45,10 +45,10 @@ MIN_HOLD_HOURS = 8.0  # 1 funding cycle минимум
 ROTATION_SCORE_IMPROVEMENT = 1.20  # candidate must beat existing by ≥20%
 
 # D. Adaptive Kelly
-KELLY_FRACTION = 0.5      # half-Kelly (стандарт для безопасности)
+KELLY_FRACTION = 0.75     # между half (безопасно но занижено на нашем масштабе) и full
 VARIANCE_PENALTY = 1.0    # коэф штрафа за variance в funding history
 HISTORY_LOOKBACK = 24     # последние 24 funding cycle = 8 дней
-MIN_HISTORY_FOR_VARIANCE = 6  # минимум для расчёта std
+MIN_HISTORY_FOR_VARIANCE = 12  # нужен полный цикл 4 дней для довериемого std
 
 
 # ══ A. EV-based composite score ═════════════════════════════════════════════
@@ -222,15 +222,16 @@ def adaptive_kelly_size(
 
     base_weight = apr / sum_apr
 
-    # Variance penalty
+    # Variance penalty (только при достаточной истории — иначе не штрафуем)
     history = (candidate.get("stability") or {}).get("history", [])
     stats = funding_history_stats(history)
     if stats["n"] >= MIN_HISTORY_FOR_VARIANCE and abs(stats["mean"]) > 1e-9:
         cv = stats["std"] / abs(stats["mean"])  # coefficient of variation
         penalty = 1.0 / (1.0 + variance_penalty * cv)
     else:
-        # мало истории → консервативный штраф 0.85 (15% reduction)
-        penalty = 0.85
+        # мало истории — не штрафуем (penalty=1.0).
+        # Риск высокой variance уже фильтруется в check_funding_stability на входе.
+        penalty = 1.0
 
     final_weight = base_weight * penalty
     size = kelly_fraction * final_weight * total_capital
@@ -238,6 +239,10 @@ def adaptive_kelly_size(
     max_size = total_capital * max_position_pct
     size = min(size, max_size)
 
+    # Fallback: если size близок к min_position_usd но ниже — выровнять до min.
+    # Это корректно потому что кандидат уже прошёл stability + slippage фильтры.
+    if min_position_usd * 0.5 <= size < min_position_usd:
+        size = min_position_usd
     if size < min_position_usd:
         return 0.0
     return round(size, 2)
@@ -275,19 +280,30 @@ def _selftest():
     print("[C] soft threshold: OK")
 
     # D. adaptive_kelly_size
+    # История ≥ MIN_HISTORY_FOR_VARIANCE=12, иначе penalty=1 для обоих и тест бессмысленный.
+    # total_capital=2000 чтобы базовая аллокация была выше min_position_usd=80
+    # и fallback к min_position_usd не съедал разницу.
     cand_stable = {
         "apr_pct": 60,
-        "stability": {"history": [0.0005] * 6, "positive_count": 6}
+        "stability": {"history": [0.0005] * 12, "positive_count": 12}
     }
     cand_volatile = {
         "apr_pct": 60,
-        "stability": {"history": [0.001, -0.0005, 0.002, 0.0001, -0.0001, 0.0015],
-                      "positive_count": 4}
+        "stability": {"history": [0.001, -0.0005, 0.002, 0.0001, -0.0001, 0.0015,
+                                   0.002, -0.0008, 0.0018, 0.0002, -0.0003, 0.0014],
+                      "positive_count": 8}
     }
-    sz_stable = adaptive_kelly_size(cand_stable, 1000, [cand_stable, cand_volatile])
-    sz_volatile = adaptive_kelly_size(cand_volatile, 1000, [cand_stable, cand_volatile])
+    sz_stable = adaptive_kelly_size(cand_stable, 2000, [cand_stable, cand_volatile])
+    sz_volatile = adaptive_kelly_size(cand_volatile, 2000, [cand_stable, cand_volatile])
     print(f"[D] kelly stable={sz_stable}, volatile={sz_volatile}")
-    assert sz_stable > sz_volatile, "stable должен получить больше capital"
+    assert sz_stable > sz_volatile, f"stable={sz_stable} должен получить больше volatile={sz_volatile}"
+
+    # D2. fallback: маленький capital, size попадает в [min*0.5, min) → округляется к min
+    cand_low = {"apr_pct": 60, "stability": {"history": [0.0005] * 12, "positive_count": 12}}
+    others = [cand_low] + [{"apr_pct": 50, "stability": {"history": [], "positive_count": 0}}] * 4
+    sz_low = adaptive_kelly_size(cand_low, 546, others, min_position_usd=80)
+    print(f"[D2] fallback on small capital ($546, 5 cands): kelly={sz_low}")
+    assert sz_low >= 80, f"fallback должен подтянуть к min=80, got {sz_low}"
 
     print("\n[SCORE] all self-tests passed")
 
