@@ -29,6 +29,7 @@ TEST_MODULES = [
     "tests.test_kelly",
     "tests.test_basis",
     "tests.test_hedge_health",
+    "tests.test_rotation_parsing",
 ]
 
 
