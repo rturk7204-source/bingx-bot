@@ -175,7 +175,7 @@ MAX_SLIPPAGE_ENTER   = 0.005     # 0.5%
 
 # Pairs hardcoded to never touch (anchor strategy)
 # You can remove from this list if you want arb_bot (RIVER) to rotate too.
-ANCHOR_BOTS = set()  # отключено 29.04 — RIVER ушёл в 10% APY, ротируем как обычный клон
+ANCHOR_BOTS = {"RIVER-USDT"}  # 01.05 — RIVER восстановился до ~76% APR, возвращаем якорем
 
 
 # ══ API helpers (lightweight, no auth needed for public endpoints) ════════
@@ -347,7 +347,10 @@ def find_candidates(excluded_symbols, min_notional=80):
         if sym in excluded_symbols or sym in gy or sym in PERMANENT_BLACKLIST: continue
         if sym not in spot_api_tradeable: continue  # filters out API-locked pairs
         if rate < 0.00030: continue   # MIN_RATE floor
-        raw.append({"symbol": sym, "current_rate": rate})
+        # Block 8.7: учитываем фактический интервал выплат (4h или 8h)
+        interval_h = int(c.get("fundingIntervalHours", 8) or 8)
+        payouts_per_day = 24 / interval_h if interval_h > 0 else 3
+        raw.append({"symbol": sym, "current_rate": rate, "payouts_per_day": payouts_per_day})
     raw.sort(key=lambda x: -x["current_rate"])
 
     # Stage 2: deep check on top 15 candidates (stability + slippage)
@@ -367,7 +370,8 @@ def find_candidates(excluded_symbols, min_notional=80):
             continue
         c["stability"] = stab
         c["slippage"]  = slip["slippage_pct"]
-        c["apr_pct"]   = stab["avg"] * 3 * 365 * 100  # 3 payouts/day * 365
+        # Block 8.7: APR на основе фактического интервала (4h=6 выплат, 8h=3 выплаты)
+        c["apr_pct"]   = stab["avg"] * c.get("payouts_per_day", 3) * 365 * 100
         passed.append(c)
     return passed
 
