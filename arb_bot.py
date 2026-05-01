@@ -260,17 +260,37 @@ def _post_with_retry(path, params, attempts=3, timeout=30):
     return last
 
 
+def open_short_perp_qty(qty):
+    """
+    Block 8.6 — открывает SHORT перп на ТОЧНУЮ qty (а не на USDT-notional).
+
+    Это критический фикс delta-neutral: spot покупается через USDT (с учётом
+    spot fee 0.1%), а perp раньше открывался на 160/mark_price, что давало
+    систематическое расхождение spot_qty vs perp_qty в 0.3-0.6%.
+
+    Теперь передаём ровно spot_qty (что реально куплено на споте), и перп
+    открывается на ту же физическую qty токенов.
+    """
+    if qty <= 0:
+        return {"code": -1, "msg": "qty <= 0"}
+    qty_r = round(qty, 4)  # BingX precision: 4 знака для большинства perp
+    price = get_mark_price()
+    d = _post_with_retry("/openApi/swap/v2/trade/order", {
+        "symbol": SYMBOL, "side": "SELL", "positionSide": "SHORT",
+        "type": "MARKET", "quantity": str(qty_r),
+    }, attempts=3, timeout=30)
+    log.info(f"Перп SHORT {qty_r} @ ~${price:.6f}: code={d.get('code')} {d.get('msg','')}")
+    return d
+
+
 def open_short_perp(notional):
+    """DEPRECATED: используй open_short_perp_qty(spot_qty) для delta-neutral.
+    Оставлено для обратной совместимости (внешние вызовы)."""
     price = get_mark_price()
     if price <= 0:
         return {"code": -1, "msg": "no price"}
     qty = round(notional / price, 4)
-    d = _post_with_retry("/openApi/swap/v2/trade/order", {
-        "symbol": SYMBOL, "side": "SELL", "positionSide": "SHORT",
-        "type": "MARKET", "quantity": str(qty),
-    }, attempts=3, timeout=30)
-    log.info(f"Перп SHORT {qty} @ ~${price:.6f}: code={d.get('code')} {d.get('msg','')}")
-    return d
+    return open_short_perp_qty(qty)
 
 def close_short_perp():
     pos = get_perp_position()
@@ -465,8 +485,8 @@ def cmd_enter():
         log.error("Токены не зачислены! Проверь вручную.")
         return
 
-    log.info(f"Открываем SHORT на перпе (notional ${SPOT_BUDGET})...")
-    perp_res = open_short_perp(SPOT_BUDGET)
+    log.info(f"Открываем SHORT на перпе на точную qty {spot_qty:.6f} (delta-neutral fix)...")
+    perp_res = open_short_perp_qty(spot_qty)
     if perp_res.get("code") != 0:
         log.error(f"ОШИБКА ПЕРПА: {perp_res}")
         log.error("!!! СПОТ КУПЛЕН, ПЕРП НЕ ОТКРЫТ — ДЕЛАЮ АВТО-ОТКАТ !!!")
