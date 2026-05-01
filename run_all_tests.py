@@ -35,6 +35,8 @@ TEST_MODULES = [
     "tests.test_graveyard",
     "tests.test_smart_exit",      # Block 7 (D)
     "tests.test_dynamic_kelly",   # Block 7 (E)
+    "tests.test_tiered_exit",     # Block 8 (Часть 1)
+    "tests.test_top_up",          # Block 8 (Часть 2)
 ]
 
 
