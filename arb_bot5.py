@@ -28,7 +28,7 @@ from urllib.parse import urlencode
 # SMC-бот торгует: BTC ETH SOL SUI DOGE ADA XRP LINK BNB HYPE
 # ARB-бот торгует: PTB-USDT  ← нет пересечений
 
-SYMBOL      = "TRADOOR-USDT"
+SYMBOL      = "IDOL-USDT"
 TOKEN       = SYMBOL.replace("-USDT", "")  # автоматический label, синхронен с SYMBOL
 SPOT_BUDGET = 80.0    # USDT на спот (compact v2: notional $80 = margin × 3x)
 PERP_MARGIN = 27.0    # USDT маржи (3x плечо → notional $80)
