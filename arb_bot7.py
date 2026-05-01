@@ -69,7 +69,7 @@ SECRET_KEY = os.getenv("BINGX_SECRET_KEY", "")
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [ARB6] %(levelname)s  %(message)s",
+    format="%(asctime)s [ARB7] %(levelname)s  %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         logging.FileHandler(LOG_FILE),
@@ -295,9 +295,9 @@ def cmd_status():
     next_t = get_next_funding_time()
 
     print("=" * 58)
-    print(f"  ARB6 BOT — {SYMBOL}  |  {datetime.now(timezone.utc).strftime('%H:%M UTC')}")
+    print(f"  ARB7 BOT — {SYMBOL}  |  {datetime.now(timezone.utc).strftime('%H:%M UTC')}")
     print(f"  [SMC торгует BTC ETH SOL SUI DOGE ADA XRP LINK BNB HYPE]")
-    print(f"  [ARB6 торгует: {SYMBOL} ← клон #6]")
+    print(f"  [ARB7 торгует: {SYMBOL} ← клон #7]")
     print("=" * 58)
     print(f"  Rate: {rate*100:+.4f}%/8ч  (~{rate*3*365*100:.1f}% APY)")
     print(f"  Цена: ${price:.4f}  |  Выплата: {next_t}")
