@@ -527,9 +527,26 @@ def cmd_topup():
             for b in d2.get("data", {}).get("balances", []):
                 if b.get("asset") == "USDT":
                     spot_usdt = float(b.get("free", 0))
+        # Block 1: если spot < нужно — пробуем автоматически перевести из PERP/FUND.
+        # Раньше любая нехватка = стоп и ручное вмешательство через BingX UI.
         if spot_usdt < MARGIN_TOPUP_AMOUNT:
-            log.error(f"[TOPUP] Spot USDT ${spot_usdt:.2f} < ${MARGIN_TOPUP_AMOUNT} — доливка невозможна")
-            tg_send(f"🔴 {sym}: margin {mpct:.1f}% критическая, но на Spot только ${spot_usdt:.2f}")
+            try:
+                from auto_balance import ensure_spot_balance
+                log.warning(f"[TOPUP] {sym}: spot=${spot_usdt:.2f} < ${MARGIN_TOPUP_AMOUNT} → пробую auto-transfer")
+                ok_auto = ensure_spot_balance(MARGIN_TOPUP_AMOUNT, buffer=2.0)
+                if ok_auto:
+                    # Перечитываем spot после перевода
+                    d2b = _get("/openApi/spot/v1/account/balance")
+                    if d2b.get("code") == 0:
+                        for b in d2b.get("data", {}).get("balances", []):
+                            if b.get("asset") == "USDT":
+                                spot_usdt = float(b.get("free", 0))
+                    log.info(f"[TOPUP] auto-transfer OK → spot=${spot_usdt:.2f}")
+            except Exception as e:
+                log.error(f"[TOPUP] auto_balance error: {e}")
+        if spot_usdt < MARGIN_TOPUP_AMOUNT:
+            log.error(f"[TOPUP] Spot USDT ${spot_usdt:.2f} < ${MARGIN_TOPUP_AMOUNT} — доливка невозможна (auto-transfer тоже не спас)")
+            tg_send(f"🔴 {sym}: margin {mpct:.1f}% критическая, но на Spot только ${spot_usdt:.2f} (auto-bal fail)")
             continue
 
         # Доливаем
