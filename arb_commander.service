@@ -1,0 +1,20 @@
+[Unit]
+Description=ARB Commander — Telegram long-polling daemon for ARB bot fleet
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/bingx-bot
+ExecStart=/usr/bin/python3 /root/bingx-bot/arb_commander.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/root/bingx-bot/arb_commander.log
+StandardError=append:/root/bingx-bot/arb_commander.log
+# Hard kill if it gets stuck
+TimeoutStopSec=15
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
