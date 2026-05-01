@@ -406,6 +406,15 @@ def cmd_enter():
         log.error(f"ENTER уже выполняется другим процессом (lock: {_lock_path}). Выход.")
         return
     _lock_fh.write(str(os.getpid()) + "\n"); _lock_fh.flush()
+    # Block 2: pause-guard
+    try:
+        from pause_check import can_enter
+        _ok, _reason = can_enter(5)
+        if not _ok:
+            log.warning(f"[PAUSE-GUARD] entry blocked: {_reason}")
+            return
+    except Exception as _e:
+        log.warning(f"[PAUSE-GUARD] check failed (proceed): {_e}")
     s = load_state()
     if s.get("position_open"):
         log.warning("Позиция уже открыта!")

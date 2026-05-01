@@ -684,6 +684,22 @@ def format_report(result, max_candidates=5):
 # ══ Entry point ═══════════════════════════════════════════════════════════
 def cmd_rotate_smart(apply_changes=False):
     """Called from arb_tools.py --rotate-smart [--apply]"""
+    # Block 2: safe-mode блокирует все ротации
+    if apply_changes:
+        try:
+            sys.path.insert(0, BOT_DIR)
+            from pause_check import can_act
+            _ok, _reason = can_act()
+            if not _ok:
+                print(f"🛑 ROTATION SKIPPED: {_reason}")
+                try:
+                    from arb_tools import tg_send
+                    tg_send(f"🛑 ROTATION skipped (safe-mode): {_reason}")
+                except Exception:
+                    pass
+                return
+        except Exception as _e:
+            print(f"[SAFE-MODE-CHECK] failed (proceed): {_e}")
     result = analyze_rotation()
     report = format_report(result)
     print(report)
