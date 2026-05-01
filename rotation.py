@@ -546,6 +546,76 @@ def execute_rotation(decision, dry_run=True):
 
     is_fill_empty = decision.get("action") == "fill_empty"
 
+    # FIX (Block 3 v2.1): PRE-FLIGHT PAUSE & BASIS GUARD
+    # Раньше rotation патчила SYMBOL и звала --enter без проверки:
+    #   1) не на паузе ли бот после Block 2 (PAUSE-GUARD блокирует entry, но SYMBOL уже сменён!)
+    #   2) выживает ли новая пара базовые фильтры basis (бывает басис взлетает
+    #      между candidate-scan и enter)
+    # Оба случая наблюдались в live: TRADOOR basis 2.09% → пауза → была попытка
+    # войти в GUA на том же боте → SYMBOL попатчился на GUA но вход заблокирован.
+    bot_id = int(decision["eject_bot"].replace("arb_bot", "")) if decision["eject_bot"].startswith("arb_bot") else None
+
+    # 1. PAUSE check (файли PAUSE_BOT_FMT/PAUSE_GLOBAL/SAFE_MODE_FILE пишет hedge_health)
+    try:
+        sys.path.insert(0, BOT_DIR)
+        from hedge_health import is_safe_mode, PAUSE_GLOBAL, PAUSE_BOT_FMT
+        from datetime import datetime as _dt, timezone as _tz
+        def _is_pause_active(path):
+            """True если pause-файл существует и 'until' в будущем."""
+            if not os.path.exists(path):
+                return False
+            try:
+                with open(path) as f:
+                    obj = json.load(f)
+                until = obj.get("until")
+                if not until:
+                    return True  # файл без until = считаем паузу активной консервативно
+                if until.endswith("Z"): until = until[:-1] + "+00:00"
+                return _dt.fromisoformat(until) > _dt.now(_tz.utc)
+            except Exception:
+                return True  # не смогли разобрать — считаем паузу активной
+        if is_safe_mode():
+            lines.append("  🚫 PRE-FLIGHT: бот в SAFE-MODE → ротация отменена. Выполни --resume вручную.")
+            return False, lines
+        if _is_pause_active(PAUSE_GLOBAL):
+            lines.append("  🚫 PRE-FLIGHT: GLOBAL PAUSE активен → ротация отменена.")
+            return False, lines
+        if bot_id is not None and _is_pause_active(PAUSE_BOT_FMT.format(bot_id)):
+            lines.append(f"  🚫 PRE-FLIGHT: {decision['eject_bot']} НА ПАУЗЕ (Block 2). Ротация отменена.")
+            lines.append(f"     Для разблокировки: python3 arb_tools.py --resume (после разбора)")
+            return False, lines
+    except ImportError:
+        lines.append("  [PRE-FLIGHT WARN] hedge_health недоступен — pause guard пропущен")
+    except Exception as e:
+        lines.append(f"  [PRE-FLIGHT WARN] pause check failed: {e}")
+
+    # 2. BASIS sanity check на НОВОЙ паре (basis = (perp - spot) / spot × 100%)
+    # Бывают касты когда между scan и enter басис взлетает (выход funding-news, разрыв).
+    # Порог совпадает с T4 в hedge_health (1.0%) — если войдём выше,
+    # Block 2 выплюнет нас обратно через 5 минут. Быстрее проверить здесь.
+    BASIS_MAX_PCT = 1.0
+    try:
+        from hedge_health import get_spot_price, get_mark_price as get_perp_mark_price
+        spot_p = get_spot_price(decision["new_symbol"])
+        perp_p = get_perp_mark_price(decision["new_symbol"])
+        if spot_p > 0 and perp_p > 0:
+            basis_pct = abs(perp_p - spot_p) / spot_p * 100.0
+            if basis_pct > BASIS_MAX_PCT:
+                lines.append(
+                    f"  🚫 PRE-FLIGHT: {decision['new_symbol']} basis={basis_pct:.2f}% > {BASIS_MAX_PCT}% "
+                    f"(spot=${spot_p:.6f} perp=${perp_p:.6f})"
+                )
+                lines.append("     Ротация отменена — вход ожидаемо бы был закрыт Block 2.")
+                return False, lines
+            lines.append(f"  [PRE-FLIGHT] basis {decision['new_symbol']}={basis_pct:.2f}% ≤ {BASIS_MAX_PCT}% ✓")
+        else:
+            lines.append(f"  [PRE-FLIGHT WARN] basis check skipped (spot={spot_p}, perp={perp_p})")
+    except ImportError as e:
+        lines.append(f"  [PRE-FLIGHT WARN] basis check skipped — helper missing: {e}")
+    except Exception as e:
+        lines.append(f"  [PRE-FLIGHT WARN] basis check failed: {e}")
+
+
     # FIX #2 v2 (Block 1): PRE-CHECK SPOT BALANCE с auto_balance integration
     # Если spot < нужно — пробуем автоматически перевести perp→spot через ensure_spot_balance().
     # Только если auto-transfer не сработал (нет средств на perp, circuit breaker, ошибка API)
