@@ -97,6 +97,44 @@ SMART_EXIT_FLOOR         = 0.00010   # 0.01%/8ч ≈ 11% APR — слишком 
 SMART_EXIT_MIN_HOLD_H    = 24.0      # не выгонять low_apr пары моложе суток
                                       # (даём шанс восстановиться, плюс защита от over-trading)
 
+# ══ Block 8: Tiered D-thresholds (агрессивная ротация по возрасту) ════════════
+# ИДЕЯ Block 7 была давать один floor (0.0001 ≈ 11% APR), но это
+# слишком слабо — застяли по неделе на парах с 30% APR. Block 8 вводит
+# tiered пороги: чем старше позиция, тем выше ожидание APR (пары или
+# выросли, или ротируем).
+#
+# Тирхи:
+#   < 6h:   grace (только negative funding)
+#   6-24h:  floor 0.0001 + требуется bad_periods >= 2
+#   24-48h: floor 0.00025 (~27% APR)
+#   48-96h: floor 0.00040 (~44% APR)
+#   >96h:   floor 0.00055 (~60% APR)
+#
+# ЗАЩИТА ОТ КАСКАДА: max 3 forced_exit за один cron (выбираются худшие).
+TIERED_EXIT_GRACE_AGE_H        = 6.0       # < 6h — не выходим (кроме negative funding)
+TIERED_EXIT_TIERS = (
+    # (max_age_h, rate_floor, label)
+    (24.0,  0.00010, "young"),     # 6-24h:  требуется bad_periods >= TIERED_EXIT_YOUNG_REQUIRES_BAD
+    (48.0,  0.00025, "mid"),       # 24-48h: ~27% APR
+    (96.0,  0.00040, "mature"),    # 48-96h: ~44% APR
+    (1e9,   0.00055, "old"),       # >96h:   ~60% APR
+)
+TIERED_EXIT_MAX_PER_CRON       = 3         # max forced_exit за один cron
+TIERED_EXIT_YOUNG_REQUIRES_BAD = 2         # в 6-24h нужны 2+ bad_periods
+
+# ══ Block 8: Smart top-up (авто-доливка в зрелые пары) ═════════════════
+# ИДЕЯ: наращиваем капитал в стабильных высокодоходных парах (усреднение).
+# Безопасность — цап 25% от total на одну пару (защита от концентрации риска).
+# Плавность — траншами по $40 раз в 24ч (не одним куском).
+TOP_UP_MIN_AGE_H        = 72.0       # min возраст позиции
+TOP_UP_MIN_PAYMENTS     = 15         # min полученных выплат
+TOP_UP_MAX_BAD_PERIODS  = 0          # ноль срывов
+TOP_UP_MIN_RATE         = 0.0004     # ~44% APR (всё ещё выгодна)
+TOP_UP_CAP_PCT          = 0.25       # max 25% от total capital на одну пару
+TOP_UP_TRANCHE_USD      = 40.0       # размер одной доливки
+TOP_UP_COOLDOWN_H       = 24.0       # min интервал между доливками
+TOP_UP_LOG_FILE         = f"{BOT_DIR}/top_up_log.json"  # история доливок
+
 # ══ Block 7 (E): Dynamic Kelly cap ════════════════════════════════════════
 # ИДЕЯ: Kelly даёт base size по APR/stability, но не знает что:
 #   - этот символ недавно вылетел из-за низкого APR / negative funding
@@ -385,6 +423,70 @@ def should_force_exit(current_rate, age_hours,
     # Priority 2: low APR — выходим только если позиция пожила достаточно
     if current_rate < floor_threshold and age_hours >= min_hold_h:
         return True, "low_apr"
+
+    return False, ""
+
+
+# ══ Block 8: Tiered D-thresholds ══════════════════════════════════════════
+def should_force_exit_tiered(current_rate, age_hours, bad_periods=0,
+                              tiers=None,
+                              grace_age_h=None,
+                              negative_threshold=None,
+                              young_requires_bad=None):
+    """Tiered версия should_force_exit — порог зависит от возраста позиции.
+
+    Логика:
+      1) current_rate < negative_threshold (обычно 0) → (True, 'negative_funding')
+         Срабатывает в любом возрасте, ВКЛЮЧАЯ grace period (платим — выходим).
+      2) age < grace_age_h → (False, '')  — кроме negative funding не трогаем.
+      3) Определяем tier по возрасту: первый tier где age <= max_age_h.
+      4) В "young" (6-24h) дополнительно требуется bad_periods >= young_requires_bad.
+      5) current_rate < tier_floor → (True, 'tier_<name>')
+      6) Иначе (False, '').
+
+    Параметры:
+      current_rate: float — текущий funding rate (доли)
+      age_hours:    float — возраст позиции в часах
+      bad_periods:  int   — счётчик плохих периодов (для young tier)
+      tiers: tuple of (max_age_h, floor_rate, name) — sorted ascending by age
+
+    Возвращает: (should_exit: bool, reason: str)
+    """
+    if tiers is None:
+        tiers = TIERED_EXIT_TIERS
+    if grace_age_h is None:
+        grace_age_h = TIERED_EXIT_GRACE_AGE_H
+    if negative_threshold is None:
+        negative_threshold = SMART_EXIT_NEGATIVE_RATE
+    if young_requires_bad is None:
+        young_requires_bad = TIERED_EXIT_YOUNG_REQUIRES_BAD
+
+    # Priority 1: отрицательный funding — выходим всегда (даже в grace)
+    if current_rate < negative_threshold:
+        return True, "negative_funding"
+
+    # Grace period — даём позиции прижиться
+    if age_hours < grace_age_h:
+        return False, ""
+
+    # Подбираем tier
+    tier_floor = None
+    tier_name = ""
+    for max_age_h, floor_rate, name in tiers:
+        if age_hours <= max_age_h:
+            tier_floor = floor_rate
+            tier_name = name
+            break
+    if tier_floor is None:
+        # за пределами всех tiers — берём последний
+        max_age_h, tier_floor, tier_name = tiers[-1]
+
+    # Young tier требует подтверждения через bad_periods
+    if tier_name == "young" and bad_periods < young_requires_bad:
+        return False, ""
+
+    if current_rate < tier_floor:
+        return True, f"tier_{tier_name}"
 
     return False, ""
 
@@ -758,10 +860,12 @@ def analyze_rotation():
                     break
                 if decision: break
 
-    # Priority 3 (Block 7 D): SMART FORCED EXIT — выходим без candidate
-    # Если позиция отрицательный funding или low_apr+age≥1дня — выходим
-    # и освобождаем капитал. Не ждём кандидата (даже если рынок бедный).
+    # Priority 3 (Block 8): TIERED FORCED EXIT — выходим без candidate по tiered порогам
+    # Чем старше позиция, тем выше floor APR. <6h grace; 6-24h требует bad_periods≥2;
+    # >24h — хордковый floor (27-60% APR в зависимости от возраста).
     # Срабатывает ТОЛЬКО если выше ничего не выбрано (fill_empty/rotate приоритетнее).
+    # Архитектурно analyze возвращает ОДНО decision за cron — это и есть натуральный cap.
+    # TIERED_EXIT_MAX_PER_CRON=3 зарезервирован для будущего батчевого режима.
     if not decision:
         forced_candidates = []
         for slot in classified:
@@ -772,6 +876,7 @@ def analyze_rotation():
             if not _bot_supports_enter(slot["name"]):
                 continue
             cur_rate = slot.get("current_rate", 0)
+            bad_periods = int(slot.get("bad_periods", 0) or 0)
             # возраст позиции
             age_h = 0.0
             if V2_SCORING_AVAILABLE:
@@ -790,7 +895,8 @@ def analyze_rotation():
                             age_h = (datetime.now(timezone.utc) - et).total_seconds() / 3600.0
                         except Exception:
                             age_h = 0.0
-            should_exit, reason = should_force_exit(cur_rate, age_h)
+            # Block 8: tiered пороги вместо фиксированного SMART_EXIT_FLOOR
+            should_exit, reason = should_force_exit_tiered(cur_rate, age_h, bad_periods)
             if should_exit:
                 forced_candidates.append((slot, cur_rate, age_h, reason))
         # выбираем худшего кандидата: сначала negative_funding, потом самый низкий rate
@@ -799,19 +905,73 @@ def analyze_rotation():
             forced_candidates.sort(
                 key=lambda x: (0 if x[3] == "negative_funding" else 1, x[1])
             )
-            slot, cur_rate, age_h, reason = forced_candidates[0]
+            # cap на будущее: обрезаем список (хранится в decision для видимости)
+            top_forced = forced_candidates[:TIERED_EXIT_MAX_PER_CRON]
+            slot, cur_rate, age_h, reason = top_forced[0]
             decision = {
                 "action":       "forced_exit",
                 "eject_bot":    slot["name"],
                 "eject_symbol": slot["symbol"],
-                "eject_reason": reason,  # 'negative_funding' или 'low_apr'
+                "eject_reason": reason,  # 'negative_funding' / 'tier_young' / 'tier_mid' / ...
                 "new_symbol":   None,
                 "new_size_usd": 0,
                 "candidate":    None,
                 "slot":         slot,
                 "current_rate": cur_rate,
                 "age_hours":    age_h,
+                "forced_queue_size": len(top_forced),
             }
+
+    # Priority 4 (Block 8 Часть 2): SMART TOP-UP — доливка в зрелые выгодные
+    # Срабатывает ТОЛЬКО если выше ничего не выбрано: вместо простоя свободного спота
+    # вкладываем в пару с age >=72h, payments >=15, bad=0, rate >=0.0004 (~44% APR).
+    # Транш $40, cap 25%, cooldown 24h — см. top_up.py.
+    if not decision:
+        try:
+            import top_up
+            # синхронизируем константы (rotation — источник правды)
+            top_up.TOP_UP_MIN_AGE_H        = TOP_UP_MIN_AGE_H
+            top_up.TOP_UP_MIN_PAYMENTS     = TOP_UP_MIN_PAYMENTS
+            top_up.TOP_UP_MAX_BAD_PERIODS  = TOP_UP_MAX_BAD_PERIODS
+            top_up.TOP_UP_MIN_RATE         = TOP_UP_MIN_RATE
+            top_up.TOP_UP_CAP_PCT          = TOP_UP_CAP_PCT
+            top_up.TOP_UP_TRANCHE_USD      = TOP_UP_TRANCHE_USD
+            top_up.TOP_UP_COOLDOWN_H       = TOP_UP_COOLDOWN_H
+            top_up.TOP_UP_LOG_FILE         = TOP_UP_LOG_FILE
+
+            # собираем позиции в формате top_up.select_topup_candidate
+            tu_positions = []
+            for s in classified:
+                if not s.get("open"):
+                    continue
+                tu_positions.append({
+                    "name":         s["name"],
+                    "symbol":       s.get("symbol"),
+                    "current_rate": s.get("current_rate", 0),
+                    "state":        s.get("raw_state") or s,
+                })
+            free_spot = float(globals().get("_LAST_FREE_SPOT_USD", 0) or 0)
+            cand = top_up.select_topup_candidate(
+                tu_positions, total_capital, free_spot,
+                tranche_usd=TOP_UP_TRANCHE_USD,
+            )
+            if cand:
+                decision = {
+                    "action":         "top_up",
+                    "eject_bot":      cand["bot"],
+                    "eject_symbol":   cand["symbol"],
+                    "eject_reason":   "top_up",
+                    "new_symbol":     None,
+                    "new_size_usd":   cand["new_budget"],
+                    "current_budget": cand["current_budget"],
+                    "tranche":        cand["tranche"],
+                    "current_rate":   cand["current_rate"],
+                    "candidate":      None,
+                    "slot":           None,
+                }
+        except Exception as _tu_err:
+            # fail-open: топ-ап это бонус, не блокируем ротацию
+            print(f"[top_up] error: {_tu_err}", file=sys.stderr)
 
     return {
         "timestamp":  datetime.now(timezone.utc).isoformat(),
@@ -902,6 +1062,35 @@ def execute_rotation(decision, dry_run=True):
 
     is_forced_exit = decision.get("action") == "forced_exit"
     is_fill_empty = decision.get("action") == "fill_empty"
+    is_top_up     = decision.get("action") == "top_up"
+
+    # Block 8 (Часть 2): TOP-UP — обновляем spot_budget в state, бот докупит сам.
+    # Не нужны basis/pause/spot проверки — это НЕ вход, это наращивание размера.
+    if is_top_up:
+        lines.append(f"[TOP-UP] {decision['eject_bot']}: {decision['eject_symbol']} "
+                     f"${decision.get('current_budget', 0):.0f} → ${decision.get('new_size_usd', 0):.0f} "
+                     f"(+${decision.get('tranche', 0):.0f}, rate={decision.get('current_rate', 0)*100:.4f}%/8ч)")
+        if dry_run:
+            lines.append("  [DRY-RUN] state не изменён.")
+            return True, lines
+        try:
+            import top_up
+            top_up.TOP_UP_LOG_FILE = TOP_UP_LOG_FILE
+            ok, info = top_up.apply_topup(
+                decision["eject_bot"],
+                os.path.join(BOT_DIR, state_file),
+                tranche_usd=decision.get("tranche") or TOP_UP_TRANCHE_USD,
+            )
+            if ok:
+                lines.append(f"  ✓ spot_budget обновлён: ${info['old_budget']:.2f} → ${info['new_budget']:.2f}")
+                lines.append(f"  Бот докупит разницу на следующем --monitor цикле.")
+                return True, lines
+            else:
+                lines.append(f"  ⚠ top-up не применён: {info}")
+                return False, lines
+        except Exception as e:
+            lines.append(f"  ⚠ top-up exception: {e}")
+            return False, lines
 
     if is_forced_exit:
         # Block 7 (D): forced_exit — нет candidate, просто освобождаем слот.
