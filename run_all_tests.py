@@ -33,6 +33,8 @@ TEST_MODULES = [
     "tests.test_lifetime_pnl",
     "tests.test_rotation_logging",
     "tests.test_graveyard",
+    "tests.test_smart_exit",      # Block 7 (D)
+    "tests.test_dynamic_kelly",   # Block 7 (E)
 ]
 
 

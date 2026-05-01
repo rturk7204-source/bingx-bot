@@ -84,6 +84,31 @@ GRAVEYARD_COOLDOWN_RULES = [
 ]
 GRAVEYARD_DEFAULT_H = 48           # если reason не распознан
 
+# ══ Block 7 (D): Smart funding-based exit ═════════════════════════════════
+# ИДЕЯ: даже если пара ещё не "weak" по верхним порогам, она может уже жрать
+# капитал (отрицательный funding) или давать столь низкий APR, что простой
+# капитала на ней дороже потенциального дохода. Делаем агрессивный exit:
+#   1) funding_rate < SMART_EXIT_NEGATIVE_RATE → forced_exit (negative_funding)
+#   2) funding_rate < SMART_EXIT_FLOOR AND age >= SMART_EXIT_MIN_HOLD_H → forced_exit (low_apr)
+# Это работает в дополнение к Priority 2 (rotate weak/bad — нужен candidate);
+# forced_exit срабатывает даже когда candidates нет — освобождает капитал.
+SMART_EXIT_NEGATIVE_RATE = 0.0       # < 0  → exit (платим за позицию)
+SMART_EXIT_FLOOR         = 0.00010   # 0.01%/8ч ≈ 11% APR — слишком мало
+SMART_EXIT_MIN_HOLD_H    = 24.0      # не выгонять low_apr пары моложе суток
+                                      # (даём шанс восстановиться, плюс защита от over-trading)
+
+# ══ Block 7 (E): Dynamic Kelly cap ════════════════════════════════════════
+# ИДЕЯ: Kelly даёт base size по APR/stability, но не знает что:
+#   - этот символ недавно вылетел из-за низкого APR / negative funding
+#   - у этого символа отрицательный lifetime PnL (за все ротации)
+# Поэтому базовый размер режется penalty-факторами (cumulative).
+# Новые символы (нет графьярд-истории, нет lifetime PnL записей) — НЕ режутся:
+# диагностика 01.05 показала что bot1 FIGHTID и bot5 IDOL платят БОЛЬШЕ всех.
+KELLY_PENALTY_GRAVEYARD_REASONS = ("weak", "underperform", "low_apr", "negative")
+KELLY_PENALTY_GRAVEYARD_DAYS    = 7
+KELLY_PENALTY_GRAVEYARD_FACTOR  = 0.5    # пара недавно показала плохой funding → ½ size
+KELLY_PENALTY_NEGATIVE_LIFETIME_FACTOR = 0.7  # lifetime PnL ≤ 0 → 0.7× size
+
 
 def cooldown_for_reason(reason: str) -> int:
     """Вернуть hours cooldown для этой причины. Substring match, case-insensitive.
@@ -325,6 +350,196 @@ def kelly_lite_size(candidate_apr, total_capital, all_candidate_aprs):
     return round(size_usd, 2)
 
 
+# ══ Block 7 (D): Smart funding-based exit ═════════════════════════════════
+def should_force_exit(current_rate, age_hours,
+                      negative_threshold=None,
+                      floor_threshold=None,
+                      min_hold_h=None):
+    """Нужно ли форсировать exit из этой позиции без candidate?
+
+    Стратегия из Block 7 (D):
+      1) current_rate < negative_threshold (обычно 0) → (True, 'negative_funding')
+         Отрицательный funding — мы ПЛАТИМ за позицию, немедленный выход.
+         min_hold_h НЕ применяется: кровотечение останавливаем сразу.
+      2) current_rate < floor_threshold AND age >= min_hold_h → (True, 'low_apr')
+         APR ниже порога выгоды, но даём позиции 24ч чтобы восстановиться.
+      3) Иначе (False, '').
+
+    Параметры:
+      current_rate: float — текущий funding rate (доли, не %)
+      age_hours:    float — возраст позиции в часах
+
+    Возвращает: (should_exit: bool, reason: str)
+    """
+    if negative_threshold is None:
+        negative_threshold = SMART_EXIT_NEGATIVE_RATE
+    if floor_threshold is None:
+        floor_threshold = SMART_EXIT_FLOOR
+    if min_hold_h is None:
+        min_hold_h = SMART_EXIT_MIN_HOLD_H
+
+    # Priority 1: отрицательный funding — выходим немедленно (игнорируем min_hold)
+    if current_rate < negative_threshold:
+        return True, "negative_funding"
+
+    # Priority 2: low APR — выходим только если позиция пожила достаточно
+    if current_rate < floor_threshold and age_hours >= min_hold_h:
+        return True, "low_apr"
+
+    return False, ""
+
+
+# ══ Block 7 (E): Dynamic Kelly cap helpers ════════════════════════════════
+def _load_recent_graveyard_history(days=None, history_file=None,
+                                    bad_reasons=None):
+    """Читает rotation_history.json и возвращает dict {symbol: latest_bad_reason}
+    для всех символов, вылетевших из-за bad_reasons в последние N дней.
+
+    Используется apply_dynamic_kelly_penalty() чтобы резать size для символов
+    с недавней негативной историей.
+
+    При отсутствии файла или ошибке чтения — возвращает {} (fail-open: лучше
+    войти полным размером, чем блокировать ротацию из-за битого history.json).
+    """
+    if days is None:
+        days = KELLY_PENALTY_GRAVEYARD_DAYS
+    if history_file is None:
+        history_file = HISTORY_FILE
+    if bad_reasons is None:
+        bad_reasons = KELLY_PENALTY_GRAVEYARD_REASONS
+
+    try:
+        hist = load_json(history_file, default=[])
+    except Exception:
+        return {}
+    if not isinstance(hist, list):
+        return {}
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    bad_lower = tuple(r.lower() for r in bad_reasons)
+    result = {}
+
+    for entry in hist:
+        if not isinstance(entry, dict):
+            continue
+        decision = entry.get("decision") or {}
+        if not isinstance(decision, dict):
+            continue
+        symbol = decision.get("eject_symbol")
+        reason = (decision.get("eject_reason") or "").lower()
+        ts_str = entry.get("timestamp", "")
+        if not symbol or symbol == "—":
+            continue
+        # фильтр по bad_reasons (substring match)
+        if not any(needle in reason for needle in bad_lower):
+            continue
+        # фильтр по времени
+        try:
+            ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+        except (ValueError, AttributeError, TypeError):
+            continue
+        if ts < cutoff:
+            continue
+        # последняя запись выигрывает (history отсортирована хронологически)
+        result[symbol] = reason
+    return result
+
+
+def _load_lifetime_pnl_for_symbol(symbol, lifetime_pnl_path=None):
+    """Сумма earned по этому символу по всем ботам (из lifetime_pnl.json).
+
+    Возвращает float (может быть отрицательным, нулём, положительным).
+    При отсутствии записей — возвращает None («нет истории» ≠ «заработал 0»).
+
+    fail-safe: при любой ошибке возвращает None.
+    """
+    if lifetime_pnl_path is None:
+        lifetime_pnl_path = os.path.join(BOT_DIR, "lifetime_pnl.json")
+    if not os.path.exists(lifetime_pnl_path):
+        return None
+    try:
+        data = load_json(lifetime_pnl_path, default={})
+    except Exception:
+        return None
+    if not isinstance(data, dict):
+        return None
+    bots = data.get("bots", {})
+    if not isinstance(bots, dict):
+        return None
+    total = 0.0
+    found = False
+    for bot_name, bot_rec in bots.items():
+        if not isinstance(bot_rec, dict):
+            continue
+        history = bot_rec.get("history", [])
+        if not isinstance(history, list):
+            continue
+        for h in history:
+            if not isinstance(h, dict):
+                continue
+            if h.get("symbol") == symbol:
+                try:
+                    total += float(h.get("earned", 0) or 0)
+                    found = True
+                except (TypeError, ValueError):
+                    continue
+    return total if found else None
+
+
+def apply_dynamic_kelly_penalty(symbol, base_size, graveyard_history=None,
+                                 lifetime_pnl_path=None):
+    """Block 7 (E): режет base_size по истории этого символа.
+
+    Пенальти cumulative (могут накладываться друг на друга):
+      - символ в graveyard за weak/underperform/low_apr/negative в последние 7 дней
+        → ×0.5 (KELLY_PENALTY_GRAVEYARD_FACTOR)
+      - lifetime PnL для символа < 0
+        → ×0.7 (KELLY_PENALTY_NEGATIVE_LIFETIME_FACTOR)
+
+    НОВЫЕ символы (нет graveyard, нет lifetime) — НЕ режутся.
+    Выбор обоснован диагностикой 01.05.2026: bot1/bot5 (FIGHTID/IDOL,
+    возраст 1-2ч) платят ЛУЧШЕ всех старых позиций.
+
+    Параметры:
+      symbol: str — тикер (напр. "FIGHTID-USDT")
+      base_size: float — размер от adaptive_kelly_size() / kelly_lite_size()
+      graveyard_history: dict {symbol: reason} — результат _load_recent_graveyard_history
+        (передаём один раз на ротацию, чтобы не читать файл N раз)
+      lifetime_pnl_path: путь к lifetime_pnl.json (для тестов)
+
+    Возвращает: (final_size: float, notes: list[str])
+      notes — human-readable причины пенальти для логирования.
+    """
+    if base_size <= 0:
+        return base_size, []
+    if graveyard_history is None:
+        graveyard_history = {}
+
+    notes = []
+    factor = 1.0
+
+    # Penalty 1: недавняя плохая graveyard-история
+    gy_reason = graveyard_history.get(symbol)
+    if gy_reason:
+        factor *= KELLY_PENALTY_GRAVEYARD_FACTOR
+        notes.append(
+            f"recent_graveyard:{gy_reason[:20]} ×{KELLY_PENALTY_GRAVEYARD_FACTOR}"
+        )
+
+    # Penalty 2: отрицательный lifetime PnL
+    lifetime = _load_lifetime_pnl_for_symbol(symbol, lifetime_pnl_path)
+    if lifetime is not None and lifetime < 0:
+        factor *= KELLY_PENALTY_NEGATIVE_LIFETIME_FACTOR
+        notes.append(
+            f"negative_lifetime:${lifetime:.2f} ×{KELLY_PENALTY_NEGATIVE_LIFETIME_FACTOR}"
+        )
+
+    final_size = round(base_size * factor, 2)
+    return final_size, notes
+
+
 # ══ Rotation decision engine ══════════════════════════════════════════════
 def analyze_rotation():
     """Core analysis: returns a report dict + optional action plan."""
@@ -361,14 +576,24 @@ def analyze_rotation():
 
     # 3. Sizing for candidates (Block 3 v2: Adaptive Kelly with variance penalty,
     # fallback to v1 kelly_lite if rotation_v2_score not available).
+    # Block 7 (E): Dynamic Kelly cap — режем base size по graveyard-истории
+    # и отрицательному lifetime PnL. Читаем rotation_history.json ОДИН раз
+    # на весь раунд, чтобы не дергать IO для каждого кандидата.
+    _kelly_gy_history = _load_recent_graveyard_history()
     if V2_SCORING_AVAILABLE:
         for c in candidates:
-            c["kelly_size_usd"] = adaptive_kelly_size(
+            base_size = adaptive_kelly_size(
                 c, total_capital, candidates,
                 min_position_usd=MIN_POSITION_USD,
                 max_position_pct=MAX_POSITION_PCT,
                 min_apr_floor_pct=MIN_APR_FLOOR_PCT,
             )
+            final_size, penalty_notes = apply_dynamic_kelly_penalty(
+                c["symbol"], base_size, graveyard_history=_kelly_gy_history,
+            )
+            c["kelly_size_base"] = base_size
+            c["kelly_size_usd"] = final_size
+            c["kelly_penalties"] = penalty_notes
             # composite score by candidate's kelly size (used for ranking)
             cs = composite_score(
                 rate=c["stability"].get("avg", 0),
@@ -381,7 +606,13 @@ def analyze_rotation():
     else:
         all_aprs = [c["apr_pct"] for c in candidates]
         for c in candidates:
-            c["kelly_size_usd"] = kelly_lite_size(c["apr_pct"], total_capital, all_aprs)
+            base_size = kelly_lite_size(c["apr_pct"], total_capital, all_aprs)
+            final_size, penalty_notes = apply_dynamic_kelly_penalty(
+                c["symbol"], base_size, graveyard_history=_kelly_gy_history,
+            )
+            c["kelly_size_base"] = base_size
+            c["kelly_size_usd"] = final_size
+            c["kelly_penalties"] = penalty_notes
             c["composite_score"] = c["apr_pct"] / (1 + 100 * c["slippage"])
             c["score_breakdown"] = {}
 
@@ -527,6 +758,61 @@ def analyze_rotation():
                     break
                 if decision: break
 
+    # Priority 3 (Block 7 D): SMART FORCED EXIT — выходим без candidate
+    # Если позиция отрицательный funding или low_apr+age≥1дня — выходим
+    # и освобождаем капитал. Не ждём кандидата (даже если рынок бедный).
+    # Срабатывает ТОЛЬКО если выше ничего не выбрано (fill_empty/rotate приоритетнее).
+    if not decision:
+        forced_candidates = []
+        for slot in classified:
+            if not slot.get("open"):
+                continue
+            if slot["name"] in ANCHOR_BOTS:
+                continue
+            if not _bot_supports_enter(slot["name"]):
+                continue
+            cur_rate = slot.get("current_rate", 0)
+            # возраст позиции
+            age_h = 0.0
+            if V2_SCORING_AVAILABLE:
+                _ok, age_h, _r = can_rotate_by_age(slot, 0.0)  # min_hold=0 чтобы получить возраст
+            else:
+                et_str = slot.get("entry_time", "")
+                if et_str:
+                    try:
+                        et = datetime.strptime(et_str, "%Y-%m-%d %H:%M UTC").replace(tzinfo=timezone.utc)
+                        age_h = (datetime.now(timezone.utc) - et).total_seconds() / 3600.0
+                    except (ValueError, TypeError):
+                        try:
+                            et = datetime.fromisoformat(et_str.replace("Z", "+00:00"))
+                            if et.tzinfo is None:
+                                et = et.replace(tzinfo=timezone.utc)
+                            age_h = (datetime.now(timezone.utc) - et).total_seconds() / 3600.0
+                        except Exception:
+                            age_h = 0.0
+            should_exit, reason = should_force_exit(cur_rate, age_h)
+            if should_exit:
+                forced_candidates.append((slot, cur_rate, age_h, reason))
+        # выбираем худшего кандидата: сначала negative_funding, потом самый низкий rate
+        if forced_candidates:
+            # priority order: negative_funding вперёд, внутри группы — по возрастающему rate
+            forced_candidates.sort(
+                key=lambda x: (0 if x[3] == "negative_funding" else 1, x[1])
+            )
+            slot, cur_rate, age_h, reason = forced_candidates[0]
+            decision = {
+                "action":       "forced_exit",
+                "eject_bot":    slot["name"],
+                "eject_symbol": slot["symbol"],
+                "eject_reason": reason,  # 'negative_funding' или 'low_apr'
+                "new_symbol":   None,
+                "new_size_usd": 0,
+                "candidate":    None,
+                "slot":         slot,
+                "current_rate": cur_rate,
+                "age_hours":    age_h,
+            }
+
     return {
         "timestamp":  datetime.now(timezone.utc).isoformat(),
         "positions":  classified,
@@ -614,17 +900,25 @@ def execute_rotation(decision, dry_run=True):
     bot_file = bot_cfg["file"]
     state_file = bot_cfg["state"]
 
-    lines.append(f"[ROTATE] {decision['eject_bot']}: {decision['eject_symbol']} → {decision['new_symbol']}")
-    lines.append(f"  Причина: {decision['eject_reason']}")
-    lines.append(f"  Новый APR: {decision['candidate']['apr_pct']:.1f}%, "
-                 f"slippage: {decision['candidate']['slippage']*100:.3f}%, "
-                 f"stability: {decision['candidate']['stability']['positive_count']}/6")
+    is_forced_exit = decision.get("action") == "forced_exit"
+    is_fill_empty = decision.get("action") == "fill_empty"
+
+    if is_forced_exit:
+        # Block 7 (D): forced_exit — нет candidate, просто освобождаем слот.
+        lines.append(f"[FORCED-EXIT] {decision['eject_bot']}: {decision['eject_symbol']} → (слот пуст)")
+        lines.append(f"  Причина: {decision['eject_reason']} "
+                     f"(rate={decision.get('current_rate', 0)*100:.4f}%/8ч, "
+                     f"age={decision.get('age_hours', 0):.1f}ч)")
+    else:
+        lines.append(f"[ROTATE] {decision['eject_bot']}: {decision['eject_symbol']} → {decision['new_symbol']}")
+        lines.append(f"  Причина: {decision['eject_reason']}")
+        lines.append(f"  Новый APR: {decision['candidate']['apr_pct']:.1f}%, "
+                     f"slippage: {decision['candidate']['slippage']*100:.3f}%, "
+                     f"stability: {decision['candidate']['stability']['positive_count']}/6")
 
     if dry_run:
         lines.append("  [DRY-RUN] Никаких изменений не произведено.")
         return True, lines
-
-    is_fill_empty = decision.get("action") == "fill_empty"
 
     # FIX (Block 3 v2.1): PRE-FLIGHT PAUSE & BASIS GUARD
     # Раньше rotation патчила SYMBOL и звала --enter без проверки:
@@ -670,8 +964,17 @@ def execute_rotation(decision, dry_run=True):
     # Бывают касты когда между scan и enter басис взлетает (выход funding-news, разрыв).
     # Порог совпадает с T4 в hedge_health (1.0%) — если войдём выше,
     # Block 2 выплюнет нас обратно через 5 минут. Быстрее проверить здесь.
+    # Block 7: forced_exit не имеет new_symbol — басис проверять не нужно.
     BASIS_MAX_PCT = 1.0
+    if is_forced_exit:
+        lines.append("  [PRE-FLIGHT] basis check skipped (forced_exit — нет new_symbol)")
+        # флаг чтобы обойти основной try-блок ниже
+        _do_basis_check = False
+    else:
+        _do_basis_check = True
     try:
+        if not _do_basis_check:
+            raise StopIteration  # прыжок на except, чтобы пробросить basis блок
         from hedge_health import get_spot_price, get_mark_price as get_perp_mark_price
         spot_p = get_spot_price(decision["new_symbol"])
         perp_p = get_perp_mark_price(decision["new_symbol"])
@@ -687,6 +990,8 @@ def execute_rotation(decision, dry_run=True):
             lines.append(f"  [PRE-FLIGHT] basis {decision['new_symbol']}={basis_pct:.2f}% ≤ {BASIS_MAX_PCT}% ✓")
         else:
             lines.append(f"  [PRE-FLIGHT WARN] basis check skipped (spot={spot_p}, perp={perp_p})")
+    except StopIteration:
+        pass  # forced_exit — basis check пропущен специально
     except ImportError as e:
         lines.append(f"  [PRE-FLIGHT WARN] basis check skipped — helper missing: {e}")
     except Exception as e:
@@ -697,45 +1002,49 @@ def execute_rotation(decision, dry_run=True):
     # Если spot < нужно — пробуем автоматически перевести perp→spot через ensure_spot_balance().
     # Только если auto-transfer не сработал (нет средств на perp, circuit breaker, ошибка API)
     # — отменяем ротацию и шлём TG алерт. Раньше любой shortfall = stop + ручное вмешательство.
-    try:
-        sys.path.insert(0, BOT_DIR)
-        from arb_tools import get_spot_balance, tg_send
-        SPOT_BUDGET_REQUIRED = 80.0  # должен совпадать с SPOT_BUDGET в ботах
-        SPOT_BUFFER = 1.05            # +5% запас на slippage
-        spot_usdt = get_spot_balance("USDT")
-        needed = SPOT_BUDGET_REQUIRED * SPOT_BUFFER
-        if spot_usdt < needed:
-            lines.append(f"  [PRE-CHECK] spot=${spot_usdt:.2f} < ${needed:.2f} → пробую auto-transfer")
-            ok_auto = False
-            err_auto = None
-            try:
-                from auto_balance import ensure_spot_balance
-                # ensure_spot_balance(needed, buffer=2.0) -> bool; сам логирует и шлёт TG при провале
-                ok_auto = ensure_spot_balance(needed, buffer=2.0)
-                spot_usdt = get_spot_balance("USDT")  # перечитываем после попытки
-                if ok_auto:
-                    lines.append(f"  [AUTO-BAL] ✅ перевод выполнен → spot теперь ${spot_usdt:.2f}")
-                else:
-                    lines.append(f"  [AUTO-BAL] ❌ не удалось добрать до ${needed:.2f} (spot=${spot_usdt:.2f})")
-            except Exception as e:
-                err_auto = f"auto_balance error: {e}"
-                lines.append(f"  [AUTO-BAL WARN] {err_auto}")
-            if not ok_auto or spot_usdt < needed:
-                msg = (
-                    f"🛑 РОТАЦИЯ ОТМЕНЕНА: {decision['eject_bot']} "
-                    f"{decision.get('eject_symbol', '?')} → {decision['new_symbol']}\n"
-                    f"Spot USDT ${spot_usdt:.2f} < нужно ${needed:.2f}\n"
-                    f"Auto-transfer fail: {err_auto or 'spot всё ещё ниже порога'}\n"
-                    f"Проверь auto_balance.log. BingX UI → Assets → Transfer → Perp→Fund ${needed-spot_usdt+5:.0f} USDT"
-                )
-                lines.append(f"  🛑 PRE-CHECK FAIL после auto-transfer. Старая позиция НЕ тронута.")
-                try: tg_send(msg)
-                except Exception: pass
-                return False, lines
-        else:
-            lines.append(f"  [PRE-CHECK] spot=${spot_usdt:.2f} ≥ ${needed:.2f} ✓")
-    except Exception as e:
-        lines.append(f"  [PRE-CHECK WARN] не смог проверить spot: {e}")
+    # Block 7: forced_exit не входит в новую позицию — spot pre-check не нужен.
+    if is_forced_exit:
+        lines.append("  [PRE-CHECK] spot balance check skipped (forced_exit — только exit)")
+    else:
+        try:
+            sys.path.insert(0, BOT_DIR)
+            from arb_tools import get_spot_balance, tg_send
+            SPOT_BUDGET_REQUIRED = 80.0  # должен совпадать с SPOT_BUDGET в ботах
+            SPOT_BUFFER = 1.05            # +5% запас на slippage
+            spot_usdt = get_spot_balance("USDT")
+            needed = SPOT_BUDGET_REQUIRED * SPOT_BUFFER
+            if spot_usdt < needed:
+                lines.append(f"  [PRE-CHECK] spot=${spot_usdt:.2f} < ${needed:.2f} → пробую auto-transfer")
+                ok_auto = False
+                err_auto = None
+                try:
+                    from auto_balance import ensure_spot_balance
+                    # ensure_spot_balance(needed, buffer=2.0) -> bool; сам логирует и шлёт TG при провале
+                    ok_auto = ensure_spot_balance(needed, buffer=2.0)
+                    spot_usdt = get_spot_balance("USDT")  # перечитываем после попытки
+                    if ok_auto:
+                        lines.append(f"  [AUTO-BAL] ✅ перевод выполнен → spot теперь ${spot_usdt:.2f}")
+                    else:
+                        lines.append(f"  [AUTO-BAL] ❌ не удалось добрать до ${needed:.2f} (spot=${spot_usdt:.2f})")
+                except Exception as e:
+                    err_auto = f"auto_balance error: {e}"
+                    lines.append(f"  [AUTO-BAL WARN] {err_auto}")
+                if not ok_auto or spot_usdt < needed:
+                    msg = (
+                        f"🛑 РОТАЦИЯ ОТМЕНЕНА: {decision['eject_bot']} "
+                        f"{decision.get('eject_symbol', '?')} → {decision['new_symbol']}\n"
+                        f"Spot USDT ${spot_usdt:.2f} < нужно ${needed:.2f}\n"
+                        f"Auto-transfer fail: {err_auto or 'spot всё ещё ниже порога'}\n"
+                        f"Проверь auto_balance.log. BingX UI → Assets → Transfer → Perp→Fund ${needed-spot_usdt+5:.0f} USDT"
+                    )
+                    lines.append(f"  🛑 PRE-CHECK FAIL после auto-transfer. Старая позиция НЕ тронута.")
+                    try: tg_send(msg)
+                    except Exception: pass
+                    return False, lines
+            else:
+                lines.append(f"  [PRE-CHECK] spot=${spot_usdt:.2f} ≥ ${needed:.2f} ✓")
+        except Exception as e:
+            lines.append(f"  [PRE-CHECK WARN] не смог проверить spot: {e}")
 
     # ===== STEP 1: EXIT OLD (only for rotation, not fill_empty) =====
     if not is_fill_empty:
@@ -783,6 +1092,12 @@ def execute_rotation(decision, dry_run=True):
         add_to_graveyard(decision["eject_symbol"], decision["eject_reason"], cooldown_h=_gv_h)
         lines.append(f"  [1.5/4] {decision['eject_symbol']} добавлен в graveyard на {_gv_h}ч "
                      f"(reason='{decision['eject_reason'][:40]}')")
+
+        # Block 7 (D): forced_exit — освободили слот, не входим обратно — ranny return.
+        # Следующий раунд cron подберёт candidate и сделает fill_empty.
+        if is_forced_exit:
+            lines.append(f"  [✓] forced_exit завершён — слот {decision['eject_bot']} свободен")
+            return True, lines
     else:
         # GUARD for fill_empty: verify slot actually is empty
         st_pre = load_json(os.path.join(BOT_DIR, state_file), default={})
@@ -921,8 +1236,13 @@ def format_report(result, max_candidates=5):
     lines.append("")
     d = result["decision"]
     if d:
-        lines.append(f"🎯 Решение: {d['eject_symbol']} → {d['new_symbol']}")
-        lines.append(f"   (причина: {d['eject_reason']}, улучшение: {d['candidate']['apr_pct']:.0f}% APR)")
+        if d.get("action") == "forced_exit":
+            lines.append(f"🚨 Решение (forced_exit): {d['eject_symbol']} → (слот свободен)")
+            lines.append(f"   (причина: {d['eject_reason']}, rate={d.get('current_rate', 0)*100:.4f}%/8ч, "
+                         f"age={d.get('age_hours', 0):.1f}ч)")
+        else:
+            lines.append(f"🎯 Решение: {d['eject_symbol']} → {d['new_symbol']}")
+            lines.append(f"   (причина: {d['eject_reason']}, улучшение: {d['candidate']['apr_pct']:.0f}% APR)")
     else:
         lines.append("🟢 Решение: ротация не требуется")
 
