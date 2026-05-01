@@ -134,6 +134,62 @@ python3 arb_tools.py --resume
 
 ---
 
+## Настройка remote backup (одноразово)
+
+Для включения ежедневного push state в приватный GitHub-репозиторий:
+
+### 1. Создай приватный репо на GitHub
+
+- name: `bingx-bot-state`
+- visibility: **Private**
+- НЕ инициализируй с README — пустой
+
+### 2. SSH-ключ на VPS (если нет прямого write-доступа)
+
+```bash
+ssh-keygen -t ed25519 -C "bingx-vps-backup" -f /root/.ssh/bingx_state_key -N ""
+cat /root/.ssh/bingx_state_key.pub
+# Скопируй вывод и добавь в GitHub:
+# Settings → Deploy keys → Add deploy key → ✓ Allow write access
+```
+
+Настрой SSH как alias:
+
+```bash
+cat >> /root/.ssh/config <<EOF
+Host bingx-state
+  HostName github.com
+  User git
+  IdentityFile /root/.ssh/bingx_state_key
+  IdentitiesOnly yes
+EOF
+chmod 600 /root/.ssh/config
+```
+
+### 3. Пропиши URL в бот
+
+```bash
+echo "git@bingx-state:rturk7204-source/bingx-bot-state.git" > /root/bingx-bot/.state_backup_repo
+```
+
+### 4. Проверь вручную
+
+```bash
+cd /root/bingx-bot && python3 state_backup.py remote
+tail -20 logs/state_backup.log
+# Должно быть: "remote: pushed backup ..."
+```
+
+### 5. Добавь в cron (ежедневно в 03:00 UTC)
+
+```bash
+( crontab -l 2>/dev/null; \
+  echo "0 3 * * * cd /root/bingx-bot && python3 state_backup.py remote >> logs/state_backup_cron.log 2>&1" \
+) | crontab -
+```
+
+---
+
 ## Чек-лист после восстановления
 
 - [ ] `crontab -l` показывает 14 строк

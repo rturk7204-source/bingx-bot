@@ -47,10 +47,12 @@ HEARTBEATS = {
     "rotate_smart":  (f"{BOT_DIR}/rotation.log", 4 * 3600 + 1800, "rotate-smart every 4h"),
     "topup":         (f"{BOT_DIR}/arb_topup.log", 4500, "topup hourly"),
     "sync":          (f"{BOT_DIR}/arb_compound.log", 2400, "sync 15,45 min"),
-    "rebalance":     (f"{BOT_DIR}/arb_rebalance.log", 2 * 3600 + 1200, "rebalance every 2h"),
+    "rebalance":     (f"{BOT_DIR}/arb_rebalance.log", 2 * 3600 + 1800, "rebalance every 2h"),
     "liq_monitor":   (f"{BOT_DIR}/liq_monitor.log", 1200, "liq_monitor every 10min"),
     "dead_man":      (f"{BOT_DIR}/dead_man.out", 1800, "dead_man every 20min"),
-    "funding_log":   (f"{BOT_DIR}/funding_log.out", 2400, "funding_log every 30min"),
+    # funding_log запускается каждые 30м, но ПИШЕТ только на funding cycle (каждые 4ч):
+    # 00:30, 04:30, 08:30, 12:30, 16:30, 20:30 UTC. Порог = 4ч3а0м с запасом.
+    "funding_log":   (f"{BOT_DIR}/funding_log.out", 4 * 3600 + 1800, "funding_log on cycle (4h)"),
 }
 
 # State-файлы для integrity check
