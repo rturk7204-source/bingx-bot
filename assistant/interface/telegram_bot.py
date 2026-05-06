@@ -540,11 +540,11 @@ async def close_in_journal(sym, pos):
                 R = pos.get("r_init") or abs(entry - sl)
                 pnl_R = (pnl - fees) / (R * pos.get("qty", 1)) if R > 0 and pos.get("qty") else 0
                 auto_state.log_close(sym, pos["direction"], pnl_R, reason)
-                last2 = auto_state.last_n_results(2)
-                if len(last2) >= 2 and all(x < 0 for x in last2):
-                    until = auto_state.block_24h("2 минуса подряд в авто")
+                last4 = auto_state.last_n_results(4)
+                if len(last4) >= 4 and all(x < 0 for x in last4):
+                    until = auto_state.block_24h("4 минуса подряд в авто")
                     await bot.send_message(pos["chat_id"],
-                        f"⛔ AUTO заблокирован на 24ч (2 минуса подряд). /auto unblock — снять")
+                        f"⛔ AUTO заблокирован на 24ч (4 минуса подряд). /auto unblock — снять")
             except Exception as _e:
                 print("auto-close hook err:", _e)
 
@@ -807,6 +807,28 @@ async def auto_scanner_loop():
                             if s_.get("score", 0) < 60: continue
                             tag = s_.get("detail", {}).get("smc", "")
                             if tag not in WHITELIST: continue
+                            # КРИТИЧНО: проверка quality перед открытием
+                            if not p_.get("quality_ok", False):
+                                print(f"[AUTO] {p_['symbol']} отказ: {p_.get('quality_reason','?')}", flush=True)
+                                try:
+                                    journal.log_rejection(p_['symbol'], p_['direction'],
+                                        p_.get('quality_reason','?'), s_.get('score'),
+                                        p_.get('entry'), p_.get('sl'), p_.get('tp'),
+                                        p_.get('quality_info'))
+                                except: pass
+                                continue
+                            # ДОПОЛНИТЕЛЬНО: жёсткий финальный RR ≥ 1.5 на фактических entry/sl/tp
+                            _R = abs(p_['entry'] - p_['sl'])
+                            _D = abs(p_['tp'] - p_['entry'])
+                            _final_rr = _D / _R if _R > 0 else 0
+                            if _final_rr < 1.5:
+                                print(f"[AUTO] {p_['symbol']} отказ: финальный RR={_final_rr:.2f} < 1.5", flush=True)
+                                try:
+                                    journal.log_rejection(p_['symbol'], p_['direction'],
+                                        f"финальный RR={_final_rr:.2f}<1.5", s_.get('score'),
+                                        p_.get('entry'), p_.get('sl'), p_.get('tp'), None)
+                                except: pass
+                                continue
                             # открываем
                             plan = {
                                 "symbol": p_["symbol"], "direction": p_["direction"],
@@ -820,11 +842,23 @@ async def auto_scanner_loop():
                                 print(err_text, flush=True)
                                 await bot.send_message(int(_cfg.TG_CHAT_ID), err_text[:400])
                                 continue
+                            # ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА: если SL не выставлен — позиция уже закрыта в execute, пропускаем
+                            if not res.get("sl_placed"):
+                                await bot.send_message(int(_cfg.TG_CHAT_ID),
+                                    f"⚠️ AUTO: {p_['symbol']} SL не выставлен, позиция закрыта аварийно")
+                                continue
                             sl_order_id = None
                             if isinstance(res.get('sl_msg'), dict) and res['sl_msg'].get('data'):
                                 sl_order_id = res['sl_msg']['data'].get('order', {}).get('orderId')
-                            trade_id = journal.journal_open(p_["symbol"], p_["direction"],
-                                p_["entry"], res["rounded"]["qty"], tag)
+                            trade_id = journal.journal_open(
+                                p_["symbol"], p_["direction"],
+                                p_["entry"], res["rounded"]["qty"], tag,
+                                sl=res["rounded"]["sl"], tp=res["rounded"]["tp"],
+                                score=s_.get("score"),
+                                adj_rr=(p_.get("quality_info") or {}).get("adjusted_rr"),
+                                ch24=s_.get("change_24h"),
+                                atr_pct=p_.get("atr_pct"),
+                                quality_info=p_.get("quality_info"))
                             ACTIVE[p_["symbol"]] = {
                                 "direction": p_["direction"], "entry": p_["entry"],
                                 "sl": res["rounded"]["sl"], "tp": res["rounded"]["tp"],
@@ -882,7 +916,7 @@ async def cmd_auto(m: Message):
             left = (until - int(time.time())) // 60
             await m.answer(f"Заблокирован ещё {left}мин. /auto unblock — снять"); return
         auto_state.enable()
-        await m.answer("Авто-режим ВКЛ. Лимит 2 сделки одновременно. После 2 минусов подряд — блок 24ч.")
+        await m.answer("Авто-режим ВКЛ. Лимит 5 сделок одновременно. После 4 минусов подряд — блок 24ч.")
     elif a == "off":
         auto_state.disable()
         await m.answer("Авто-режим ВЫКЛ")

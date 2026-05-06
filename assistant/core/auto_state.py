@@ -38,7 +38,7 @@ def enable():
 def disable():
     set_("enabled", "0")
 
-def block_24h(reason="2 убытка подряд"):
+def block_24h(reason="4 убытка подряд"):
     until = int(time.time()) + 24*3600
     set_("blocked_until", str(until))
     set_("block_reason", reason)

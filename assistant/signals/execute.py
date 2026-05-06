@@ -110,20 +110,42 @@ def open_trade(plan):
                 "rounded": {"qty": qty, "sl": sl, "tp": tp}}
     order_id = r_open.get("data", {}).get("order", {}).get("orderId")
 
-    # 3) Stop Loss
-    r_sl = ex.place_order(
-        symbol=sym, side=sl_side, positionSide=pos_side,
-        type="STOP_MARKET", stopPrice=sl, quantity=qty,
-        workingType="MARK_PRICE"
-    )
+    # 3) Stop Loss — обязателен. 3 попытки. Если не удалось — закрываем позицию
+    r_sl = {"code": -1, "msg": "init"}
+    for attempt in range(3):
+        try:
+            r_sl = ex.place_order(
+                symbol=sym, side=sl_side, positionSide=pos_side,
+                type="STOP_MARKET", stopPrice=sl, quantity=qty,
+                workingType="MARK_PRICE"
+            )
+            if r_sl.get("code") == 0: break
+        except Exception as e:
+            r_sl = {"code": -1, "msg": f"exception: {e}"}
+        import time as _t; _t.sleep(0.5)
     sl_ok = r_sl.get("code") == 0
+    if not sl_ok:
+        # АВАРИЙНОЕ ЗАКРЫТИЕ — позиция без SL недопустима
+        try:
+            ex.place_order(symbol=sym, side=sl_side, positionSide=pos_side,
+                           type="MARKET", quantity=qty)
+        except: pass
+        return {"ok": False, "stage": "sl_failed_position_closed",
+                "msg": r_sl, "rounded": {"qty": qty, "sl": sl, "tp": tp}}
 
-    # 4) Take Profit
-    r_tp = ex.place_order(
-        symbol=sym, side=sl_side, positionSide=pos_side,
-        type="TAKE_PROFIT_MARKET", stopPrice=tp, quantity=qty,
-        workingType="MARK_PRICE"
-    )
+    # 4) Take Profit — желателен, 3 попытки, но не блокер
+    r_tp = {"code": -1, "msg": "init"}
+    for attempt in range(3):
+        try:
+            r_tp = ex.place_order(
+                symbol=sym, side=sl_side, positionSide=pos_side,
+                type="TAKE_PROFIT_MARKET", stopPrice=tp, quantity=qty,
+                workingType="MARK_PRICE"
+            )
+            if r_tp.get("code") == 0: break
+        except Exception as e:
+            r_tp = {"code": -1, "msg": f"exception: {e}"}
+        import time as _t; _t.sleep(0.5)
     tp_ok = r_tp.get("code") == 0
 
     return {

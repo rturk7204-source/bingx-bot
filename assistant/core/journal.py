@@ -75,13 +75,24 @@ def load_all_active():
     return out
 
 
-def journal_open(symbol, direction, entry, qty, setup_tag, source="assistant"):
+def journal_open(symbol, direction, entry, qty, setup_tag, source="assistant",
+                 sl=None, tp=None, score=None, adj_rr=None, ch24=None, atr_pct=None,
+                 quality_info=None):
     """Создаёт запись trade. Возвращает trade_id."""
+    # гарантируем что колонки существуют (миграция)
     with conn() as c:
+        for col, typ in [("sl","REAL"),("tp","REAL"),("score","INTEGER"),
+                         ("adj_rr","REAL"),("ch24","REAL"),("atr_pct","REAL"),
+                         ("quality_info","TEXT")]:
+            try: c.execute(f"ALTER TABLE trades ADD COLUMN {col} {typ}")
+            except: pass
         cur = c.execute("""
-            INSERT INTO trades (symbol, direction, entry_ts, entry_price, qty, tag, source, breakeven_moved)
-            VALUES (?,?,?,?,?,?,?,0)
-        """, (symbol, direction, int(time.time()), entry, qty, setup_tag, source))
+            INSERT INTO trades (symbol, direction, entry_ts, entry_price, qty, tag, source,
+                                breakeven_moved, sl, tp, score, adj_rr, ch24, atr_pct, quality_info)
+            VALUES (?,?,?,?,?,?,?,0,?,?,?,?,?,?,?)
+        """, (symbol, direction, int(time.time()), entry, qty, setup_tag, source,
+              sl, tp, score, adj_rr, ch24, atr_pct,
+              json.dumps(quality_info) if quality_info else None))
         return cur.lastrowid
 
 
@@ -212,3 +223,18 @@ def get_stats_extended():
             "reached_1R_pct": round(d["be_count"] / d["n"] * 100, 1) if d["n"] else 0,
         }
     return out
+
+# инициализация таблиц при импорте (если их нет)
+try:
+    with conn() as _c:
+        _c.execute("""CREATE TABLE IF NOT EXISTS trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT, direction TEXT,
+            entry_ts INTEGER, exit_ts INTEGER,
+            entry_price REAL, exit_price REAL,
+            qty REAL, pnl REAL, fees REAL,
+            breakeven_moved INTEGER DEFAULT 0,
+            tag TEXT, source TEXT, notes TEXT
+        )""")
+except Exception as _e:
+    pass
