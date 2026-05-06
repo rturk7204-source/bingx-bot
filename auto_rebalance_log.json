@@ -1,0 +1,688 @@
+[
+  {
+    "ts": "2026-05-01T19:00:07.943808+00:00",
+    "balances_before": {
+      "spot": 362.06604937122626,
+      "fund": 0.0,
+      "perp_balance": 414.0538,
+      "perp_avail": 173.5724,
+      "perp_equity": 397.3955
+    },
+    "decision": {
+      "action": "perp_to_spot",
+      "amount": 43.57,
+      "reason": "perp_avail=173.57 > safety+overflow=130, \u0438\u0437\u043b\u0438\u0448\u0435\u043a 43.57 \u2192 spot"
+    },
+    "executed": true,
+    "success": true,
+    "tran_id": "2050289194726723584",
+    "balances_after": {
+      "spot": 405.63604937122625,
+      "fund": 0.0,
+      "perp_balance": 370.4838,
+      "perp_avail": 130.165,
+      "perp_equity": 354.0439
+    },
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T19:30:05.973428+00:00",
+    "balances_before": null,
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "cooldown: last transfer at 2026-05-01T19:00:07.943808+00:00"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T20:00:05.648599+00:00",
+    "balances_before": {
+      "spot": 250.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 363.1434,
+      "perp_avail": 45.3468,
+      "perp_equity": 344.2429
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=250.05 (>=100), perp_avail=45.35 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T20:30:05.661113+00:00",
+    "balances_before": {
+      "spot": 250.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 363.4517,
+      "perp_avail": 45.3468,
+      "perp_equity": 345.7182
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=250.05 (>=100), perp_avail=45.35 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T21:00:05.984581+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 463.2526,
+      "perp_avail": 95.3778,
+      "perp_equity": 444.769
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=95.38 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T21:30:04.696702+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 463.8259,
+      "perp_avail": 95.9398,
+      "perp_equity": 447.8594
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=95.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T22:00:05.961205+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 463.7263,
+      "perp_avail": 70.9428,
+      "perp_equity": 446.9681
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T22:30:04.599702+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 463.7263,
+      "perp_avail": 70.9428,
+      "perp_equity": 445.6167
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T23:00:05.571890+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 463.7263,
+      "perp_avail": 70.9428,
+      "perp_equity": 450.272
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-01T23:30:05.189965+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 463.7263,
+      "perp_avail": 70.9428,
+      "perp_equity": 448.4625
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T00:00:08.941450+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 463.7293,
+      "perp_avail": 70.9428,
+      "perp_equity": 444.9089
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T00:30:05.119550+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.1521,
+      "perp_avail": 70.9428,
+      "perp_equity": 450.6965
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T01:00:05.956563+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.1521,
+      "perp_avail": 70.9428,
+      "perp_equity": 443.5057
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T01:30:04.892891+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.1521,
+      "perp_avail": 70.9428,
+      "perp_equity": 449.3918
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T02:00:06.106603+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.1521,
+      "perp_avail": 70.9428,
+      "perp_equity": 449.2552
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T02:30:04.937916+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.1521,
+      "perp_avail": 70.9428,
+      "perp_equity": 448.8334
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T03:00:06.065894+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.1521,
+      "perp_avail": 70.9428,
+      "perp_equity": 451.8593
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T03:30:04.507828+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.1521,
+      "perp_avail": 70.9428,
+      "perp_equity": 446.8634
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T04:00:05.892233+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.4348,
+      "perp_avail": 70.9428,
+      "perp_equity": 447.8547
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T04:30:05.533912+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 452.9831
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T05:00:06.516499+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 449.9384
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T05:30:04.123372+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 449.3404
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T06:00:04.958495+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 447.7604
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T06:30:04.293032+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 448.9722
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T07:00:05.950632+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 436.0537
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T07:30:04.722523+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 443.4004
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T08:00:05.969883+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 464.5792,
+      "perp_avail": 70.9428,
+      "perp_equity": 444.4124
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=150.05 (>=100), perp_avail=70.94 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T08:30:04.943111+00:00",
+    "balances_before": {
+      "spot": 150.04643862002652,
+      "fund": 0.0,
+      "perp_balance": 478.0852,
+      "perp_avail": 158.7136,
+      "perp_equity": 440.9897
+    },
+    "decision": {
+      "action": "perp_to_spot",
+      "amount": 28.71,
+      "reason": "perp_avail=158.71 > safety+overflow=130, \u0438\u0437\u043b\u0438\u0448\u0435\u043a 28.71 \u2192 spot"
+    },
+    "executed": true,
+    "success": true,
+    "tran_id": "2050493020234715136",
+    "balances_after": {
+      "spot": 178.75643862002653,
+      "fund": 0.0,
+      "perp_balance": 449.3752,
+      "perp_avail": 130.0036,
+      "perp_equity": 412.4159
+    },
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T09:00:05.295559+00:00",
+    "balances_before": {
+      "spot": 178.75643862002653,
+      "fund": 0.0,
+      "perp_balance": 526.3769,
+      "perp_avail": 207.0053,
+      "perp_equity": 490.0564
+    },
+    "decision": {
+      "action": "perp_to_spot",
+      "amount": 77.01,
+      "reason": "perp_avail=207.01 > safety+overflow=130, \u0438\u0437\u043b\u0438\u0448\u0435\u043a 77.01 \u2192 spot"
+    },
+    "executed": true,
+    "success": true,
+    "tran_id": "2050500570548146176",
+    "balances_after": {
+      "spot": 255.76643862002652,
+      "fund": 0.0,
+      "perp_balance": 449.3669,
+      "perp_avail": 129.9953,
+      "perp_equity": 412.5459
+    },
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T09:30:04.599236+00:00",
+    "balances_before": null,
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "cooldown: last transfer at 2026-05-02T09:00:05.295559+00:00"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T10:00:05.507707+00:00",
+    "balances_before": {
+      "spot": 255.76643862002652,
+      "fund": 0.0,
+      "perp_balance": 449.3669,
+      "perp_avail": 129.9953,
+      "perp_equity": 408.2905
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=255.77 (>=100), perp_avail=130.00 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T10:30:04.176750+00:00",
+    "balances_before": {
+      "spot": 253.76643862002652,
+      "fund": 0.0,
+      "perp_balance": 451.3235,
+      "perp_avail": 103.0687,
+      "perp_equity": 411.0851
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=253.77 (>=100), perp_avail=103.07 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T11:00:05.388107+00:00",
+    "balances_before": {
+      "spot": 253.76643862002652,
+      "fund": 0.0,
+      "perp_balance": 451.2835,
+      "perp_avail": 76.3513,
+      "perp_equity": 414.1041
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=253.77 (>=100), perp_avail=76.35 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  },
+  {
+    "ts": "2026-05-02T11:30:05.231182+00:00",
+    "balances_before": {
+      "spot": 253.76643862002652,
+      "fund": 0.0,
+      "perp_balance": 451.2835,
+      "perp_avail": 76.3513,
+      "perp_equity": 410.6225
+    },
+    "decision": {
+      "action": "noop",
+      "amount": 0.0,
+      "reason": "balanced: spot=253.77 (>=100), perp_avail=76.35 (safety=30)"
+    },
+    "executed": false,
+    "success": null,
+    "tran_id": null,
+    "balances_after": null,
+    "error": null
+  }
+]

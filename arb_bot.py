@@ -28,7 +28,7 @@ from urllib.parse import urlencode
 # SMC-бот торгует: BTC ETH SOL SUI DOGE ADA XRP LINK BNB HYPE
 # ARB-бот торгует: RIVER-USDT  ← нет пересечений
 
-SYMBOL      = "AIN-USDT"
+SYMBOL      = "FIGHTID-USDT"
 TOKEN       = SYMBOL.replace("-USDT", "")  # автоматический label, синхронен с SYMBOL
 SPOT_BUDGET = 160.0   # USDT на спот (ресайз с 200 → 160, 30% cap rule)
 PERP_MARGIN = 80.0    # USDT маржи (LEVERAGE=2 → notional $160)

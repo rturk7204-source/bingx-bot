@@ -175,7 +175,7 @@ MAX_SLIPPAGE_ENTER   = 0.005     # 0.5%
 
 # Pairs hardcoded to never touch (anchor strategy)
 # You can remove from this list if you want arb_bot (RIVER) to rotate too.
-ANCHOR_BOTS = {"RIVER-USDT"}  # 01.05 — RIVER восстановился до ~76% APR, возвращаем якорем
+ANCHOR_BOTS = set()  # 01.05 откат: RIVER нестабилен (1/6 периодов)
 
 
 # ══ API helpers (lightweight, no auth needed for public endpoints) ════════
