@@ -95,12 +95,12 @@ def check_quality(symbol, direction, entry, sl, tp, interval="15m"):
 
     a_for_buf = _atr(K, 14)
     if obstacles:
-        # первый барьер за пределами 1.5R = реалистичная цель
-        target = next((o for o in obstacles if o[2] >= 1.5), None)
+        # первый барьер за пределами 2.0R = реалистичная цель
+        target = next((o for o in obstacles if o[2] >= 2.0), None)
         nearest = min(obstacles, key=lambda x: x[2])
         info["nearest_obstacle"] = f"{nearest[0]}@{nearest[1]} ({nearest[2]:.2f}R)"
         if target is None:
-            return False, f"все препятствия в <1.5R (ближайшее {nearest[2]:.2f}R)", info
+            return False, f"все препятствия в <2.0R (ближайшее {nearest[2]:.2f}R)", info
         nearest = target
         # ближайшее препятствие — реалистичный TP (с запасом 1 ATR не доходя)
         obs_price = nearest[1]
@@ -112,8 +112,8 @@ def check_quality(symbol, direction, entry, sl, tp, interval="15m"):
         adj_rr = adj_dist / R if R > 0 else 0
         info["adjusted_tp"] = round(adj_tp, 6)
         info["adjusted_rr"] = round(adj_rr, 2)
-        if adj_rr < 1.5:
-            return False, f"до {nearest[0]} только {adj_rr:.2f}R (минимум 1.5R)", info
+        if adj_rr < 2.0:
+            return False, f"до {nearest[0]} только {adj_rr:.2f}R (минимум 2.0R)", info
         # передаём наружу новый TP
         info["use_tp"] = adj_tp
 

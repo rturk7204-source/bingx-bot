@@ -821,11 +821,11 @@ async def auto_scanner_loop():
                             _R = abs(p_['entry'] - p_['sl'])
                             _D = abs(p_['tp'] - p_['entry'])
                             _final_rr = _D / _R if _R > 0 else 0
-                            if _final_rr < 1.5:
-                                print(f"[AUTO] {p_['symbol']} отказ: финальный RR={_final_rr:.2f} < 1.5", flush=True)
+                            if _final_rr < 2.0:
+                                print(f"[AUTO] {p_['symbol']} отказ: финальный RR={_final_rr:.2f} < 2.0", flush=True)
                                 try:
                                     journal.log_rejection(p_['symbol'], p_['direction'],
-                                        f"финальный RR={_final_rr:.2f}<1.5", s_.get('score'),
+                                        f"финальный RR={_final_rr:.2f}<2.0", s_.get('score'),
                                         p_.get('entry'), p_.get('sl'), p_.get('tp'), None)
                                 except: pass
                                 continue
