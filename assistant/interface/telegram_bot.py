@@ -798,10 +798,19 @@ async def auto_scanner_loop():
             try:
                 if auto_state.is_enabled():
                     blk, _ = auto_state.is_blocked()
-                    if not blk:
+                    AUTO_DAILY_LIMIT = 4
+                    today_count = auto_state.count_today_auto()
+                    if blk:
+                        pass
+                    elif today_count >= AUTO_DAILY_LIMIT:
+                        print(f"[AUTO] дневной лимит достигнут: {today_count}/{AUTO_DAILY_LIMIT}", flush=True)
+                    else:
                         WHITELIST = {"BOS+OB+FVG", "CHoCH+OB+FVG"}
                         opened_auto = sum(1 for pp in ACTIVE.values() if pp.get("auto"))
                         for s_, p_ in hits:
+                            if today_count >= AUTO_DAILY_LIMIT:
+                                print(f"[AUTO] лимит дня {AUTO_DAILY_LIMIT} достигнут — стоп", flush=True)
+                                break
                             if opened_auto >= 5: break
                             if s_["symbol"] in ACTIVE: continue
                             if s_.get("score", 0) < 60: continue
@@ -871,8 +880,13 @@ async def auto_scanner_loop():
                             }
                             journal.save_active(p_["symbol"], ACTIVE[p_["symbol"]])
                             opened_auto += 1
+                            try:
+                                auto_state.log_open(p_["symbol"], p_["direction"])
+                                today_count += 1
+                            except Exception as _e:
+                                print("log_open err:", _e)
                             await bot.send_message(int(_cfg.TG_CHAT_ID),
-                                f"🤖 AUTO ОТКРЫТА\n{p_['symbol']} {p_['direction']} qty={res['rounded']['qty']}\n"
+                                f"🤖 AUTO ОТКРЫТА ({today_count}/{AUTO_DAILY_LIMIT} за день)\n{p_['symbol']} {p_['direction']} qty={res['rounded']['qty']}\n"
                                 f"вход {p_['entry']}  SL {res['rounded']['sl']}  TP {res['rounded']['tp']}\n"
                                 f"setup {tag}  score {s_.get('score',0)}")
             except Exception as e:

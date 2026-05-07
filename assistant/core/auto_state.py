@@ -52,7 +52,7 @@ def log_close(symbol, direction, pnl_r, result):
 
 def last_n_results(n=2):
     with _conn() as c:
-        r = c.execute("SELECT pnl_r FROM auto_history ORDER BY id DESC LIMIT ?", (n,)).fetchall()
+        r = c.execute("SELECT pnl_r FROM auto_history WHERE result!=? ORDER BY id DESC LIMIT ?", ("OPEN", n)).fetchall()
         return [x[0] for x in r]
 
 def count_open_auto(active_dict):
@@ -65,7 +65,23 @@ def status_text():
     if blk:
         left = (until - int(time.time())) // 60
         parts.append(f"БЛОК {left}мин ({get('block_reason','')})")
+    parts.append(f"сегодня: {count_today_auto()}/4")
     hist = last_n_results(5)
     if hist:
         parts.append(f"посл. сделки R: {', '.join(f'{x:+.2f}' for x in hist)}")
     return " | ".join(parts)
+
+def log_open(symbol, direction):
+    """Пишем в auto_history событие открытия (result='OPEN', pnl_r=0)."""
+    with _conn() as c:
+        c.execute("INSERT INTO auto_history(ts,symbol,direction,pnl_r,result) VALUES(?,?,?,?,?)",
+                  (int(time.time()), symbol, direction, 0.0, "OPEN"))
+
+def count_today_auto():
+    """Сколько AUTO-сделок ОТКРЫТО за текущий UTC-день (по записям OPEN)."""
+    import datetime
+    now = datetime.datetime.utcnow()
+    day_start = int(datetime.datetime(now.year, now.month, now.day).timestamp())
+    with _conn() as c:
+        r = c.execute("SELECT COUNT(*) FROM auto_history WHERE ts>=? AND result=?", (day_start, "OPEN")).fetchone()
+        return r[0] if r else 0
