@@ -50,7 +50,7 @@ def check_quality(symbol, direction, entry, sl, tp, interval="15m"):
 
     # 1. HTF контекст: 1h тренд не против сделки сильнее 1.5%
     K1h = fetch_klines(symbol, "1h", 50)
-    if len(K1h) >= 20:
+    if len(K1h) >= 24:
         first = K1h[-20]["c"]
         last = K1h[-1]["c"]
         htf_pct = (last - first) / first * 100
@@ -59,6 +59,29 @@ def check_quality(symbol, direction, entry, sl, tp, interval="15m"):
             return False, f"1h тренд против LONG ({htf_pct:.1f}%)", info
         if direction == "SHORT" and htf_pct > 1.5:
             return False, f"1h тренд против SHORT (+{htf_pct:.1f}%)", info
+
+        # 1b. MOMENTUM REVERSAL: тренд 24h в одну сторону, последние 2ч развернулись
+        ch24 = (K1h[-1]["c"] - K1h[-24]["c"]) / K1h[-24]["c"] * 100
+        ch2h = (K1h[-1]["c"] - K1h[-2]["c"]) / K1h[-2]["c"] * 100
+        info["ch24h"] = round(ch24, 2)
+        info["ch2h"] = round(ch2h, 2)
+        if direction == "LONG" and ch24 > 2.0 and ch2h < -0.5:
+            return False, f"reversal: 24h={ch24:+.1f}% но 2h={ch2h:+.2f}% (LONG на верхах)", info
+        if direction == "SHORT" and ch24 < -2.0 and ch2h > 0.5:
+            return False, f"reversal: 24h={ch24:+.1f}% но 2h={ch2h:+.2f}% (SHORT на дне)", info
+
+    # 1c. ANTI-FADE: последние 2 свечи 15m идут против сделки
+    K15_recent = fetch_klines(symbol, "15m", 5)
+    if len(K15_recent) >= 2:
+        c1, c2 = K15_recent[-2], K15_recent[-1]
+        red1 = c1["c"] < c1["o"]
+        red2 = c2["c"] < c2["o"]
+        green1 = c1["c"] > c1["o"]
+        green2 = c2["c"] > c2["o"]
+        if direction == "LONG" and red1 and red2:
+            return False, "2 красные 15m свечи подряд (против LONG)", info
+        if direction == "SHORT" and green1 and green2:
+            return False, "2 зелёные 15m свечи подряд (против SHORT)", info
 
     # 2. Дистанция до ближайшего препятствия
     K = fetch_klines(symbol, interval, 100)
