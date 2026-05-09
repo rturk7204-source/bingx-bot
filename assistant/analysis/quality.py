@@ -70,6 +70,12 @@ def check_quality(symbol, direction, entry, sl, tp, interval="15m"):
         if direction == "SHORT" and ch24 < -2.0 and ch2h > 0.5:
             return False, f"reversal: 24h={ch24:+.1f}% но 2h={ch2h:+.2f}% (SHORT на дне)", info
 
+        # 1d. ANTI-COUNTERTREND: запрет ловить нож/верх на 24h-тренде
+        if direction == "LONG" and ch24 < -3.0:
+            return False, f"актив в нисходе 24h={ch24:+.1f}% (LONG = ловля ножа)", info
+        if direction == "SHORT" and ch24 > 3.0:
+            return False, f"актив в восходе 24h={ch24:+.1f}% (SHORT против тренда)", info
+
     # 1c. ANTI-FADE: последние 2 свечи 15m идут против сделки
     K15_recent = fetch_klines(symbol, "15m", 5)
     if len(K15_recent) >= 2:
