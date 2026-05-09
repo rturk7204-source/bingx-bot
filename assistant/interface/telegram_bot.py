@@ -580,64 +580,89 @@ async def monitor_positions():
                     await close_in_journal(sym, pos)
                     continue
 
-                # trailing: после +2R SL ползёт каждые +0.5R
-                if pos.get("be_done"):
-                    t = ex2.get_ticker(sym)
-                    if t.get("code") != 0:
+                # CHANDELIER trailing: после +2R SL = max(high-22 на 15m) - 3*ATR(14).
+                # Подтягиваем только вверх (LONG) / вниз (SHORT). Никогда не ослабляем.
+                t = ex2.get_ticker(sym)
+                if t.get("code") != 0:
+                    continue
+                data = t.get("data", [])
+                row = data[0] if isinstance(data, list) else data
+                px = float((row or {}).get("lastPrice", 0))
+                if px == 0:
+                    continue
+                entry = pos["entry"]
+                r_init = pos.get("r_init") or abs(entry - pos["sl"])
+                if r_init <= 0:
+                    continue
+                if pos["direction"] == "LONG":
+                    profit_R = (px - entry) / r_init
+                else:
+                    profit_R = (entry - px) / r_init
+                if profit_R < 2.0:
+                    continue
+                # тянем 25 свечей 15m, считаем chandelier
+                try:
+                    rk = ex2.get_klines(sym, "15m", 30)
+                    raw = rk.get("data") or []
+                    K = []
+                    for k in raw:
+                        try:
+                            K.append({"h": float(k["high"]), "l": float(k["low"]), "c": float(k["close"])})
+                        except Exception:
+                            pass
+                    if len(K) < 23:
                         continue
-                    data = t.get("data", [])
-                    row = data[0] if isinstance(data, list) else data
-                    px = float((row or {}).get("lastPrice", 0))
-                    if px == 0:
+                    # ATR(14)
+                    trs = [max(K[i]["h"]-K[i]["l"], abs(K[i]["h"]-K[i-1]["c"]), abs(K[i]["l"]-K[i-1]["c"])) for i in range(1, len(K))]
+                    a = sum(trs[-14:]) / 14 if len(trs) >= 14 else 0
+                    if a <= 0:
                         continue
-                    entry = pos["entry"]; r_dist = abs(entry - pos["entry"]) or abs(entry - pos.get("sl", entry))
-                    # R = исходный риск (entry - первоначальный SL). Возьмём из плана если есть, иначе текущий sl
-                    r_init = pos.get("r_init") or abs(entry - pos["sl"])
+                    last22 = K[-22:]
                     if pos["direction"] == "LONG":
-                        profit = px - entry
+                        ch_sl = max(k["h"] for k in last22) - 3.0 * a
+                        # тянем только вверх
+                        if ch_sl <= pos["sl"]:
+                            continue
+                        # не выше текущей цены минус 0.2*ATR (sanity)
+                        if ch_sl >= px - 0.2 * a:
+                            ch_sl = px - 0.2 * a
+                            if ch_sl <= pos["sl"]:
+                                continue
                     else:
-                        profit = entry - px
-                    if r_init <= 0:
-                        continue
-                    profit_R = profit / r_init
-                    if profit_R < 2.0:
-                        continue
-                    # сколько шагов 0.5R уже должно быть пройдено сверх +1.5R
-                    target_step = int((profit_R - 1.5) // 0.5)  # 1 при +2R, 2 при +2.5R
-                    cur_step = int(pos.get("trail_step") or 0)
-                    if target_step <= cur_step:
-                        continue
-                    # новый SL на (target_step * 0.5 + 0.5) R от entry
-                    new_sl_offset = (target_step * 0.5 + 0.5) * r_init
-                    if pos["direction"] == "LONG":
-                        new_sl = entry + new_sl_offset
-                    else:
-                        new_sl = entry - new_sl_offset
-                    # отменяем старый SL и ставим новый
-                    if pos.get("sl_order_id"):
-                        ex2.request("DELETE", "/openApi/swap/v2/trade/order",
-                                    {"symbol": sym, "orderId": pos["sl_order_id"]}, auth=True)
-                    pos_side = "LONG" if pos["direction"] == "LONG" else "SHORT"
-                    sl_side = "SELL" if pos["direction"] == "LONG" else "BUY"
-                    from ..signals.execute import get_contract, round_to
-                    c_info = get_contract(sym)
-                    pp = int(c_info.get("pricePrecision", 6))
-                    new_sl_r = round_to(new_sl, pp)
-                    r_new = ex2.place_order(
-                        symbol=sym, side=sl_side, positionSide=pos_side,
-                        type="STOP_MARKET", stopPrice=new_sl_r, quantity=pos["qty"],
-                        workingType="MARK_PRICE"
+                        ch_sl = min(k["l"] for k in last22) + 3.0 * a
+                        if ch_sl >= pos["sl"]:
+                            continue
+                        if ch_sl <= px + 0.2 * a:
+                            ch_sl = px + 0.2 * a
+                            if ch_sl >= pos["sl"]:
+                                continue
+                except Exception as e:
+                    print(f"chandelier {sym} err: {e}")
+                    continue
+                # переставляем SL
+                if pos.get("sl_order_id"):
+                    ex2.request("DELETE", "/openApi/swap/v2/trade/order",
+                                {"symbol": sym, "orderId": pos["sl_order_id"]}, auth=True)
+                pos_side = "LONG" if pos["direction"] == "LONG" else "SHORT"
+                sl_side = "SELL" if pos["direction"] == "LONG" else "BUY"
+                from ..signals.execute import get_contract, round_to
+                c_info = get_contract(sym)
+                pp = int(c_info.get("pricePrecision", 6))
+                new_sl_r = round_to(ch_sl, pp)
+                r_new = ex2.place_order(
+                    symbol=sym, side=sl_side, positionSide=pos_side,
+                    type="STOP_MARKET", stopPrice=new_sl_r, quantity=pos["qty"],
+                    workingType="MARK_PRICE"
+                )
+                if r_new.get("code") == 0:
+                    pos["sl"] = new_sl_r
+                    new_id = r_new.get("data", {}).get("order", {}).get("orderId")
+                    pos["sl_order_id"] = new_id
+                    journal.update_active(sym, sl=new_sl_r, sl_order_id=new_id)
+                    await bot.send_message(
+                        pos["chat_id"],
+                        f"CHAND: {sym} +{profit_R:.1f}R. SL → {new_sl_r}"
                     )
-                    if r_new.get("code") == 0:
-                        pos["sl"] = new_sl_r
-                        pos["trail_step"] = target_step
-                        new_id = r_new.get("data", {}).get("order", {}).get("orderId")
-                        pos["sl_order_id"] = new_id
-                        journal.update_active(sym, sl=new_sl_r, sl_order_id=new_id)
-                        await bot.send_message(
-                            pos["chat_id"],
-                            f"TRAIL: {sym} +{profit_R:.1f}R. SL → {new_sl_r}"
-                        )
                     continue
                 # текущая цена
                 t = ex2.get_ticker(sym)

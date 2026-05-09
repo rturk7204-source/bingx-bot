@@ -133,20 +133,10 @@ def open_trade(plan):
         return {"ok": False, "stage": "sl_failed_position_closed",
                 "msg": r_sl, "rounded": {"qty": qty, "sl": sl, "tp": tp}}
 
-    # 4) Take Profit — желателен, 3 попытки, но не блокер
-    r_tp = {"code": -1, "msg": "init"}
-    for attempt in range(3):
-        try:
-            r_tp = ex.place_order(
-                symbol=sym, side=sl_side, positionSide=pos_side,
-                type="TAKE_PROFIT_MARKET", stopPrice=tp, quantity=qty,
-                workingType="MARK_PRICE"
-            )
-            if r_tp.get("code") == 0: break
-        except Exception as e:
-            r_tp = {"code": -1, "msg": f"exception: {e}"}
-        import time as _t; _t.sleep(0.5)
-    tp_ok = r_tp.get("code") == 0
+    # 4) Take Profit ОТКЛЮЧЕН (chandelier-trail в monitor_positions ведёт выход).
+    # Бэктест 10d/18 alts: фикс TP=1.7R режет правый хвост (sum +61R), chandelier act+2R 3xATR даёт +111R.
+    r_tp = {"code": 0, "msg": "tp disabled (chandelier mode)"}
+    tp_ok = False
 
     return {
         "ok": True,
