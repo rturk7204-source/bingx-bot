@@ -23,25 +23,38 @@ def find_swings(klines, left=2, right=2):
 
 def detect_bos_choch(klines, swings):
     """Определяет последнее структурное событие.
-    BOS = пробой в направлении тренда. CHoCH = пробой против тренда."""
+    BOS = пробой в направлении тренда. CHoCH = пробой против тренда.
+    Берём ПОСЛЕДНИЙ swing любого типа и проверяем пробой именно его уровня —
+    это симметрично для LONG/SHORT и убирает баг с порядком свингов."""
     if len(swings) < 4:
         return None
     last_close = klines[-1]["c"]
-    # последние 2 high и 2 low
-    highs = [s for s in swings if s[2] == "H"][-3:]
-    lows = [s for s in swings if s[2] == "L"][-3:]
+    highs = [s for s in swings if s[2] == "H"]
+    lows  = [s for s in swings if s[2] == "L"]
     if len(highs) < 2 or len(lows) < 2:
         return None
+
+    # тренд по последним 2 H и 2 L
     last_h, prev_h = highs[-1], highs[-2]
-    last_l, prev_l = lows[-1], lows[-2]
-    # тренд: HH+HL = up, LH+LL = down
+    last_l, prev_l = lows[-1],  lows[-2]
     trend_up = last_h[1] > prev_h[1] and last_l[1] > prev_l[1]
     trend_dn = last_h[1] < prev_h[1] and last_l[1] < prev_l[1]
-    # пробой
-    if last_close > last_h[1]:
+
+    # Кандидаты пробоя: цена выше последнего H -> LONG, ниже последнего L -> SHORT.
+    # Если оба выполнены (редко) — выбираем тот, чей swing СВЕЖЕЕ.
+    long_break  = last_close > last_h[1]
+    short_break = last_close < last_l[1]
+
+    if long_break and short_break:
+        if last_h[0] >= last_l[0]:
+            short_break = False
+        else:
+            long_break = False
+
+    if long_break:
         return {"type": "BOS" if trend_up else "CHoCH", "dir": "LONG",
                 "level": last_h[1], "swing_idx": last_h[0]}
-    if last_close < last_l[1]:
+    if short_break:
         return {"type": "BOS" if trend_dn else "CHoCH", "dir": "SHORT",
                 "level": last_l[1], "swing_idx": last_l[0]}
     return None
@@ -54,7 +67,7 @@ def find_order_block(klines, event):
     direction = event["dir"]
     swing_idx = event["swing_idx"]
     # ищем от swing к ближайшей противоположной свече
-    for i in range(swing_idx, max(swing_idx - 10, 0), -1):
+    for i in range(swing_idx, max(swing_idx - 20, 0), -1):
         if i >= len(klines):
             continue
         k = klines[i]
