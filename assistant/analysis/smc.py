@@ -40,10 +40,17 @@ def detect_bos_choch(klines, swings):
     trend_up = last_h[1] > prev_h[1] and last_l[1] > prev_l[1]
     trend_dn = last_h[1] < prev_h[1] and last_l[1] < prev_l[1]
 
+    # Минимум на размер пробоя: 0.3 * ATR(14) — отсекаем микро-проколы.
+    n = min(14, len(klines)-1)
+    trs = [max(klines[i]["h"]-klines[i]["l"], abs(klines[i]["h"]-klines[i-1]["c"]),
+               abs(klines[i]["l"]-klines[i-1]["c"])) for i in range(len(klines)-n, len(klines))]
+    atr = sum(trs)/len(trs) if trs else 0
+    min_break = 0.3 * atr
+
     # Кандидаты пробоя: цена выше последнего H -> LONG, ниже последнего L -> SHORT.
-    # Если оба выполнены (редко) — выбираем тот, чей swing СВЕЖЕЕ.
-    long_break  = last_close > last_h[1]
-    short_break = last_close < last_l[1]
+    # Требуется реальный пробой минимум на 0.3 ATR, иначе это шум.
+    long_break  = last_close > last_h[1] + min_break
+    short_break = last_close < last_l[1] - min_break
 
     if long_break and short_break:
         if last_h[0] >= last_l[0]:
