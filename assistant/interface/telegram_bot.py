@@ -619,7 +619,7 @@ async def monitor_positions():
                         continue
                     last22 = K[-22:]
                     if pos["direction"] == "LONG":
-                        ch_sl = max(k["h"] for k in last22) - 3.0 * a
+                        ch_sl = max(k["h"] for k in last22) - 2.5 * a
                         # тянем только вверх
                         if ch_sl <= pos["sl"]:
                             continue
@@ -629,7 +629,7 @@ async def monitor_positions():
                             if ch_sl <= pos["sl"]:
                                 continue
                     else:
-                        ch_sl = min(k["l"] for k in last22) + 3.0 * a
+                        ch_sl = min(k["l"] for k in last22) + 2.5 * a
                         if ch_sl >= pos["sl"]:
                             continue
                         if ch_sl <= px + 0.2 * a:
@@ -664,61 +664,6 @@ async def monitor_positions():
                         f"CHAND: {sym} +{profit_R:.1f}R. SL → {new_sl_r}"
                     )
                     continue
-                # текущая цена
-                t = ex2.get_ticker(sym)
-                if t.get("code") != 0:
-                    continue
-                data = t.get("data", [])
-                if not data:
-                    continue
-                row = data[0] if isinstance(data, list) else data
-                px = float(row.get("lastPrice", 0))
-                if px == 0:
-                    continue
-
-                entry = pos["entry"]
-                sl = pos["sl"]
-                # 1R = расстояние от entry до SL
-                r_dist = abs(entry - sl)
-                if pos["direction"] == "LONG":
-                    profit = px - entry
-                else:
-                    profit = entry - px
-
-                if profit >= r_dist:  # достигли +1R
-                    # отменяем старый SL и ставим новый на BE
-                    if pos.get("sl_order_id"):
-                        ex2.request("DELETE", "/openApi/swap/v2/trade/order",
-                                    {"symbol": sym, "orderId": pos["sl_order_id"]}, auth=True)
-                    pos_side = "LONG" if pos["direction"] == "LONG" else "SHORT"
-                    sl_side = "SELL" if pos["direction"] == "LONG" else "BUY"
-                    # округление BE по precision
-                    from ..signals.execute import get_contract, round_to
-                    c_info = get_contract(sym)
-                    pp = int(c_info.get("pricePrecision", 6))
-                    be = round_to(pos["be"], pp)
-                    r_new = ex2.place_order(
-                        symbol=sym, side=sl_side, positionSide=pos_side,
-                        type="STOP_MARKET", stopPrice=be, quantity=pos["qty"],
-                        workingType="MARK_PRICE"
-                    )
-                    if r_new.get("code") == 0:
-                        pos["be_done"] = True
-                        pos["sl"] = be
-                        new_id = r_new.get("data", {}).get("order", {}).get("orderId")
-                        pos["sl_order_id"] = new_id
-                        journal.update_active(sym, be_done=1, sl=be, sl_order_id=new_id)
-                        if pos.get("trade_id"):
-                            journal.journal_be_moved(pos["trade_id"])
-                        await bot.send_message(
-                            pos["chat_id"],
-                            f"BE: {sym} {pos['direction']} достиг +1R. SL переставлен в безубыток ({be})."
-                        )
-                    else:
-                        await bot.send_message(
-                            pos["chat_id"],
-                            f"BE FAIL для {sym}: {r_new.get('msg', r_new)}"
-                        )
         except Exception as e:
             print(f"monitor err: {e}")
         await asyncio.sleep(30)
