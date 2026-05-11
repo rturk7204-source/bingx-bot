@@ -78,6 +78,17 @@ def check_quality(symbol, direction, entry, sl, tp, interval="15m"):
     K = fetch_klines(symbol, interval, 100)
     if len(K) < 30:
         return False, "мало баров для анализа", info
+
+    # 1e. SHORT-WICK FILTER (step9-10: +152R out-of-sample на 30 днях)
+    # SHORT с длинным нижним хвостом — покупатели сильны, плохой шорт.
+    if direction == "SHORT" and len(K) >= 1:
+        cur = K[-1]
+        body = abs(cur["c"] - cur["o"]) or 1e-12
+        lower_wick = min(cur["c"], cur["o"]) - cur["l"]
+        wick_ratio = lower_wick / body
+        info["lower_wick_ratio"] = round(wick_ratio, 2)
+        if wick_ratio > 0.2:
+            return False, f"SHORT с длинным нижним хвостом (lw/body={wick_ratio:.2f} > 0.2)", info
     R = abs(entry - sl)
     if R <= 0:
         return False, "R = 0", info
