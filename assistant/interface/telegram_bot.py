@@ -119,19 +119,39 @@ async def cmd_bal(m: Message):
     await m.answer(f"USDT (perp): ${bal:.2f}")
 
 
+# Сканер показывает ТОЛЬКО whitelist-сетапы со score >= 60 (те же критерии что у AUTO).
+# Backtest 90 дней: BOS+OB+FVG и CHoCH+OB+FVG дают +223R, остальное мусор.
+SCAN_WHITELIST_SETUPS = {"BOS+OB+FVG", "CHoCH+OB+FVG"}
+SCAN_MIN_SCORE = 60
+SCAN_MIN_SCORE_MAJOR = 55  # для крупняков порог чуть ниже т.к. RR обычно больше
+
+def _is_whitelist_setup(sig):
+    smc = (sig.get("detail") or {}).get("smc", "")
+    return smc in SCAN_WHITELIST_SETUPS
+
+def _quality_marker(score):
+    if score >= 75: return "\U0001F7E2 A-grade"
+    if score >= 65: return "\U0001F7E1 B-grade"
+    return "\u26AA C-grade"
+
+
 @dp.message(Command("scan"))
 async def cmd_scan(m: Message):
-    await m.answer("Сканирую: топ-100 альтов (15m) + крупняки (1h)...")
+    await m.answer("Сканирую: топ-100 альтов (15m) + крупняки (1h). Показываю только whitelist setups (BOS/CHoCH + OB + FVG) со score \u2265 60.")
     bal = get_balance_usdt()
 
     # 1) Альты
     uni = get_universe(limit=100)
     sigs = []
+    raw_alt_count = 0
     for row in uni:
         try:
             s = scoring.score_candidate(row)
-            if s and s["score"] >= 30:
-                sigs.append(s)
+            if s:
+                raw_alt_count += 1
+                # фильтр: whitelist setup + score >= 60
+                if s["score"] >= SCAN_MIN_SCORE and _is_whitelist_setup(s):
+                    sigs.append(s)
         except Exception:
             pass
         await asyncio.sleep(0.05)
@@ -140,21 +160,27 @@ async def cmd_scan(m: Message):
     # 2) Мажоры
     majors_rows = get_majors()
     majors_sigs = []
+    raw_maj_count = 0
     for row in majors_rows:
         try:
             s = score_major(row)
-            if s and s["score"] >= 25:
-                majors_sigs.append(s)
+            if s:
+                raw_maj_count += 1
+                if s["score"] >= SCAN_MIN_SCORE_MAJOR and _is_whitelist_setup(s):
+                    majors_sigs.append(s)
         except Exception:
             pass
         await asyncio.sleep(0.05)
     majors_sigs.sort(key=lambda x: -x["score"])
 
     if not sigs and not majors_sigs:
-        await m.answer("Ничего не прошло пороги. Рынок плоский.")
+        await m.answer(
+            f"Whitelist setups не найдено. Просканировано: {raw_alt_count} альтов + {raw_maj_count} крупняков.\n"
+            f"Рынок не даёт A-grade сетап. Это нормально \u2014 жди."
+        )
         return
 
-    await m.answer(f"Альты: {len(sigs)} | Крупняки: {len(majors_sigs)} | Баланс: ${bal:.2f}")
+    await m.answer(f"Whitelist setups: {len(sigs)} альт + {len(majors_sigs)} крупн (из {raw_alt_count}+{raw_maj_count}). Баланс: ${bal:.2f}")
 
     # 3) Альты — топ-10
     sent = 0
@@ -177,15 +203,15 @@ async def cmd_scan(m: Message):
                                       info=p_.get('quality_info'))
             except Exception: pass
             continue
-            continue
         plan_id = f"{p_['symbol']}_{int(time.time())}"
         PLANS[plan_id] = p_
         sent += 1
+        marker = _quality_marker(s.get("score", 0))
         kb = InlineKeyboardMarkup(inline_keyboard=[[
             InlineKeyboardButton(text="Открыть сделку", callback_data=f"open:{plan_id}"),
             InlineKeyboardButton(text="Пропустить", callback_data=f"skip:{plan_id}"),
         ]])
-        await m.answer(fmt_plan(p_), reply_markup=kb)
+        await m.answer(f"{marker}\n{fmt_plan(p_)}", reply_markup=kb)
 
     # 4) Крупняки — отдельным блоком
     if majors_sigs:
@@ -206,15 +232,15 @@ async def cmd_scan(m: Message):
                                       info=p_.get('quality_info'))
             except Exception: pass
             continue
-            continue
         plan_id = f"{p_['symbol']}_{int(time.time())}"
         PLANS[plan_id] = p_
         sent += 1
+        marker = _quality_marker(s.get("score", 0))
         kb = InlineKeyboardMarkup(inline_keyboard=[[
             InlineKeyboardButton(text="Открыть сделку", callback_data=f"open:{plan_id}"),
             InlineKeyboardButton(text="Пропустить", callback_data=f"skip:{plan_id}"),
         ]])
-        await m.answer(fmt_plan(p_), reply_markup=kb)
+        await m.answer(f"{marker}\n{fmt_plan(p_)}", reply_markup=kb)
 
     if sent == 0:
         await m.answer("Все кандидаты отбракованы:" + chr(10) + chr(10).join(rejected))
