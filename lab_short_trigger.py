@@ -19,12 +19,12 @@ sys.path.insert(0, "/root/bingx-bot")
 
 from assistant.core import exchange as ex
 from assistant.core import journal
+from assistant.core.config import TG_TOKEN, TG_CHAT_ID
 from assistant.signals.execute import get_contract, round_to
-import asyncio, os
+import asyncio
 from aiogram import Bot
 
-TG_TOKEN = os.environ.get("TELEGRAM_TOKEN") or open("/root/bingx-bot/.env").read().split("TELEGRAM_TOKEN=")[1].split("\n")[0].strip()
-CHAT_ID = 729951023
+CHAT_ID = int(TG_CHAT_ID) if TG_CHAT_ID else 729951023
 
 SYM = "LAB-USDT"
 DIR = "SHORT"
